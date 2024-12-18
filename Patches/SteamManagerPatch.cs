@@ -14,16 +14,16 @@ namespace SpeedrunMod.Patches
     {
         [HarmonyPatch("Update")]
         [HarmonyPrefix]
-        static void updatePatch()
+        static void UpdatePatch()
         {
             if(UnityEngine.Input.GetKey(UnityEngine.KeyCode.LeftAlt) && UnityEngine.Input.GetKeyDown(UnityEngine.KeyCode.O)) {
                 Plugin.Log.LogInfo("Revealing triggers");
-                Triggers.revealTriggers();
+                Triggers.RevealTriggers();
             }
             if (UnityEngine.Input.GetKey(UnityEngine.KeyCode.LeftAlt) && UnityEngine.Input.GetKeyDown(UnityEngine.KeyCode.P))
             {
                 Plugin.Log.LogInfo("Hiding triggers");
-                Triggers.hideTriggers();
+                Triggers.HideTriggers();
             }
         }
     }

@@ -2,6 +2,7 @@
 using BepInEx.Logging;
 using BepInEx.Unity.IL2CPP;
 using HarmonyLib;
+using SpeedrunMod.Events;
 using SpeedrunMod.Patches;
 
 namespace SpeedrunMod;
@@ -20,6 +21,8 @@ public class Plugin : BasePlugin
 
         harmony.PatchAll(typeof(Plugin));
         harmony.PatchAll(typeof(SteamManagerPatch));
+
+        SceneLoadedEvent.RegisterEvent();
 
         Log.LogInfo($"Plugin {MyPluginInfo.PLUGIN_GUID} is loaded!");
     }

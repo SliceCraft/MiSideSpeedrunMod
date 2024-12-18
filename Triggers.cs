@@ -11,9 +11,13 @@ namespace SpeedrunMod
 {
     internal class Triggers
     {
-        public static void revealTriggers()
+        private static List<GameObject> gameObjects = new List<GameObject>();
+        private static bool isRevealing = false;
+
+        public static void RevealTriggers()
         {
-            hideTriggers();
+            HideTriggers();
+            isRevealing = true;
             GameObject[] objects = UnityEngine.Object.FindObjectsOfType<GameObject>(true);
             foreach (GameObject obj in objects)
             {
@@ -47,20 +51,26 @@ namespace SpeedrunMod
                     mat.color = color;
 
                     meshRenderer.material = mat;
+
+                    gameObjects.Add(newObject);
                 }
             }
         }
 
-        public static void hideTriggers()
+        public static void HideTriggers()
         {
-            GameObject[] objects = UnityEngine.Object.FindObjectsOfType<GameObject>(true);
-            foreach (GameObject obj in objects)
+            isRevealing = false;
+            foreach (GameObject gameObject in gameObjects)
             {
-                if (obj.name.StartsWith("RevealBoxTrigger"))
-                {
-                    UnityEngine.Object.Destroy(obj);
-                }
+                if (gameObject == null) continue;
+                UnityEngine.Object.Destroy(gameObject);
             }
+            gameObjects.Clear();
+        }
+
+        public static bool IsRevealing()
+        {
+            return isRevealing;
         }
     }
 }
