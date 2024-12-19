@@ -2,9 +2,29 @@
 This mod is a tool intended to be used for testing MiSide speedrun strategies.
 
 # Features
-Currently this mod only has tools for visualizing triggers in the game.  
-By pressing `Alt + O` you will see all currently loaded triggers.  
-To hide the triggers again you can press `Alt + P`.
+This mod has some features that can be helpful for messing around with the game and seeing what things are possible.  
+ <table>
+  <tr>
+    <th>Shortcut</th>
+    <th>Name</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td>Alt + O</td>
+    <td>Toggle Triggers</td>
+    <td>This toggle will change whether or not you can see in game triggers.</td>
+  </tr>
+  <tr>
+    <td>Alt + P</td>
+    <td>Toggle Place Stops</td>
+    <td>Toggle the place stop display. Place stops are used by the game to prevent the player from going in a certain direction.</td>
+  </tr>
+  <tr>
+    <td>Alt + L</td>
+    <td>Toggle Running</td>
+    <td>Toggle whether or not you are allowed to run.</td>
+  </tr>
+</table> 
 
 # Installing
 Before you can install this mod you need to have BepInEx with Il2Cpp support installed, this can be downloaded on their [Bleeding Edge download page](https://builds.bepinex.dev/projects/bepinex_be).  
