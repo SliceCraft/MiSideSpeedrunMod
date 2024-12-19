@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace SpeedrunMod
+namespace SpeedrunMod.RevealSystems
 {
     internal class Triggers
     {
@@ -25,9 +25,9 @@ namespace SpeedrunMod
                 {
                     GameObject newObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
                     newObject.transform.position = obj.transform.position;
-                    newObject.transform.rotation = obj.transform.rotation;
-                    newObject.transform.localScale = obj.transform.localScale;
+                    newObject.transform.rotation = obj.transform.rotation;;
                     newObject.transform.parent = obj.transform;
+                    newObject.transform.localScale = new Vector3(1, 1, 1);
 
                     newObject.name = "RevealBox" + obj.name;
 

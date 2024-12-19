@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SpeedrunMod.RevealSystems;
 using UnityEngine.SceneManagement;
 
 namespace SpeedrunMod.Events
@@ -20,6 +21,11 @@ namespace SpeedrunMod.Events
             {
                 Plugin.Log.LogInfo("Revealing newly loaded triggers");
                 Triggers.RevealTriggers();
+            }
+            if (PlaceStop.IsRevealing())
+            {
+                Plugin.Log.LogInfo("Revealing newly loaded placestops");
+                PlaceStop.RevealPlaceStops();
             }
         }
     }
