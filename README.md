@@ -16,8 +16,8 @@ This mod has some features that can be helpful for messing around with the game 
   </tr>
   <tr>
     <td>Alt + P</td>
-    <td>Toggle Place Stops</td>
-    <td>Toggle the place stop display. Place stops are used by the game to prevent the player from going in a certain direction.</td>
+    <td>Toggle Place Stops (Experimental)</td>
+    <td>Toggle the place stop display. Place stops are used by the game to prevent the player from going in a certain direction. This feature is still somewhat experimental since there are places where they aren't properly detected yet.</td>
   </tr>
   <tr>
     <td>Alt + L</td>
