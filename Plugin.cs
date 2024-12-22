@@ -21,6 +21,7 @@ public class Plugin : BasePlugin
 
         harmony.PatchAll(typeof(Plugin));
         harmony.PatchAll(typeof(SteamManagerPatch));
+        harmony.PatchAll(typeof(ButtonMouseClickPatch));
 
         SceneLoadedEvent.RegisterEvent();
 

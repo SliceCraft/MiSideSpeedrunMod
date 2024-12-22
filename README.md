@@ -2,7 +2,12 @@
 This mod is a tool intended to be used for testing MiSide speedrun strategies.
 
 # Features
-This mod has some features that can be helpful for messing around with the game and seeing what things are possible.  
+This mod has multiple features that can be useful for messing around with the game or improving the quality of it.  
+
+## Fixes
+When pressing the start with a clean slate button the achievements will also be reset if this mod is enabled.
+
+## Toggles
  <table>
   <tr>
     <th>Shortcut</th>

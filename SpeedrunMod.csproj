@@ -4,7 +4,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <AssemblyName>SliceCraft.SpeedrunMod</AssemblyName>
     <Product>SpeedrunMod</Product>
-    <Version>1.1.0</Version>
+    <Version>1.1.1</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
     <RestoreAdditionalProjectSources>
@@ -14,6 +14,18 @@
     </RestoreAdditionalProjectSources>
     <RootNamespace>SpeedrunMod</RootNamespace>
   </PropertyGroup>
+
+  <ItemGroup>
+    <COMReference Include="mscoree">
+      <WrapperTool>tlbimp</WrapperTool>
+      <VersionMinor>4</VersionMinor>
+      <VersionMajor>2</VersionMajor>
+      <Guid>5477469e-83b1-11d2-8b49-00a0c9b7c9c4</Guid>
+      <Lcid>0</Lcid>
+      <Isolated>false</Isolated>
+      <EmbedInteropTypes>true</EmbedInteropTypes>
+    </COMReference>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="BepInEx.Unity.IL2CPP" Version="6.0.0-be.*" IncludeAssets="compile" />
@@ -38,6 +50,9 @@
     </Reference>
     <Reference Include="UnityEngine.PhysicsModule">
       <HintPath>C:\Program Files (x86)\Steam\steamapps\common\MiSide\BepInEx\interop\UnityEngine.PhysicsModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\MiSide\BepInEx\interop\UnityEngine.UI.dll</HintPath>
     </Reference>
   </ItemGroup>
 </Project>
