@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using SpeedrunMod.EventDisplay;
 using SpeedrunMod.Toggles;
+using SpeedrunMod.Utils;
 
 namespace SpeedrunMod.Patches
 {
@@ -12,6 +13,7 @@ namespace SpeedrunMod.Patches
         static void UpdatePatch()
         {
             EventManager.Update();
+            VersionText.Update();
             EnableRunToggle.Update();
             RevealPlaceStopToggle.Update();
             RevealTriggerToggle.Update();

@@ -1,4 +1,5 @@
 ﻿using SpeedrunMod.RevealSystems;
+using SpeedrunMod.Utils;
 using UnityEngine.SceneManagement;
 
 namespace SpeedrunMod.Events
@@ -12,6 +13,10 @@ namespace SpeedrunMod.Events
 
         private static void OnSceneLoaded(Scene scene, LoadSceneMode mode)
         {
+            if (scene.name == "SceneMenu")
+            {
+                VersionText.Start();
+            }
             if (Triggers.IsRevealing())
             {
                 Plugin.Log.LogInfo("Revealing newly loaded triggers");
