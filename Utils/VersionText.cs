@@ -49,14 +49,14 @@ public class VersionText
         speedrunVersionText.transform.position = pos;
             
         Text text = speedrunVersionText.GetComponent<Text>();
-        if (MyPluginInfo.PLUGIN_VERSION.Equals(NewestVersion))
-        {
-            text.text = $"Slice's Speedrun Mod : {MyPluginInfo.PLUGIN_VERSION}";
-        }
-        else
+        if (!MyPluginInfo.PLUGIN_VERSION.Equals(NewestVersion) && NewestVersion != null)
         {
             text.text = $"Slice's Speedrun Mod V{MyPluginInfo.PLUGIN_VERSION} : Version outdated, newest version is V{NewestVersion}";
             text.resizeTextForBestFit = true;
+        }
+        else
+        {
+            text.text = $"Slice's Speedrun Mod : V{MyPluginInfo.PLUGIN_VERSION}";
         }
     }
     
