@@ -9,6 +9,14 @@ public class VersionText
     // I know this is a bad way of adding the text, too bad
     private static float TimeUntilShow = 7f;
     private static bool IsShowing;
+    public static string NewestVersion = null;
+
+    public static void SkipWait()
+    {
+        Plugin.Log.LogInfo(TimeUntilShow);
+        TimeUntilShow = 2f;
+        Plugin.Log.LogInfo(TimeUntilShow);
+    }
     
     public static void Start()
     {
@@ -37,11 +45,19 @@ public class VersionText
         speedrunVersionText.name = "SpeedrunModVersionText";
         
         Vector3 pos = speedrunVersionText.transform.position;
-        pos.y -= 0.006f;
+        pos.y += 0.006f;
         speedrunVersionText.transform.position = pos;
             
         Text text = speedrunVersionText.GetComponent<Text>();
-        text.text = $"Slice's Speedrun Mod : {MyPluginInfo.PLUGIN_VERSION}";
+        if (MyPluginInfo.PLUGIN_VERSION.Equals(NewestVersion))
+        {
+            text.text = $"Slice's Speedrun Mod : {MyPluginInfo.PLUGIN_VERSION}";
+        }
+        else
+        {
+            text.text = $"Slice's Speedrun Mod V{MyPluginInfo.PLUGIN_VERSION} : Version outdated, newest version is V{NewestVersion}";
+            text.resizeTextForBestFit = true;
+        }
     }
     
     private static GameObject GetNameGameObject(GameObject menu)
