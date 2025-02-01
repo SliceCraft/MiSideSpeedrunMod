@@ -1,4 +1,5 @@
-﻿using SpeedrunMod.RevealSystems;
+﻿using SpeedrunMod.EventDisplay;
+using SpeedrunMod.RevealSystems;
 
 namespace SpeedrunMod.Toggles
 {
@@ -9,12 +10,12 @@ namespace SpeedrunMod.Toggles
             if (!UnityEngine.Input.GetKey(UnityEngine.KeyCode.LeftAlt) || !UnityEngine.Input.GetKeyDown(UnityEngine.KeyCode.O)) return;
             if (Triggers.IsRevealing())
             {
-                Plugin.Log.LogInfo("Hiding triggers");
+                EventManager.ShowEvent(new ModEvent("Trigger Toggle turned off"));
                 Triggers.HideTriggers();
             }
             else
             {
-                Plugin.Log.LogInfo("Revealing triggers");
+                EventManager.ShowEvent(new ModEvent("Trigger Toggle turned on"));
                 Triggers.RevealTriggers();
             }
         }

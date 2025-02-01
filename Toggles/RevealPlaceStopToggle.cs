@@ -1,4 +1,5 @@
-﻿using SpeedrunMod.RevealSystems;
+﻿using SpeedrunMod.EventDisplay;
+using SpeedrunMod.RevealSystems;
 
 namespace SpeedrunMod.Toggles
 {
@@ -10,11 +11,13 @@ namespace SpeedrunMod.Toggles
             if (PlaceStop.IsRevealing())
             {
                 Plugin.Log.LogInfo("Hiding placestops");
+                EventManager.ShowEvent(new ModEvent("Place stop toggle turned off"));
                 PlaceStop.HidePlaceStops();
             }
             else
             {
                 Plugin.Log.LogInfo("Revealing placestops");
+                EventManager.ShowEvent(new ModEvent("Place stop toggle turned on"));
                 PlaceStop.RevealPlaceStops();
             }
         }

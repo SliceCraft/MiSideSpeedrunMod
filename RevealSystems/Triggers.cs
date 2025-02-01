@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using SpeedrunMod.EventDisplay;
 using UnityEngine;
 
 namespace SpeedrunMod.RevealSystems
@@ -10,6 +11,7 @@ namespace SpeedrunMod.RevealSystems
 
         public static void RevealTriggers()
         {
+            EventManager.ShowEvent(new ModEvent("Revealing Triggers"));
             HideTriggers();
             isRevealing = true;
             Trigger_DistanceCamera[] objectsDC = UnityEngine.Object.FindObjectsByType<Trigger_DistanceCamera>(FindObjectsInactive.Include, FindObjectsSortMode.None);

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using SpeedrunMod.EventDisplay;
 using UnityEngine;
 
 namespace SpeedrunMod.RevealSystems
@@ -10,6 +11,7 @@ namespace SpeedrunMod.RevealSystems
 
         public static void RevealPlaceStops()
         {
+            EventManager.ShowEvent(new ModEvent("Revealing placestops"));
             HidePlaceStops();
             isRevealing = true;
             GameObject[] objects = UnityEngine.Object.FindObjectsOfType<GameObject>(true);
