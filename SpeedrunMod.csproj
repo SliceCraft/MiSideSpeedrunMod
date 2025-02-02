@@ -48,6 +48,9 @@
     <Reference Include="UnityEngine.CoreModule">
       <HintPath>C:\Program Files (x86)\Steam\steamapps\common\MiSide\BepInEx\interop\UnityEngine.CoreModule.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEngine.IMGUIModule">
+      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\MiSide\BepInEx\interop\UnityEngine.IMGUIModule.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine.InputLegacyModule">
       <HintPath>C:\Program Files (x86)\Steam\steamapps\common\MiSide\BepInEx\interop\UnityEngine.InputLegacyModule.dll</HintPath>
     </Reference>

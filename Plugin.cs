@@ -4,9 +4,12 @@ using BepInEx;
 using BepInEx.Logging;
 using BepInEx.Unity.IL2CPP;
 using HarmonyLib;
+using Il2CppInterop.Runtime.Injection;
 using SpeedrunMod.Events;
+using SpeedrunMod.ModSettings;
 using SpeedrunMod.Patches;
 using SpeedrunMod.Utils;
+using UnityEngine;
 
 namespace SpeedrunMod;
 
@@ -27,6 +30,9 @@ public class Plugin : BasePlugin
         harmony.PatchAll(typeof(ButtonMouseClickPatch));
 
         SceneLoadedEvent.RegisterEvent();
+
+        // Refer to ModSettings/MonoGUITest for why this is disabled
+        // ClassInjector.RegisterTypeInIl2Cpp<MonoGUITest>();
 
         GetVersion().Wait();
 
