@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using SpeedrunMod.EventDisplay;
+using SpeedrunMod.Practice;
 using SpeedrunMod.Toggles;
 using SpeedrunMod.Utils;
 
@@ -18,6 +19,7 @@ namespace SpeedrunMod.Patches
             RevealPlaceStopToggle.Update();
             RevealTriggerToggle.Update();
             SettingsToggle.Update();
+            PracticeManager.Update();
         }
     }
 }

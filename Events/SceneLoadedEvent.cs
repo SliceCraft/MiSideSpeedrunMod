@@ -1,4 +1,5 @@
 ﻿using SpeedrunMod.ModSettings;
+using SpeedrunMod.Practice;
 using SpeedrunMod.RevealSystems;
 using SpeedrunMod.Utils;
 using UnityEngine;
@@ -20,6 +21,7 @@ namespace SpeedrunMod.Events
             if (scene.name == "SceneMenu")
             {
                 VersionText.Start();
+                PracticeManager.SelectedGame = PracticeGames.None;
             }
             if (Triggers.IsRevealing())
             {
@@ -31,7 +33,7 @@ namespace SpeedrunMod.Events
                 Plugin.Log.LogInfo("Revealing newly loaded placestops");
                 PlaceStop.RevealPlaceStops();
             }
-            
+            PracticeManager.OnSceneLoad(scene);
         }
         
         // Refer to ModSettings/MonoGUITest for why this is disabled

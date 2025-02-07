@@ -14,6 +14,7 @@ using UnityEngine;
 namespace SpeedrunMod;
 
 [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
+[BepInDependency("SliceCraft.MenuLib")]
 public class Plugin : BasePlugin
 {
     internal static new ManualLogSource Log;
@@ -25,11 +26,10 @@ public class Plugin : BasePlugin
         // Plugin startup logic
         Log = base.Log;
 
-        harmony.PatchAll(typeof(Plugin));
-        harmony.PatchAll(typeof(SteamManagerPatch));
-        harmony.PatchAll(typeof(ButtonMouseClickPatch));
+        harmony.PatchAll();
 
         SceneLoadedEvent.RegisterEvent();
+        MenuInitializedEvent.RegisterEvent();
 
         // Refer to ModSettings/MonoGUITest for why this is disabled
         // ClassInjector.RegisterTypeInIl2Cpp<MonoGUITest>();

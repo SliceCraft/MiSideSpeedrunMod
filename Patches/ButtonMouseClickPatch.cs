@@ -26,8 +26,8 @@ namespace SpeedrunMod.Patches
             {
                 dataAchievementsValues.get = false;
             }
-
-            Menu menu = UnityEngine.Object.FindAnyObjectByType<Menu>();
+            
+            global::Menu menu = UnityEngine.Object.FindAnyObjectByType<global::Menu>();
             if (menu == null)
             {
                 Plugin.Log.LogInfo("Menu does not exist");
