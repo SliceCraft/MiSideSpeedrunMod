@@ -1,6 +1,7 @@
 ﻿using MenuLib.API;
 using MenuLib.API.Factories;
 using SpeedrunMod.Practice;
+using SpeedrunMod.Practice.MakeMannequin;
 using UnityEngine.SceneManagement;
 
 namespace SpeedrunMod.Menus.Practice;
@@ -23,6 +24,15 @@ public class PracticeMenu
             .SetNextLocation(menu) 
             .SetOnClick(Load2DCutting)
             .Build();
+        
+        // Disabled for now until I figure out how to make this work
+        // new MenuOptionFactory()
+        //     .SetName("MAKE MANNEQUIN")
+        //     .SetParent(menu)
+        //     .PlaceOptionBefore(menu.MenuOptions.Count - 1)
+        //     .SetNextLocation(menu) 
+        //     .SetOnClick(LoadMakeMannequin)
+        //     .Build();
 
         return menu;
     }
@@ -31,6 +41,13 @@ public class PracticeMenu
     {
         PracticeManager.SelectedGame = PracticeGames.TamagotchiCutting;
         GlobalGame.LoadingLevel = "Scene 1 - RealRoom";
+        SceneManager.LoadScene("SceneLoading");
+    }
+
+    private static void LoadMakeMannequin()
+    {
+        PracticeManager.SelectedGame = PracticeGames.MakeMannequin;
+        GlobalGame.LoadingLevel = "Scene 10 - ManekenWorld";
         SceneManager.LoadScene("SceneLoading");
     }
 }

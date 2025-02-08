@@ -3,5 +3,6 @@
 public enum PracticeGames
 {
     None,
-    TamagotchiCutting // 2DCutting
+    TamagotchiCutting, // 2DCutting
+    MakeMannequin
 }
