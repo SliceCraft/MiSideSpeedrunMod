@@ -22,6 +22,15 @@ namespace SpeedrunMod.Events
             {
                 VersionText.Start();
                 PracticeManager.SelectedGame = PracticeGames.None;
+                if (PlaceStop.IsRevealing())
+                {
+                    PlaceStop.HidePlaceStops();
+                }
+
+                if (Triggers.IsRevealing())
+                {
+                    Triggers.HideTriggers();
+                }
             }
             if (Triggers.IsRevealing())
             {
