@@ -17,7 +17,7 @@ namespace SpeedrunMod.Toggles
             else
             {
                 Plugin.Log.LogInfo("Revealing placestops");
-                EventManager.ShowEvent(new ModEvent("Place stop toggle turned on"));
+                EventManager.ShowEvent(new ModEvent("Deprecated: Place stop toggle turned on"));
                 PlaceStop.RevealPlaceStops();
             }
         }
