@@ -1,12 +1,11 @@
 ﻿using MenuLib.API;
 using MenuLib.API.Factories;
 using SpeedrunMod.Practice;
-using SpeedrunMod.Practice.MakeMannequin;
 using UnityEngine.SceneManagement;
 
 namespace SpeedrunMod.Menus.Practice;
 
-public class PracticeMenu
+public static class PracticeMenu
 {
     public static GameMenu CreateMenu(GameMenu previousMenu)
     {

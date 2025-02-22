@@ -1,72 +1,73 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using SpeedrunMod.EventDisplay;
 using UnityEngine;
 
-namespace SpeedrunMod.RevealSystems
+namespace SpeedrunMod.RevealSystems;
+
+internal static class PlaceStop
 {
-    internal class PlaceStop
+    private static readonly List<GameObject> GameObjects = [];
+    private static bool _isRevealing;
+    private static readonly int Color = Shader.PropertyToID("_Color");
+    private static readonly int Mode = Shader.PropertyToID("_Mode");
+    private static readonly int SrcBlend = Shader.PropertyToID("_SrcBlend");
+    private static readonly int DstBlend = Shader.PropertyToID("_DstBlend");
+
+    public static void RevealPlaceStops()
     {
-        private static List<GameObject> gameObjects = new List<GameObject>();
-        private static bool isRevealing = false;
-
-        public static void RevealPlaceStops()
+        EventManager.ShowEvent(new ModEvent("Revealing placestops"));
+        HidePlaceStops();
+        _isRevealing = true;
+        GameObject[] objects = Object.FindObjectsOfType<GameObject>(true);
+        foreach (GameObject obj in objects)
         {
-            EventManager.ShowEvent(new ModEvent("Revealing placestops"));
-            HidePlaceStops();
-            isRevealing = true;
-            GameObject[] objects = UnityEngine.Object.FindObjectsOfType<GameObject>(true);
-            foreach (GameObject obj in objects)
-            {
-                if (obj.name.StartsWith("PlaceStop"))
-                {
-                    GameObject newObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                    newObject.transform.position = obj.transform.position;
-                    newObject.transform.rotation = obj.transform.rotation;
-                    newObject.transform.parent = obj.transform;
-                    newObject.transform.localScale = new Vector3(1, 1, 1);
+            if (!obj.name.StartsWith("PlaceStop")) continue;
+            GameObject newObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            newObject.transform.position = obj.transform.position;
+            newObject.transform.rotation = obj.transform.rotation;
+            newObject.transform.parent = obj.transform;
+            newObject.transform.localScale = new Vector3(1, 1, 1);
 
-                    newObject.name = "RevealBox" + obj.name;
+            newObject.name = "RevealBox" + obj.name;
 
-                    newObject.GetComponent<BoxCollider>().enabled = false;
+            newObject.GetComponent<BoxCollider>().enabled = false;
 
-                    MeshRenderer meshRenderer = newObject.GetComponent<MeshRenderer>();
+            MeshRenderer meshRenderer = newObject.GetComponent<MeshRenderer>();
 
-                    Material mat = new Material(Shader.Find("Standard"));
-                    mat.SetColor("_Color", new UnityEngine.Color(0, 1, 0, .5f));
-                    mat.SetFloat("_Mode", 3);
-                    mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
-                    mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-                    mat.EnableKeyword("_ALPHABLEND_ON");
-                    mat.renderQueue = 3000;
+            Material mat = new Material(Shader.Find("Standard"));
+            mat.SetColor(Color, new Color(0, 1, 0, .5f));
+            mat.SetFloat(Mode, 3);
+            mat.SetInt(SrcBlend, (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+            mat.SetInt(DstBlend, (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+            mat.EnableKeyword("_ALPHABLEND_ON");
+            mat.renderQueue = 3000;
 
-                    UnityEngine.Color color = mat.color;
-                    color.a = .5f;
-                    color.r = 0;
-                    color.g = 1;
-                    color.b = 0;
-                    mat.color = color;
+            Color color = mat.color;
+            color.a = .5f;
+            color.r = 0;
+            color.g = 1;
+            color.b = 0;
+            mat.color = color;
 
-                    meshRenderer.material = mat;
+            meshRenderer.material = mat;
 
-                    gameObjects.Add(newObject);
-                }
-            }
+            GameObjects.Add(newObject);
         }
+    }
 
-        public static void HidePlaceStops()
+    public static void HidePlaceStops()
+    {
+        _isRevealing = false;
+        foreach (GameObject gameObject in GameObjects.Where(gameObject => gameObject != null))
         {
-            isRevealing = false;
-            foreach (GameObject gameObject in gameObjects)
-            {
-                if (gameObject == null) continue;
-                UnityEngine.Object.Destroy(gameObject);
-            }
-            gameObjects.Clear();
+            Object.Destroy(gameObject);
         }
+        GameObjects.Clear();
+    }
 
-        public static bool IsRevealing()
-        {
-            return isRevealing;
-        }
+    public static bool IsRevealing()
+    {
+        return _isRevealing;
     }
 }

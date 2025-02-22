@@ -2,9 +2,9 @@
 
 namespace SpeedrunMod.Utils;
 
-public class TamagotchiUtil
+public static class TamagotchiUtil
 {
-    public static Tamagotchi_Main StartTamagotchi()
+    private static Tamagotchi_Main StartTamagotchi()
     {
         Tamagotchi_Main tamagotchiMain = Object.FindObjectOfType<Tamagotchi_Main>(true);
         if (tamagotchiMain == null)

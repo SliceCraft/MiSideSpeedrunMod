@@ -1,23 +1,22 @@
 ﻿using SpeedrunMod.EventDisplay;
 using SpeedrunMod.RevealSystems;
 
-namespace SpeedrunMod.Toggles
+namespace SpeedrunMod.Toggles;
+
+internal static class RevealTriggerToggle
 {
-    internal class RevealTriggerToggle
+    public static void Update()
     {
-        public static void Update()
+        if (!UnityEngine.Input.GetKey(UnityEngine.KeyCode.LeftAlt) || !UnityEngine.Input.GetKeyDown(UnityEngine.KeyCode.O)) return;
+        if (Triggers.IsRevealing())
         {
-            if (!UnityEngine.Input.GetKey(UnityEngine.KeyCode.LeftAlt) || !UnityEngine.Input.GetKeyDown(UnityEngine.KeyCode.O)) return;
-            if (Triggers.IsRevealing())
-            {
-                EventManager.ShowEvent(new ModEvent("Trigger Toggle turned off"));
-                Triggers.HideTriggers();
-            }
-            else
-            {
-                EventManager.ShowEvent(new ModEvent("Trigger Toggle turned on"));
-                Triggers.RevealTriggers();
-            }
+            EventManager.ShowEvent(new ModEvent("Trigger Toggle turned off"));
+            Triggers.HideTriggers();
+        }
+        else
+        {
+            EventManager.ShowEvent(new ModEvent("Trigger Toggle turned on"));
+            Triggers.RevealTriggers();
         }
     }
 }

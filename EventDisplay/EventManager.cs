@@ -1,20 +1,20 @@
 ﻿using System.Collections.Generic;
-using Il2CppSystem.Diagnostics.Tracing;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace SpeedrunMod.EventDisplay;
 
-public class EventManager
+public static class EventManager
 {
-    private static GameObject HintScreenTemplate;
-    private static GameObject InterfaceObject;
-    private static List<ModEvent> EventObjects = new();
-    
+    private static GameObject _hintScreenTemplate;
+    private static GameObject _interfaceObject;
+    private static readonly List<ModEvent> EventObjects = [];
+    private static readonly int Hide = Animator.StringToHash("Hide");
+
     public static void ShowEvent(ModEvent modEvent)
     {
         EnsureObjectsSelected();
-        GameObject go = Object.Instantiate(HintScreenTemplate, InterfaceObject.gameObject.transform);
+        GameObject go = Object.Instantiate(_hintScreenTemplate, _interfaceObject.gameObject.transform);
 
         Text text = go.GetComponentInChildren<Text>();
         text.text = modEvent.EventString;
@@ -26,7 +26,7 @@ public class EventManager
         go.SetActive(true);
     }
 
-    public static void UpdatePositions()
+    private static void UpdatePositions()
     {
         for (int i = EventObjects.Count - 1; i >= 0; i--)
         {
@@ -39,7 +39,7 @@ public class EventManager
 
     public static void Update()
     {
-        List<ModEvent> objectsToBeRemoved = new();
+        List<ModEvent> objectsToBeRemoved = [];
         
         foreach (ModEvent modEvent in EventObjects)
         {
@@ -48,7 +48,7 @@ public class EventManager
             
             if (modEvent.TimeUntilHide <= 0)
             {
-                modEvent.HintObject.GetComponent<Animator>().SetBool("Hide", true);
+                modEvent.HintObject.GetComponent<Animator>().SetBool(Hide, true);
                 // Prevent the hide animation from playing again
                 modEvent.TimeUntilHide = 1e10f;
             }
@@ -59,9 +59,8 @@ public class EventManager
             }
         }
 
-        for(int i = 0; i < objectsToBeRemoved.Count; i++)
+        foreach (ModEvent modEvent in objectsToBeRemoved)
         {
-            ModEvent modEvent = objectsToBeRemoved[i];
             EventObjects.Remove(modEvent);
             Object.Destroy(modEvent.HintObject);
         }
@@ -74,7 +73,7 @@ public class EventManager
 
     private static void EnsureObjectsSelected()
     {
-        if (HintScreenTemplate != null || InterfaceObject != null)
+        if (_hintScreenTemplate != null || _interfaceObject != null)
         {
             return;
         }
@@ -101,7 +100,7 @@ public class EventManager
             return;
         }
 
-        InterfaceObject = interfaceObject;
+        _interfaceObject = interfaceObject;
         
         GameObject hintScreenObject = null;
         for (int i = 0; i < interfaceObject.transform.childCount; i++)
@@ -119,6 +118,6 @@ public class EventManager
             return;
         }
 
-        HintScreenTemplate = hintScreenObject;
+        _hintScreenTemplate = hintScreenObject;
     } 
 }

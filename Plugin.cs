@@ -4,28 +4,26 @@ using BepInEx;
 using BepInEx.Logging;
 using BepInEx.Unity.IL2CPP;
 using HarmonyLib;
-using Il2CppInterop.Runtime.Injection;
 using SpeedrunMod.Events;
-using SpeedrunMod.Patches;
 using SpeedrunMod.Utils;
-using UnityEngine;
 
 namespace SpeedrunMod;
 
 [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
 [BepInDependency("SliceCraft.MenuLib")]
+// ReSharper disable once ClassNeverInstantiated.Global
 public class Plugin : BasePlugin
 {
-    internal static new ManualLogSource Log;
+    internal new static ManualLogSource Log;
 
-    private readonly Harmony harmony = new Harmony(MyPluginInfo.PLUGIN_GUID);
+    private readonly Harmony _harmony = new(MyPluginInfo.PLUGIN_GUID);
 
     public override void Load()
     {
         // Plugin startup logic
         Log = base.Log;
 
-        harmony.PatchAll();
+        _harmony.PatchAll();
 
         SceneLoadedEvent.RegisterEvent();
         MenuInitializedEvent.RegisterEvent();
@@ -34,8 +32,8 @@ public class Plugin : BasePlugin
 
         Log.LogInfo($"Plugin {MyPluginInfo.PLUGIN_GUID} is loaded!");
     }
-    
-    static async Task GetVersion()
+
+    private static async Task GetVersion()
     {
         // Call asynchronous network methods in a try/catch block to handle exceptions.
         try
@@ -46,7 +44,7 @@ public class Plugin : BasePlugin
             string responseBody = await response.Content.ReadAsStringAsync();
             VersionText.NewestVersion = responseBody;
         }
-        catch (HttpRequestException e)
+        catch (HttpRequestException)
         {
             Log.LogError("Unable to request version");
         }

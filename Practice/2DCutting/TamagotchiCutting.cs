@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace SpeedrunMod.Practice._2DCutting;
 
-public class TamagotchiCutting
+public static class TamagotchiCutting
 {
     private static bool _loadQueued;
     private static GameObject _cookingClone;
@@ -28,8 +28,8 @@ public class TamagotchiCutting
             ReloadGame();
         }
     }
-    
-    public static void Load()
+
+    private static void Load()
     {
         CleanupStartingScene();
         _tamagotchiMain = TamagotchiUtil.StartTamagotchi(0);
@@ -59,8 +59,8 @@ public class TamagotchiCutting
         
         _tamagotchiMain.MiniGamePlay(miniGame);
     }
-    
-    public static void CleanupStartingScene()
+
+    private static void CleanupStartingScene()
     {
         World gameWorld = Object.FindObjectOfType<World>();
         
@@ -75,7 +75,7 @@ public class TamagotchiCutting
         gameTransform.Find("Quests").gameObject.active = false;
     }
 
-    public static void ReloadGame()
+    private static void ReloadGame()
     {
         GameObject go = Object.Instantiate(_cookingClone, _cookingClone.transform.parent);
 

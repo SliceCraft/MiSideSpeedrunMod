@@ -4,10 +4,10 @@ using UnityEngine.SceneManagement;
 
 namespace SpeedrunMod.Practice;
 
-public class PracticeManager
+public static class PracticeManager
 {
-    public static PracticeGames SelectedGame = PracticeGames.None;
-    
+    public static PracticeGames SelectedGame { get; set; }  = PracticeGames.None;
+
     public static void OnSceneLoad(Scene scene)
     {
         if(SelectedGame == PracticeGames.None) return;
@@ -18,6 +18,9 @@ public class PracticeManager
                 break;
             case PracticeGames.MakeMannequin:
                 if(scene.name == "Scene 10 - ManekenWorld") MannequinMinigame.QueueLoad();
+                break;
+            case PracticeGames.None:
+            default:
                 break;
         }
     }
@@ -32,6 +35,9 @@ public class PracticeManager
                 break;
             case PracticeGames.MakeMannequin:
                 MannequinMinigame.Update();
+                break;
+            case PracticeGames.None:
+            default:
                 break;
         }
     }

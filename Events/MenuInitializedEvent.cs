@@ -5,7 +5,7 @@ using SpeedrunMod.Menus;
 
 namespace SpeedrunMod.Events;
 
-public class MenuInitializedEvent
+public static class MenuInitializedEvent
 {
     public static void RegisterEvent()
     {

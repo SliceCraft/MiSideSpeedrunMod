@@ -1,43 +1,33 @@
 ﻿using UnityEngine;
-using UnityEngine.PlayerLoop;
 using UnityEngine.UI;
 
 namespace SpeedrunMod.Utils;
 
-public class VersionText
+public static class VersionText
 {
     // I know this is a bad way of adding the text, too bad
-    private static float TimeUntilShow = 7f;
-    private static bool IsShowing;
-    public static string NewestVersion = null;
-
-    public static void SkipWait()
-    {
-        Plugin.Log.LogInfo(TimeUntilShow);
-        TimeUntilShow = 2f;
-        Plugin.Log.LogInfo(TimeUntilShow);
-    }
+    private static float _timeUntilShow = 7f;
+    private static bool _isShowing;
+    public static string NewestVersion { get; set; }
 
     public static void Start()
     {
-        TimeUntilShow = 7f;
-        IsShowing = false;
+        _timeUntilShow = 7f;
+        _isShowing = false;
         // Test();
     }
 
     public static void Update()
     {
-        TimeUntilShow -= Time.deltaTime;
-        if (TimeUntilShow <= 0 && !IsShowing)
-        {
-            IsShowing = true;
-            AddVersionText();
-        }
+        _timeUntilShow -= Time.deltaTime;
+        if (!(_timeUntilShow <= 0) || _isShowing) return;
+        _isShowing = true;
+        AddVersionText();
     }
 
-    public static void AddVersionText()
+    private static void AddVersionText()
     {
-        global::Menu menu = Object.FindObjectOfType<global::Menu>(true);
+        Menu menu = Object.FindObjectOfType<Menu>(true);
         GameObject nameGameObject = GetNameGameObject(menu.gameObject);
         if(DoesVersionTextExist(nameGameObject)) return;
         GameObject textVersionObject = GetTextVersionObject(nameGameObject);
@@ -66,14 +56,12 @@ public class VersionText
         for (int i = 0; i < menu.transform.childCount; i++)
         {
             GameObject child = menu.transform.GetChild(i).gameObject;
-            if (child.name.Equals("Canvas"))
+            switch (child.name)
             {
-                return GetNameGameObject(child);
-            }
-            
-            if (child.name.Equals("NameGame"))
-            {
-                return child;
+                case "Canvas":
+                    return GetNameGameObject(child);
+                case "NameGame":
+                    return child;
             }
         }
         return null;

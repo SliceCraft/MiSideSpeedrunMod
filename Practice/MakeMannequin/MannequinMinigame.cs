@@ -1,9 +1,8 @@
-﻿using SpeedrunMod.Utils;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace SpeedrunMod.Practice.MakeMannequin;
 
-public class MannequinMinigame
+public static class MannequinMinigame
 {
     private static bool _loadQueued;
     private static bool _automateLoadQueued;
@@ -28,14 +27,10 @@ public class MannequinMinigame
             _minigamesAutomate.StartLoading();
         }
 
-        if (_minigamesAutomate != null)
-        {
-            if (_minigamesAutomate.asyncLoading.isDone && _minigamesAutomate.loading)
-            {
-                _minigamesAutomate.loading = false;
-                _minigamesAutomate.StartGame();
-            }
-        }
+        if (_minigamesAutomate == null) return;
+        if (!_minigamesAutomate.asyncLoading.isDone || !_minigamesAutomate.loading) return;
+        _minigamesAutomate.loading = false;
+        _minigamesAutomate.StartGame();
 
         // if (_cookingGameObject == null && _cookingClone != null)
         // {
@@ -43,7 +38,7 @@ public class MannequinMinigame
         // }
     }
 
-    public static void Load()
+    private static void Load()
     {
         _minigamesAutomate = Object.FindObjectOfType<MinigamesAutomate>(true);
         if (_minigamesAutomate == null)
@@ -58,8 +53,16 @@ public class MannequinMinigame
 
     private static void EnsureParentsLoaded(GameObject go)
     {
-        go.active = true;
-        if(go.transform.parent != null) EnsureParentsLoaded(go.transform.parent.gameObject);
-    }
+        while (go != null)
+        {
+            go.active = true;
+            if (go.transform.parent != null)
+            {
+                go = go.transform.parent.gameObject;
+                continue;
+            }
 
+            break;
+        }
+    }
 }

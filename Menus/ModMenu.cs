@@ -4,7 +4,7 @@ using SpeedrunMod.Menus.Practice;
 
 namespace SpeedrunMod.Menus;
 
-public class ModMenu
+public static class ModMenu
 {
     public static void CreateMenu(GameMenu menu)
     {

@@ -1,6 +1,4 @@
 ﻿using HarmonyLib;
-using SpeedrunMod.Practice;
-using SpeedrunMod.Practice.MakeMannequin;
 
 namespace SpeedrunMod.Patches;
 
