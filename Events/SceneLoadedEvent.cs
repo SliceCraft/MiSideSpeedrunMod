@@ -1,5 +1,4 @@
-﻿using SpeedrunMod.ModSettings;
-using SpeedrunMod.Practice;
+﻿using SpeedrunMod.Practice;
 using SpeedrunMod.RevealSystems;
 using SpeedrunMod.Utils;
 using UnityEngine;
@@ -16,8 +15,6 @@ namespace SpeedrunMod.Events
 
         private static void OnSceneLoaded(Scene scene, LoadSceneMode mode)
         {
-            // Refer to ModSettings/MonoGUITest for why this is disabled
-            // if(!MonoGUIAvailable()) AttachMonoGUI();
             if (scene.name == "SceneMenu")
             {
                 VersionText.Start();
@@ -44,24 +41,5 @@ namespace SpeedrunMod.Events
             }
             PracticeManager.OnSceneLoad(scene);
         }
-        
-        // Refer to ModSettings/MonoGUITest for why this is disabled
-        // private static bool MonoGUIAvailable()
-        // {
-        //     return Object.FindObjectOfType<MonoGUITest>() != null;
-        // }
-        
-        // Refer to ModSettings/MonoGUITest for why this is disabled
-        // private static void AttachMonoGUI()
-        // {
-        //     SteamManager sm = Object.FindObjectOfType<SteamManager>();
-        //     if (sm == null)
-        //     {
-        //         Plugin.Log.LogError("Unable to find the SteamManager, can't attach MonoGUI");
-        //         return;
-        //     }
-        //
-        //     sm.gameObject.AddComponent<MonoGUITest>();
-        // }
     }
 }

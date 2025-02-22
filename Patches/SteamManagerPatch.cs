@@ -18,7 +18,6 @@ namespace SpeedrunMod.Patches
             EnableRunToggle.Update();
             RevealPlaceStopToggle.Update();
             RevealTriggerToggle.Update();
-            SettingsToggle.Update();
             PracticeManager.Update();
         }
     }
