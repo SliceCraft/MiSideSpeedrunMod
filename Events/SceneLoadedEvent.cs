@@ -7,7 +7,7 @@ namespace SpeedrunMod.Events;
 
 internal static class SceneLoadedEvent
 {
-    public static void RegisterEvent()
+    internal static void RegisterEvent()
     {
         SceneManager.sceneLoaded += (UnityEngine.Events.UnityAction<Scene, LoadSceneMode>)OnSceneLoaded;
     }

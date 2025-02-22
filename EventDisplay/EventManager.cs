@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 namespace SpeedrunMod.EventDisplay;
 
-public static class EventManager
+internal static class EventManager
 {
     private static GameObject _hintScreenTemplate;
     private static GameObject _interfaceObject;
@@ -37,7 +37,7 @@ public static class EventManager
         }
     }
 
-    public static void Update()
+    internal static void Update()
     {
         List<ModEvent> objectsToBeRemoved = [];
         

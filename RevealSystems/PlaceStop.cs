@@ -13,8 +13,8 @@ internal static class PlaceStop
     private static readonly int Mode = Shader.PropertyToID("_Mode");
     private static readonly int SrcBlend = Shader.PropertyToID("_SrcBlend");
     private static readonly int DstBlend = Shader.PropertyToID("_DstBlend");
-
-    public static void RevealPlaceStops()
+    
+    internal static void RevealPlaceStops()
     {
         EventManager.ShowEvent(new ModEvent("Revealing placestops"));
         HidePlaceStops();
@@ -56,7 +56,7 @@ internal static class PlaceStop
         }
     }
 
-    public static void HidePlaceStops()
+    internal static void HidePlaceStops()
     {
         _isRevealing = false;
         foreach (GameObject gameObject in GameObjects.Where(gameObject => gameObject != null))

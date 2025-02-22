@@ -2,10 +2,10 @@
 
 namespace SpeedrunMod.EventDisplay;
 
-public class ModEvent(string eventString)
+internal class ModEvent(string eventString)
 {
     public string EventString { get; } = eventString;
-    public GameObject HintObject = null;
-    public float TimeUntilHide = 5f;
-    public float TimeUntilDestroy = 6f;
+    internal GameObject HintObject = null;
+    internal float TimeUntilHide = 5f;
+    internal float TimeUntilDestroy = 6f;
 }

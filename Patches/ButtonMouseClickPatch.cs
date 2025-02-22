@@ -9,7 +9,7 @@ internal class ButtonMouseClickPatch
     [HarmonyPatch(nameof(ButtonMouseClick.PointerDown))]
     [HarmonyPostfix]
     // ReSharper disable once InconsistentNaming
-    public static void PointerDownPatch(ButtonMouseClick __instance)
+    private static void PointerDownPatch(ButtonMouseClick __instance)
     {
         /* I'm assuming that if we hit the reset button we can just execute the code.
          * Been having a lot of issues with finding out if the button is allowed to be pressed so I will just assume that this button will never be disabled.

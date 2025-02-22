@@ -8,7 +8,7 @@ public static class PracticeManager
 {
     public static PracticeGames SelectedGame { get; set; }  = PracticeGames.None;
 
-    public static void OnSceneLoad(Scene scene)
+    internal static void OnSceneLoad(Scene scene)
     {
         if(SelectedGame == PracticeGames.None) return;
         switch (SelectedGame)
@@ -25,7 +25,7 @@ public static class PracticeManager
         }
     }
 
-    public static void Update()
+    internal static void Update()
     {
         if(SelectedGame == PracticeGames.None) return;
         switch (SelectedGame)

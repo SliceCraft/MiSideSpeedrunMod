@@ -5,7 +5,7 @@ namespace SpeedrunMod.Toggles;
 
 internal static class RevealTriggerToggle
 {
-    public static void Update()
+    internal static void Update()
     {
         if (!UnityEngine.Input.GetKey(UnityEngine.KeyCode.LeftAlt) || !UnityEngine.Input.GetKeyDown(UnityEngine.KeyCode.O)) return;
         if (Triggers.IsRevealing())

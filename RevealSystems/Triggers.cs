@@ -14,7 +14,7 @@ internal static class Triggers
     private static readonly int SrcBlend = Shader.PropertyToID("_SrcBlend");
     private static readonly int DstBlend = Shader.PropertyToID("_DstBlend");
 
-    public static void RevealTriggers()
+    internal static void RevealTriggers()
     {
         EventManager.ShowEvent(new ModEvent("Revealing Triggers"));
         HideTriggers();
@@ -170,7 +170,7 @@ internal static class Triggers
         GameObjects.Add(newObject);
     }
 
-    public static void HideTriggers()
+    internal static void HideTriggers()
     {
         _isRevealing = false;
         foreach (GameObject gameObject in GameObjects.Where(gameObject => gameObject != null))

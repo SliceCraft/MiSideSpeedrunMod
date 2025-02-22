@@ -4,7 +4,7 @@ namespace SpeedrunMod.Toggles;
 
 internal static class EnableRunToggle
 {
-    public static void Update()
+    internal static void Update()
     {
         if (!UnityEngine.Input.GetKey(UnityEngine.KeyCode.LeftAlt) || !UnityEngine.Input.GetKeyDown(UnityEngine.KeyCode.L)) return;
         PlayerMove playerMove = UnityEngine.Object.FindObjectOfType<PlayerMove>();

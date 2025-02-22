@@ -15,7 +15,7 @@ public static class TamagotchiCutting
         _loadQueued = true;
     }
 
-    public static void Update()
+    internal static void Update()
     {
         if (_loadQueued)
         {

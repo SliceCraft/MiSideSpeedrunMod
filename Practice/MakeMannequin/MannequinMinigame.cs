@@ -13,7 +13,7 @@ public static class MannequinMinigame
         _loadQueued = true;
     }
 
-    public static void Update()
+    internal static void Update()
     {
         if (_loadQueued)
         {
