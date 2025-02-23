@@ -12,7 +12,7 @@ namespace SpeedrunMod;
 [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
 [BepInDependency("SliceCraft.MenuLib")]
 // ReSharper disable once ClassNeverInstantiated.Global
-public class Plugin : BasePlugin
+internal class Plugin : BasePlugin
 {
     internal new static ManualLogSource Log;
 

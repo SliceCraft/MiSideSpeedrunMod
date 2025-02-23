@@ -3,21 +3,21 @@ using UnityEngine.UI;
 
 namespace SpeedrunMod.Utils;
 
-public static class VersionText
+internal static class VersionText
 {
     // I know this is a bad way of adding the text, too bad
     private static float _timeUntilShow = 7f;
     private static bool _isShowing;
-    public static string NewestVersion { get; set; }
+    internal static string NewestVersion { get; set; }
 
-    public static void Start()
+    internal static void Start()
     {
         _timeUntilShow = 7f;
         _isShowing = false;
         // Test();
     }
 
-    public static void Update()
+    internal static void Update()
     {
         _timeUntilShow -= Time.deltaTime;
         if (!(_timeUntilShow <= 0) || _isShowing) return;
