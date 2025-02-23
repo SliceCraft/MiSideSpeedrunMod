@@ -1,5 +1,5 @@
-﻿using SpeedrunMod.Practice._2DCutting;
-using SpeedrunMod.Practice.MakeMannequin;
+﻿using SpeedrunMod.Practice.MakeMannequin;
+using SpeedrunMod.Practice.StartOfGame;
 using UnityEngine.SceneManagement;
 
 namespace SpeedrunMod.Practice;
@@ -18,6 +18,9 @@ public static class PracticeManager
                 break;
             case PracticeGames.MakeMannequin:
                 if(scene.name == "Scene 10 - ManekenWorld") MannequinMinigame.QueueLoad();
+                break;
+            case PracticeGames.FullRunStartOfGame:
+                if(scene.name == "Scene 2 - InGame") FullRunStartOfGame.StartRun();
                 break;
             case PracticeGames.None:
             default:

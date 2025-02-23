@@ -13,6 +13,15 @@ public static class PracticeMenu
             .SetTitle("PRACTICE")
             .SetBackButton(previousMenu)
             .Build();
+
+        GameMenu startOfGameMenu = StartOfGamePracticeMenu.CreateMenu(menu);
+        
+        new MenuOptionFactory()
+            .SetName("START OF GAME")
+            .SetParent(menu)
+            .PlaceOptionBefore(menu.MenuOptions.Count - 1)
+            .SetNextLocation(startOfGameMenu) 
+            .Build();
         
         // Yes it's redirecting to itself, the onclick action will
         // go to a different scene meaning that we don't need to load a next location 

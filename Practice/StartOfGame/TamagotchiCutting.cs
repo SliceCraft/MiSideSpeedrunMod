@@ -1,7 +1,7 @@
 ﻿using SpeedrunMod.Utils;
 using UnityEngine;
 
-namespace SpeedrunMod.Practice._2DCutting;
+namespace SpeedrunMod.Practice.StartOfGame;
 
 public static class TamagotchiCutting
 {
