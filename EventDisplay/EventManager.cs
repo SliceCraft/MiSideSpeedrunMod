@@ -43,6 +43,12 @@ internal static class EventManager
         
         foreach (ModEvent modEvent in EventObjects)
         {
+            if (modEvent.HintObject == null)
+            {
+                objectsToBeRemoved.Add(modEvent);
+                continue;
+            }
+            
             modEvent.TimeUntilHide -= Time.deltaTime;
             modEvent.TimeUntilDestroy -= Time.deltaTime;
             
