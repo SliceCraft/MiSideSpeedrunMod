@@ -1,6 +1,7 @@
 ﻿using System.Net.Http;
 using System.Threading.Tasks;
 using BepInEx;
+using BepInEx.Configuration;
 using BepInEx.Logging;
 using BepInEx.Unity.IL2CPP;
 using HarmonyLib;
@@ -15,6 +16,7 @@ namespace SpeedrunMod;
 internal class Plugin : BasePlugin
 {
     internal new static ManualLogSource Log;
+    internal static ConfigEntry<bool> configEnableDialogueSkip;
 
     private readonly Harmony _harmony = new(MyPluginInfo.PLUGIN_GUID);
 
@@ -22,6 +24,9 @@ internal class Plugin : BasePlugin
     {
         // Plugin startup logic
         Log = base.Log;
+        
+        configEnableDialogueSkip = Config.Bind("Automatic", "EnableDialogueSkip", false, "Enable the dialogue skip on game startup (NOTE: This value is automatically controlled by the mod)");
+        GlobalGame.canSkipDialogue = configEnableDialogueSkip.Value;
 
         _harmony.PatchAll();
 
