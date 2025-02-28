@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 
 namespace SpeedrunMod.Menus.Practice;
 
-public class StartOfGamePracticeMenu
+public static class StartOfGamePracticeMenu
 {
     public static GameMenu CreateMenu(GameMenu previousMenu)
     {
@@ -22,7 +22,22 @@ public class StartOfGamePracticeMenu
             .SetNextLocation(menu) 
             .SetOnClick(FullRunStartOfGame.StartRun)
             .Build();
+        
+        // new MenuOptionFactory()
+        //     .SetName("FULL TAMAGOTCHI RUN")
+        //     .SetParent(menu)
+        //     .PlaceOptionBefore(menu.MenuOptions.Count - 1)
+        //     .SetNextLocation(menu) 
+        //     .SetOnClick(LoadTamagotchiRun)
+        //     .Build();
 
         return menu;
+    }
+    
+    private static void LoadTamagotchiRun()
+    {
+        PracticeManager.SelectedGame = PracticeGames.FullTamagotchiRun;
+        GlobalGame.LoadingLevel = "Scene 1 - RealRoom";
+        SceneManager.LoadScene("SceneLoading");
     }
 }

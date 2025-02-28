@@ -16,6 +16,9 @@ public static class PracticeManager
             case PracticeGames.TamagotchiCutting:
                 if(scene.name == "Scene 1 - RealRoom") TamagotchiCutting.QueueLoad();
                 break;
+            case PracticeGames.FullTamagotchiRun:
+                if(scene.name == "Scene 1 - RealRoom") FullTamagotchiRun.QueueLoad();
+                break;
             case PracticeGames.MakeMannequin:
                 if(scene.name == "Scene 10 - ManekenWorld") MannequinMinigame.QueueLoad();
                 break;
@@ -36,10 +39,14 @@ public static class PracticeManager
             case PracticeGames.TamagotchiCutting:
                 TamagotchiCutting.Update();
                 break;
+            case PracticeGames.FullTamagotchiRun:
+                FullTamagotchiRun.Update();
+                break;
             case PracticeGames.MakeMannequin:
                 MannequinMinigame.Update();
                 break;
             case PracticeGames.None:
+            case PracticeGames.FullRunStartOfGame:
             default:
                 break;
         }
