@@ -4,8 +4,13 @@ This mod is a tool intended to be used for practicing speedruns or testing theor
 # Features
 This mod has multiple features that can be useful for messing around with the game or giving you the chance to practice individual parts.  
 
+## Practice modes
+In the main menu you can go to `Settings->Mods->Speedrun Mod->Practice` to play specific parts of the game to practice them.  
+These parts will automatically restart when you reach the end.
+
 ## Fixes
-When pressing the start with a clean slate button the achievements will also be reset if this mod is enabled.
+- When pressing the start with a clean slate button the achievements will also be reset if this mod is enabled.
+- When toggling `skipdialogue` the mod will remember the state of this toggle. Meaning when you restart the game you will keep this toggle in the state that you had before you quit the game.
 
 ## Toggles
  <table>
