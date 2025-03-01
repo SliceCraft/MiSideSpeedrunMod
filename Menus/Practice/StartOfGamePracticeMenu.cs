@@ -30,6 +30,14 @@ public static class StartOfGamePracticeMenu
         //     .SetNextLocation(menu) 
         //     .SetOnClick(LoadTamagotchiRun)
         //     .Build();
+        
+        new MenuOptionFactory()
+            .SetName("CARROT CUTTING")
+            .SetParent(menu)
+            .PlaceOptionBefore(menu.MenuOptions.Count - 1)
+            .SetNextLocation(menu) 
+            .SetOnClick(Load2DCutting)
+            .Build();
 
         return menu;
     }
@@ -37,6 +45,13 @@ public static class StartOfGamePracticeMenu
     private static void LoadTamagotchiRun()
     {
         PracticeManager.SelectedGame = PracticeGames.FullTamagotchiRun;
+        GlobalGame.LoadingLevel = "Scene 1 - RealRoom";
+        SceneManager.LoadScene("SceneLoading");
+    }
+    
+    private static void Load2DCutting()
+    {
+        PracticeManager.SelectedGame = PracticeGames.TamagotchiCutting;
         GlobalGame.LoadingLevel = "Scene 1 - RealRoom";
         SceneManager.LoadScene("SceneLoading");
     }
