@@ -23,6 +23,13 @@ public static class StartOfGamePracticeMenu
             .SetOnClick(FullRunStartOfGame.StartRun)
             .Build();
         
+        // TODO: Put tutorial close button here
+        
+        new MenuOptionFactory()
+            .SetParent(menu)
+            .PlaceOptionBefore(menu.MenuOptions.Count - 1)
+            .BuildMenuDivider();
+        
         // new MenuOptionFactory()
         //     .SetName("FULL TAMAGOTCHI RUN")
         //     .SetParent(menu)
