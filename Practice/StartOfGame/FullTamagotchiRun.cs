@@ -69,25 +69,28 @@ public static class FullTamagotchiRun
 
         _smartPhone = _gameWorld.transform.Find("World RealRoom/Smartphone").gameObject;
         
+        GameObject gameControlerGameObject = Object.FindObjectOfType<GameController>().gameObject;
+        gameControlerGameObject.transform.Find("Player").gameObject.active = true;
+        
         GameObject mobileInteractive = _gameWorld.transform.Find("World RealRoom/Interactives/Interactive Mobile").gameObject;
         mobileInteractive.active = true;
         ObjectInteractive mobileInteractiveObject = mobileInteractive.GetComponent<ObjectInteractive>();
         mobileInteractiveObject.active = true;
-        
-        CleanupStartingScene(_gameWorld);
 
-        _queueMobileInteractiveClick = 600;
+        _queueMobileInteractiveClick = 3;
 
         // TODO: Reload when loading scene 2
     }
 
     private static void MobileButtonInteractiveClick()
     {
+        CleanupStartingScene(_gameWorld);
+        
         GameObject mobileInteractive = _gameWorld.transform.Find("World RealRoom/Interactives/Interactive Mobile").gameObject;
         ObjectInteractive mobileInteractiveObject = mobileInteractive.GetComponent<ObjectInteractive>();
         mobileInteractiveObject.Click();
         
-        _queueButtonActivate = 600;
+        _queueButtonActivate = 3;
     }
 
     private static void ButtonActivate()
