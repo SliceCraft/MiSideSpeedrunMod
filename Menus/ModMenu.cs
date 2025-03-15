@@ -7,6 +7,7 @@ namespace SpeedrunMod.Menus;
 
 public static class ModMenu
 {
+    private static bool _outdated = (!MyPluginInfo.PLUGIN_VERSION.Equals(VersionText.NewestVersion) && VersionText.NewestVersion != null);
     public static void CreateMenu(GameMenu menu)
     {
         GameMenu practiceMenu = PracticeMenu.CreateMenu(menu);
@@ -22,40 +23,21 @@ public static class ModMenu
             .SetParent(menu)
             .PlaceOptionBefore(menu.MenuOptions.Count - 1)
             .BuildMenuDivider();
-        //The text inside the button could be changed to be shorter - Erik
-        if (!MyPluginInfo.PLUGIN_VERSION.Equals(VersionText.NewestVersion) && VersionText.NewestVersion != null)
-        {
-            new MenuOptionFactory()
-                .SetName("INSTALL LATEST VERSION FROM GITHUB")
-                .SetParent(menu)
-                .PlaceOptionBefore(menu.MenuOptions.Count - 1)
-                .SetNextLocation(menu)
-                .SetOnClick(OpenGithub)
-                .Build();
-        }
-        else
-        {
-            new MenuOptionFactory()
-                .SetName("GITHUB PAGE")
-                .SetParent(menu)
-                .PlaceOptionBefore(menu.MenuOptions.Count - 1)
-                .SetNextLocation(menu)
-                .SetOnClick(OpenGithub)
-                .Build();
-        }
+        
+        new MenuOptionFactory()
+            .SetName(name: _outdated?"INSTALL LATEST VERSION FROM GITHUB":"GITHUB PAGE")
+            .SetParent(menu)
+            .PlaceOptionBefore(menu.MenuOptions.Count - 1)
+            .SetNextLocation(menu)
+            .SetOnClick(OpenGithub)
+            .Build();
     }
     
     private static void OpenGithub()
     {
-        if (!MyPluginInfo.PLUGIN_VERSION.Equals(VersionText.NewestVersion) && VersionText.NewestVersion != null)
-        {
-            Application.OpenURL(
-                url: $"https://github.com/SliceCraft/MiSideSpeedrunMod/releases/tag/{VersionText.NewestVersion}");
-        }
-        else
-        {
-            Application.OpenURL(
-                url: $"https://github.com/SliceCraft/MiSideSpeedrunMod");
-        }
+        Application.OpenURL(
+            url: _outdated
+                ? $"https://github.com/SliceCraft/MiSideSpeedrunMod/releases/tag/{VersionText.NewestVersion}"
+                : $"https://github.com/SliceCraft/MiSideSpeedrunMod");
     }
 }
