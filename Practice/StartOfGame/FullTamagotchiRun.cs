@@ -4,7 +4,7 @@ namespace SpeedrunMod.Practice.StartOfGame;
 
 public static class FullTamagotchiRun
 {
-    private static bool _loadQueued;
+    private static int _loadQueued;
     
     // Surely there is a better way then just waiting a few frames before performing the actions
     // It'd be nice to improve on this since it does cost a few frames, but it's not hindering too much
@@ -17,7 +17,7 @@ public static class FullTamagotchiRun
     
     public static void QueueLoad()
     {
-        _loadQueued = true;
+        _loadQueued = 30;
         
         // We reset these values since QueueLoad is used to reset the environment back to zero
         // It's a bit more complicated then that but that's the general gist of it
@@ -28,10 +28,13 @@ public static class FullTamagotchiRun
 
     internal static void Update()
     {
-        if (_loadQueued)
+        if (_loadQueued > 0)
         {
-            _loadQueued = false;
-            Load();
+            _loadQueued--;
+            if (_loadQueued == 0)
+            {
+                Load();
+            }
         }
         
         if (_queueMobileInteractiveClick > 0)
@@ -76,21 +79,22 @@ public static class FullTamagotchiRun
         mobileInteractive.active = true;
         ObjectInteractive mobileInteractiveObject = mobileInteractive.GetComponent<ObjectInteractive>();
         mobileInteractiveObject.active = true;
+        
+        CleanupStartingScene(_gameWorld);
 
-        _queueMobileInteractiveClick = 3;
+        _queueMobileInteractiveClick = 600;
 
         // TODO: Reload when loading scene 2
     }
 
     private static void MobileButtonInteractiveClick()
     {
-        CleanupStartingScene(_gameWorld);
         
         GameObject mobileInteractive = _gameWorld.transform.Find("World RealRoom/Interactives/Interactive Mobile").gameObject;
         ObjectInteractive mobileInteractiveObject = mobileInteractive.GetComponent<ObjectInteractive>();
         mobileInteractiveObject.Click();
         
-        _queueButtonActivate = 3;
+        _queueButtonActivate = 600;
     }
 
     private static void ButtonActivate()
@@ -100,7 +104,7 @@ public static class FullTamagotchiRun
         GameObject playButton = _smartPhone.transform.Find("3D HintKey Play").gameObject;
         playButton.active = true;
         
-        _queueButtonClick = 3;
+        _queueButtonClick = 600;
     }
 
     private static void ButtonClick()
@@ -119,6 +123,6 @@ public static class FullTamagotchiRun
         }
         
         Transform gameTransform = gameWorld.gameObject.transform;
-        gameTransform.Find("CutScenes").gameObject.active = false;
+        gameTransform.Find("CutScenes/CutScene 1 (ДЕНЬ 1)").gameObject.active = false;
     }
 }

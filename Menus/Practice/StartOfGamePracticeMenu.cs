@@ -30,13 +30,13 @@ public static class StartOfGamePracticeMenu
             .PlaceOptionBefore(menu.MenuOptions.Count - 1)
             .BuildMenuDivider();
         
-        // new MenuOptionFactory()
-        //     .SetName("FULL TAMAGOTCHI RUN")
-        //     .SetParent(menu)
-        //     .PlaceOptionBefore(menu.MenuOptions.Count - 1)
-        //     .SetNextLocation(menu) 
-        //     .SetOnClick(LoadTamagotchiRun)
-        //     .Build();
+        new MenuOptionFactory()
+            .SetName("FULL TAMAGOTCHI RUN")
+            .SetParent(menu)
+            .PlaceOptionBefore(menu.MenuOptions.Count - 1)
+            .SetNextLocation(menu) 
+            .SetOnClick(LoadTamagotchiRun)
+            .Build();
         
         new MenuOptionFactory()
             .SetName("CARROT CUTTING")
