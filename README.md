@@ -25,11 +25,6 @@ These parts will automatically restart when you reach the end.
     <td>This toggle will change whether or not you can see in game triggers.</td>
   </tr>
   <tr>
-    <td>Alt + P</td>
-    <td>Toggle Place Stops (Deprecated)</td>
-    <td>Toggle the place stop display. Place stops are used by the game to prevent the player from going in a certain direction. This feature has been deprecated and will be removed soon.</td>
-  </tr>
-  <tr>
     <td>Alt + L</td>
     <td>Toggle Running</td>
     <td>Toggle whether or not you are allowed to run.</td>
