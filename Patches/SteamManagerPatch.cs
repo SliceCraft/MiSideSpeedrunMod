@@ -16,7 +16,6 @@ internal class SteamManagerPatch
         EventManager.Update();
         VersionText.Update();
         EnableRunToggle.Update();
-        RevealPlaceStopToggle.Update();
         RevealTriggerToggle.Update();
         PracticeManager.Update();
     }
