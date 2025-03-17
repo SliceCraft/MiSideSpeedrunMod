@@ -3,185 +3,114 @@ using System.Linq;
 using SpeedrunMod.EventDisplay;
 using UnityEngine;
 
-namespace SpeedrunMod.RevealSystems;
-
-internal static class Triggers
+namespace SpeedrunMod.RevealSystems
 {
-    private static readonly List<GameObject> GameObjects = [];
-    private static bool _isRevealing;
-    private static readonly int Color = Shader.PropertyToID("_Color");
-    private static readonly int Mode = Shader.PropertyToID("_Mode");
-    private static readonly int SrcBlend = Shader.PropertyToID("_SrcBlend");
-    private static readonly int DstBlend = Shader.PropertyToID("_DstBlend");
-
-    internal static void RevealTriggers()
+    //First commit has all the comments, will be deleted with subsequent commits.
+    internal static class Triggers
     {
-        EventManager.ShowEvent(new ModEvent("Revealing Triggers"));
-        HideTriggers();
-        _isRevealing = true;
-        Trigger_DistanceCamera[] objectsDc = Object.FindObjectsByType<Trigger_DistanceCamera>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-        foreach (Trigger_DistanceCamera obj in objectsDc)
+        private static readonly List<GameObject> GameObjects = new List<GameObject>();
+        private static bool _isRevealing;
+        private static readonly int Color = Shader.PropertyToID("_Color");
+        private static readonly int Mode = Shader.PropertyToID("_Mode");
+        private static readonly int SrcBlend = Shader.PropertyToID("_SrcBlend");
+        private static readonly int DstBlend = Shader.PropertyToID("_DstBlend");
+
+        internal static void RevealTriggers()
         {
-            GameObject gameObject = obj.gameObject;
-            AddTriggerRevealer(gameObject, "distancecamera");
+            EventManager.ShowEvent(new ModEvent("Revealing Triggers"));
+            HideTriggers();
+            _isRevealing = true;
+
+            // Process each type of trigger
+            ProcessTriggers<Trigger_DistanceCamera>("distancecamera");
+            ProcessTriggers<Trigger_DistanceCheck>("distancecheck");
+            ProcessTriggers<Trigger_DistanceCircle>("distancecircle");
+            ProcessTriggers<Trigger_Event>("event");
+            ProcessTriggers<Trigger_MouseClick>("mouseclick");
+            ProcessTriggers<Trigger_MouseEvent>("mouseevent");
+            ProcessTriggers<Trigger_Teleport>("teleport");
+            ProcessTriggers<Trigger_Zoom>("zoom");
         }
 
-        Trigger_DistanceCheck[] objectsDch = Object.FindObjectsByType<Trigger_DistanceCheck>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-        foreach (Trigger_DistanceCheck obj in objectsDch)
+        // General method to process triggers based on type, will be changed to handle an enumerable instead.
+        private static void ProcessTriggers<T>(string type) where T : Component
         {
-            GameObject gameObject = obj.gameObject;
-            AddTriggerRevealer(gameObject, "distancecheck");
+            var objects = Object.FindObjectsByType<T>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            foreach (var obj in objects)
+            {
+                GameObject gameObject = obj.gameObject;
+                AddTriggerRevealer(gameObject, type);
+            }
+        }
+        
+        //Separated into different methods to keep everything tidy and readable.
+        private static void AddTriggerRevealer(GameObject gameObject, string type)
+        {
+            GameObject newObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            newObject.transform.SetParent(gameObject.transform, false);
+            newObject.name = "RevealBox" + gameObject.name;
+            //Currently working on bringing these to life.
+            //GameObject canvasGUI = new GameObject("Canvas " + gameObject.name);
+            //GameObject textGUI = new GameObject("Text " + gameObject.name);
+            //Plugin.Log.LogInfo("Creating canvas and text");
+
+            // Set up material for the new object
+            SetMaterialForObject(newObject, type);
+
+            // Disable collider and store in list
+            newObject.GetComponent<BoxCollider>().enabled = false;
+            GameObjects.Add(newObject);
+        }
+        
+        //Since this will handle the color of the material, Im going to change it to use an enumerable instead.
+        //The text will also get its color from here.
+        //The material will be changed from the standard material to the unlit material to save on resources and to avoid them being hidden during dark scenes (like in "The Loop")
+        private static void SetMaterialForObject(GameObject newObject, string type)
+        {
+            MeshRenderer meshRenderer = newObject.GetComponent<MeshRenderer>();
+            Material mat = new Material(Shader.Find("Standard"));
+
+            switch (type)
+            {
+                case "distancecamera":
+                    mat.SetColor(Color, new Color(0.98f, 0.0f, 0.0f, .5f)); break; //When is this ever used? 
+                case "distancecheck":
+                    mat.SetColor(Color, new Color(1f, 0.4f, 0.0f, .5f)); break; //Wonder why have 3 similar types of triggers.
+                case "distancecircle":
+                    mat.SetColor(Color, new Color(0.0f, 0.2f, 0.98f, .5f)); break;//Since this is a "circle", would it be better to render it as a different primitive?
+                case "event":
+                    mat.SetColor(Color, new Color(0.0f, 0.97f, 0.0f, .5f)); break; //Green being distinctive is the best, as this is the most common trigger type.
+                case "mouseclick":
+                    mat.SetColor(Color, new Color(0.3f, 1f, 1f, .5f)); break; //The most problematic trigger, it clutters the screen during the beggining of the game. Do minigames afterwards use a different type of trigger?
+                case "mouseevent":
+                    mat.SetColor(Color, new Color(0.99f, 0.9f, 0.0f, .5f)); break; //From my testing, this name is deceptive, it check if the camara is looking at it, used in tandem with a distance check
+                case "teleport":
+                    mat.SetColor(Color, new Color(0.9f, 0.2f, 0.7f, .5f)); break; //Despite my best efforts, this still looks blueish.
+                case "zoom":
+                    mat.SetColor(Color, new Color(0.8f, 0.8f, 0.8f, .5f)); break; //Not the best, but works well enough - it either shows shadowy or darkens any color as it overlays.
+            }
+            mat.SetFloat(Mode, 3);
+            mat.SetInt(SrcBlend, (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+            mat.SetInt(DstBlend, (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+            mat.EnableKeyword("_ALPHABLEND_ON");
+            mat.renderQueue = 3000;
+
+            meshRenderer.material = mat;
         }
 
-        Trigger_DistanceCircle[] objectsDci = Object.FindObjectsByType<Trigger_DistanceCircle>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-        foreach (Trigger_DistanceCircle obj in objectsDci)
+        internal static void HideTriggers()
         {
-            GameObject gameObject = obj.gameObject;
-            AddTriggerRevealer(gameObject, "distancecircle");
+            _isRevealing = false;
+            foreach (GameObject gameObject in GameObjects.Where(gameObject => gameObject != null))
+            {
+                Object.Destroy(gameObject);
+            }
+            GameObjects.Clear();
         }
 
-        Trigger_Event[] objectsE = Object.FindObjectsByType<Trigger_Event>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-        foreach (Trigger_Event obj in objectsE)
+        public static bool IsRevealing()
         {
-            GameObject gameObject = obj.gameObject;
-            AddTriggerRevealer(gameObject, "event");
+            return _isRevealing;
         }
-
-        Trigger_MouseClick[] objectsMc = Object.FindObjectsByType<Trigger_MouseClick>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-        foreach (Trigger_MouseClick obj in objectsMc)
-        {
-            GameObject gameObject = obj.gameObject;
-            AddTriggerRevealer(gameObject, "mouseclick");
-        }
-
-        Trigger_MouseEvent[] objectsMe = Object.FindObjectsByType<Trigger_MouseEvent>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-        foreach (Trigger_MouseEvent obj in objectsMe)
-        {
-            GameObject gameObject = obj.gameObject;
-            AddTriggerRevealer(gameObject, "mouseevent");
-        }
-
-        Trigger_Teleport[] objectsTp = Object.FindObjectsByType<Trigger_Teleport>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-        foreach (Trigger_Teleport obj in objectsTp)
-        {
-            GameObject gameObject = obj.gameObject;
-            AddTriggerRevealer(gameObject, "teleport");
-        }
-
-        Trigger_Zoom[] objectsZ = Object.FindObjectsByType<Trigger_Zoom>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-        foreach (Trigger_Zoom obj in objectsZ)
-        {
-            GameObject gameObject = obj.gameObject;
-            AddTriggerRevealer(gameObject, "zoom");
-        }
-    }
-
-    // TODO: Type should become an enum
-    private static void AddTriggerRevealer(GameObject gameObject, string type)
-    {
-        GameObject newObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        newObject.transform.position = gameObject.transform.position;
-        newObject.transform.rotation = gameObject.transform.rotation;
-        newObject.transform.parent = gameObject.transform;
-        newObject.transform.localScale = new Vector3(1, 1, 1);
-
-        newObject.name = "RevealBox" + gameObject.name;
-
-        newObject.GetComponent<BoxCollider>().enabled = false;
-
-        MeshRenderer meshRenderer = newObject.GetComponent<MeshRenderer>();
-
-        Material mat = new Material(Shader.Find("Standard"));
-        switch (type)
-        {
-            case "distancecamera":
-                mat.SetColor(Color, new Color(0.98f, 0.48f, 0.46f, .5f)); break;
-            case "distancecheck":
-                mat.SetColor(Color, new Color(0.99f, 0.75f, 0.44f, .5f)); break;
-            case "distancecircle":
-                mat.SetColor(Color, new Color(0.95f, 0.97f, 0.49f, .5f)); break;
-            case "event":
-                mat.SetColor(Color, new Color(0.59f, 0.97f, 0.52f, .5f)); break;
-            case "mouseclick":
-                mat.SetColor(Color, new Color(0.41f, 0.92f, 0.98f, .5f)); break;
-            case "mouseevent":
-                mat.SetColor(Color, new Color(0.42f, 0.61f, 0.98f, .5f)); break;
-            case "teleport":
-                mat.SetColor(Color, new Color(0.57f, 0.49f, 0.97f, .5f)); break;
-            case "zoom":
-                mat.SetColor(Color, new Color(0.97f, 0.55f, 0.94f, .5f)); break;
-        }
-        mat.SetColor(Color, new Color(1, 0, 0, .5f));
-        mat.SetFloat(Mode, 3);
-        mat.SetInt(SrcBlend, (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
-        mat.SetInt(DstBlend, (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-        mat.EnableKeyword("_ALPHABLEND_ON");
-        mat.renderQueue = 3000;
-
-        Color color = mat.color;
-        color.a = .5f;
-        switch (type)
-        {
-            case "distancecamera":
-                color.r = 0.98f;
-                color.g = 0.48f;
-                color.b = 0.46f;
-                break;
-            case "distancecheck":
-                color.r = 0.99f;
-                color.g = 0.75f;
-                color.b = 0.44f;
-                break;
-            case "distancecircle":
-                color.r = 0.95f;
-                color.g = 0.97f;
-                color.b = 0.49f;
-                break;
-            case "event":
-                color.r = 0.59f;
-                color.g = 0.97f;
-                color.b = 0.52f;
-                break;
-            case "mouseclick":
-                color.r = 0.41f;
-                color.g = 0.92f;
-                color.b = 0.98f;
-                break;
-            case "mouseevent":
-                color.r = 0.42f;
-                color.g = 0.61f;
-                color.b = 0.98f;
-                break;
-            case "teleport":
-                color.r = 0.57f;
-                color.g = 0.49f;
-                color.b = 0.97f;
-                break;
-            case "zoom":
-                color.r = 0.97f;
-                color.g = 0.55f;
-                color.b = 0.94f;
-                break;
-        }
-        mat.color = color;
-
-        meshRenderer.material = mat;
-
-        GameObjects.Add(newObject);
-    }
-
-    internal static void HideTriggers()
-    {
-        _isRevealing = false;
-        foreach (GameObject gameObject in GameObjects.Where(gameObject => gameObject != null))
-        {
-            Object.Destroy(gameObject);
-        }
-        GameObjects.Clear();
-    }
-
-    public static bool IsRevealing()
-    {
-        return _isRevealing;
     }
 }
