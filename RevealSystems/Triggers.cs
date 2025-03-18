@@ -62,9 +62,6 @@ namespace SpeedrunMod.RevealSystems
             GameObjects.Add(newObject);
         }
         
-        //Since this will handle the color of the material, Im going to change it to use an enumerable instead.
-        //The text will also get its color from here.
-        //The material will be changed from the standard material to the unlit material to save on resources and to avoid them being hidden during dark scenes (like in "The Loop")
         private static void SetMaterialForObject(GameObject newObject, string type)
         {
             MeshRenderer meshRenderer = newObject.GetComponent<MeshRenderer>();
@@ -73,22 +70,25 @@ namespace SpeedrunMod.RevealSystems
             switch (type)
             {
                 case "distancecamera":
-                    mat.SetColor(Color, new Color(0.98f, 0.0f, 0.0f, .5f)); break; //When is this ever used? 
+                    mat.SetColor(Color, new Color(0.98f, 0.0f, 0.0f, .2f)); break;
                 case "distancecheck":
-                    mat.SetColor(Color, new Color(1f, 0.4f, 0.0f, .5f)); break; //Wonder why have 3 similar types of triggers.
+                    mat.SetColor(Color, new Color(1f, 0.4f, 0.0f, .2f)); break;
                 case "distancecircle":
-                    mat.SetColor(Color, new Color(0.0f, 0.2f, 0.98f, .5f)); break;//Since this is a "circle", would it be better to render it as a different primitive?
+                    mat.SetColor(Color, new Color(0.0f, 0.2f, 0.98f, .2f)); break;
                 case "event":
-                    mat.SetColor(Color, new Color(0.0f, 0.97f, 0.0f, .5f)); break; //Green being distinctive is the best, as this is the most common trigger type.
+                    mat.SetColor(Color, new Color(0.0f, 0.97f, 0.0f, .2f)); break;
                 case "mouseclick":
-                    mat.SetColor(Color, new Color(0.3f, 1f, 1f, .5f)); break; //The most problematic trigger, it clutters the screen during the beggining of the game. Do minigames afterwards use a different type of trigger?
+                    mat.SetColor(Color, new Color(0.3f, 1f, 1f, .2f)); break;
                 case "mouseevent":
-                    mat.SetColor(Color, new Color(0.99f, 0.9f, 0.0f, .5f)); break; //From my testing, this name is deceptive, it check if the camara is looking at it, used in tandem with a distance check
+                    mat.SetColor(Color, new Color(0.99f, 0.9f, 0.0f, .2f)); break;
                 case "teleport":
-                    mat.SetColor(Color, new Color(0.9f, 0.2f, 0.7f, .5f)); break; //Despite my best efforts, this still looks blueish.
+                    mat.SetColor(Color, new Color(0.9f, 0.2f, 0.7f, .2f)); break;
                 case "zoom":
-                    mat.SetColor(Color, new Color(0.8f, 0.8f, 0.8f, .5f)); break; //Not the best, but works well enough - it either shows shadowy or darkens any color as it overlays.
+                    mat.SetColor(Color, new Color(0.8f, 0.8f, 0.8f, .2f)); break;
             }
+            mat.SetColor("_EmissionColor", mat.color);
+            mat.EnableKeyword("_EMISSION");
+            
             mat.SetFloat(Mode, 3);
             mat.SetInt(SrcBlend, (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
             mat.SetInt(DstBlend, (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
