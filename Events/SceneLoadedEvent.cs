@@ -18,10 +18,6 @@ internal static class SceneLoadedEvent
         {
             VersionText.Start();
             PracticeManager.SelectedGame = PracticeGames.None;
-            if (PlaceStop.IsRevealing())
-            {
-                PlaceStop.HidePlaceStops();
-            }
 
             if (Triggers.IsRevealing())
             {
@@ -32,11 +28,6 @@ internal static class SceneLoadedEvent
         {
             Plugin.Log.LogInfo("Revealing newly loaded triggers");
             Triggers.RevealTriggers();
-        }
-        if (PlaceStop.IsRevealing())
-        {
-            Plugin.Log.LogInfo("Revealing newly loaded placestops");
-            PlaceStop.RevealPlaceStops();
         }
         PracticeManager.OnSceneLoad(scene);
     }
