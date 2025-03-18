@@ -7,7 +7,8 @@ namespace SpeedrunMod.Menus;
 
 public static class ModMenu
 {
-    private static bool _outdated = (!MyPluginInfo.PLUGIN_VERSION.Equals(VersionText.NewestVersion) && VersionText.NewestVersion != null);
+    private static readonly bool Outdated = !MyPluginInfo.PLUGIN_VERSION.Equals(VersionText.NewestVersion) && VersionText.NewestVersion != null;
+    
     public static void CreateMenu(GameMenu menu)
     {
         GameMenu practiceMenu = PracticeMenu.CreateMenu(menu);
@@ -25,7 +26,7 @@ public static class ModMenu
             .BuildMenuDivider();
         
         new MenuOptionFactory()
-            .SetName(name: _outdated?"INSTALL LATEST VERSION FROM GITHUB":"GITHUB PAGE")
+            .SetName(name: Outdated ? "INSTALL LATEST VERSION FROM GITHUB" : "GITHUB PAGE")
             .SetParent(menu)
             .PlaceOptionBefore(menu.MenuOptions.Count - 1)
             .SetNextLocation(menu)
@@ -36,8 +37,8 @@ public static class ModMenu
     private static void OpenGithub()
     {
         Application.OpenURL(
-            url: _outdated
+            url: Outdated
                 ? $"https://github.com/SliceCraft/MiSideSpeedrunMod/releases/tag/{VersionText.NewestVersion}"
-                : $"https://github.com/SliceCraft/MiSideSpeedrunMod");
+                : "https://github.com/SliceCraft/MiSideSpeedrunMod");
     }
 }
