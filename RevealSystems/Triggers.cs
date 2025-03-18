@@ -5,7 +5,6 @@ using UnityEngine;
 
 namespace SpeedrunMod.RevealSystems
 {
-    //First commit has all the comments, will be deleted with subsequent commits.
     internal static class Triggers
     {
         private static readonly List<GameObject> GameObjects = new List<GameObject>();
@@ -20,8 +19,7 @@ namespace SpeedrunMod.RevealSystems
             EventManager.ShowEvent(new ModEvent("Revealing Triggers"));
             HideTriggers();
             _isRevealing = true;
-
-            // Process each type of trigger
+            
             ProcessTriggers<Trigger_DistanceCamera>("distancecamera");
             ProcessTriggers<Trigger_DistanceCheck>("distancecheck");
             ProcessTriggers<Trigger_DistanceCircle>("distancecircle");
@@ -31,8 +29,7 @@ namespace SpeedrunMod.RevealSystems
             ProcessTriggers<Trigger_Teleport>("teleport");
             ProcessTriggers<Trigger_Zoom>("zoom");
         }
-
-        // General method to process triggers based on type, will be changed to handle an enumerable instead.
+        
         private static void ProcessTriggers<T>(string type) where T : Component
         {
             var objects = Object.FindObjectsByType<T>(FindObjectsInactive.Include, FindObjectsSortMode.None);
@@ -43,7 +40,6 @@ namespace SpeedrunMod.RevealSystems
             }
         }
         
-        //Separated into different methods to keep everything tidy and readable.
         private static void AddTriggerRevealer(GameObject gameObject, string type)
         {
             GameObject newObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -54,10 +50,8 @@ namespace SpeedrunMod.RevealSystems
             //GameObject textGUI = new GameObject("Text " + gameObject.name);
             //Plugin.Log.LogInfo("Creating canvas and text");
 
-            // Set up material for the new object
             SetMaterialForObject(newObject, type);
-
-            // Disable collider and store in list
+            
             newObject.GetComponent<BoxCollider>().enabled = false;
             GameObjects.Add(newObject);
         }
