@@ -4,7 +4,9 @@ using SpeedrunMod.EventDisplay;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace SpeedrunMod.RevealSystems
+namespace SpeedrunMod.RevealSystems;
+
+internal static class Triggers
 {
     internal static class Triggers
     {
@@ -22,24 +24,23 @@ namespace SpeedrunMod.RevealSystems
             HideTriggers();
             _isRevealing = true;
             
-            ProcessTriggers<Trigger_DistanceCamera>("distancecamera");
-            ProcessTriggers<Trigger_DistanceCheck>("distancecheck");
-            ProcessTriggers<Trigger_DistanceCircle>("distancecircle");
-            ProcessTriggers<Trigger_Event>("event");
-            ProcessTriggers<Trigger_MouseClick>("mouseclick");
-            ProcessTriggers<Trigger_MouseEvent>("mouseevent");
-            ProcessTriggers<Trigger_Teleport>("teleport");
-            ProcessTriggers<Trigger_Zoom>("zoom");
-        }
+        ProcessTriggers<Trigger_DistanceCamera>("distancecamera");
+        ProcessTriggers<Trigger_DistanceCheck>("distancecheck");
+        ProcessTriggers<Trigger_DistanceCircle>("distancecircle");
+        ProcessTriggers<Trigger_Event>("event");
+        ProcessTriggers<Trigger_MouseClick>("mouseclick");
+        ProcessTriggers<Trigger_MouseEvent>("mouseevent");
+        ProcessTriggers<Trigger_Teleport>("teleport");
+        ProcessTriggers<Trigger_Zoom>("zoom");
+    }
         
-        private static void ProcessTriggers<T>(string type) where T : Component
+    private static void ProcessTriggers<T>(string type) where T : Component
+    {
+        var objects = Object.FindObjectsByType<T>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        foreach (var obj in objects)
         {
-            var objects = Object.FindObjectsByType<T>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-            foreach (var obj in objects)
-            {
-                GameObject gameObject = obj.gameObject;
-                AddTriggerRevealer(gameObject, type);
-            }
+            GameObject gameObject = obj.gameObject;
+            AddTriggerRevealer(gameObject, type);
         }
 
         private static void AddTriggerRevealer(GameObject gameObject, string type)
@@ -138,7 +139,10 @@ namespace SpeedrunMod.RevealSystems
             }
         }
 
-        internal static void HideTriggers()
+    internal static void HideTriggers()
+    {
+        _isRevealing = false;
+        foreach (GameObject gameObject in GameObjects.Where(gameObject => gameObject != null))
         {
             _isRevealing = false;
             foreach (GameObject gameObject in GameObjects.Where(gameObject => gameObject != null))
@@ -152,7 +156,9 @@ namespace SpeedrunMod.RevealSystems
             GameObjects.Clear();
             Labels.Clear();
         }
-
+        GameObjects.Clear();
+    }
+      
         public static bool IsRevealing()
         {
             return _isRevealing;
