@@ -35,7 +35,7 @@ public static class StartOfGamePracticeMenu
             .SetParent(menu)
             .PlaceOptionBefore(menu.MenuOptions.Count - 1)
             .SetNextLocation(menu) 
-            .SetOnClick(LoadTamagotchiRun)
+            .SetOnClick(FullTamagotchiRun.LoadChapter)
             .Build();
         
         new MenuOptionFactory()
@@ -47,13 +47,6 @@ public static class StartOfGamePracticeMenu
             .Build();
 
         return menu;
-    }
-    
-    private static void LoadTamagotchiRun()
-    {
-        PracticeManager.SelectedGame = PracticeGames.FullTamagotchiRun;
-        GlobalGame.LoadingLevel = "Scene 1 - RealRoom";
-        SceneManager.LoadScene("SceneLoading");
     }
     
     private static void Load2DCutting()

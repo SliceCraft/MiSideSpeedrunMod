@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace SpeedrunMod.Practice.StartOfGame;
 
@@ -14,6 +15,7 @@ public static class FullTamagotchiRun
 
     private static GameObject _smartPhone;
     private static World _gameWorld;
+    private static Camera _camera;
     
     public static void QueueLoad()
     {
@@ -24,6 +26,10 @@ public static class FullTamagotchiRun
         _queueMobileInteractiveClick = 0;
         _queueButtonActivate = 0;
         _queueButtonClick = 0;
+
+        _smartPhone = null;
+        _gameWorld = null;
+        _camera = null;
     }
 
     internal static void Update()
@@ -72,29 +78,36 @@ public static class FullTamagotchiRun
 
         _smartPhone = _gameWorld.transform.Find("World RealRoom/Smartphone").gameObject;
         
+        // We need to enable the player otherwise the smartphone grab action won't work
         GameObject gameControlerGameObject = Object.FindObjectOfType<GameController>().gameObject;
         gameControlerGameObject.transform.Find("Player").gameObject.active = true;
         
+        // We enable the mobile interactive so it can be used in a next frame
         GameObject mobileInteractive = _gameWorld.transform.Find("World RealRoom/Interactives/Interactive Mobile").gameObject;
         mobileInteractive.active = true;
         ObjectInteractive mobileInteractiveObject = mobileInteractive.GetComponent<ObjectInteractive>();
         mobileInteractiveObject.active = true;
         
+        // By cleaning up the starting scene we can skip the cutscene
         CleanupStartingScene(_gameWorld);
+        
+        // To prevent the player from seeing the game fastforward we disable the camera shotly
+        _camera = _gameWorld.transform.Find("CutScenes/CutScene 1 (ДЕНЬ 1)/Camera/MainCamera").GetComponent<Camera>();
+        _camera.gameObject.active = false;
 
-        _queueMobileInteractiveClick = 600;
-
-        // TODO: Reload when loading scene 2
+        // By speeding up the game 10 times it'll play the animations faster
+        // The phone grab animation has to finish before we can continue, I don't know why
+        _queueMobileInteractiveClick = 1;
+        Time.timeScale = 10f;
     }
 
     private static void MobileButtonInteractiveClick()
     {
-        
         GameObject mobileInteractive = _gameWorld.transform.Find("World RealRoom/Interactives/Interactive Mobile").gameObject;
         ObjectInteractive mobileInteractiveObject = mobileInteractive.GetComponent<ObjectInteractive>();
         mobileInteractiveObject.Click();
         
-        _queueButtonActivate = 600;
+        _queueButtonActivate = 300;
     }
 
     private static void ButtonActivate()
@@ -104,7 +117,7 @@ public static class FullTamagotchiRun
         GameObject playButton = _smartPhone.transform.Find("3D HintKey Play").gameObject;
         playButton.active = true;
         
-        _queueButtonClick = 600;
+        _queueButtonClick = 2;
     }
 
     private static void ButtonClick()
@@ -124,5 +137,19 @@ public static class FullTamagotchiRun
         
         Transform gameTransform = gameWorld.gameObject.transform;
         gameTransform.Find("CutScenes/CutScene 1 (ДЕНЬ 1)").gameObject.active = false;
+    }
+
+    public static void TamagotchiLoaded()
+    {
+        // Once the tamagotchi game has been loaded we can reset the timescale and enable the camera again
+        Time.timeScale = 1f;
+        _camera.gameObject.active = true;
+    }
+
+    public static void LoadChapter()
+    {
+        PracticeManager.SelectedGame = PracticeGames.FullTamagotchiRun;
+        GlobalGame.LoadingLevel = "Scene 1 - RealRoom";
+        SceneManager.LoadScene("SceneLoading");
     }
 }
