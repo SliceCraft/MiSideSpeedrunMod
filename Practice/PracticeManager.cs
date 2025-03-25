@@ -18,6 +18,7 @@ public static class PracticeManager
                 break;
             case PracticeGames.FullTamagotchiRun:
                 if(scene.name == "Scene 1 - RealRoom") FullTamagotchiRun.QueueLoad();
+                if(scene.name == "Scene 2 - InGame") FullTamagotchiRun.LoadChapter();
                 break;
             case PracticeGames.MakeMannequin:
                 if(scene.name == "Scene 10 - ManekenWorld") MannequinMinigame.QueueLoad();
