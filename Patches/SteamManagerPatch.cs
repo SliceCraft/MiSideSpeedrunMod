@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using SpeedrunMod.EventDisplay;
 using SpeedrunMod.Practice;
+using SpeedrunMod.RevealSystems;
 using SpeedrunMod.Toggles;
 using SpeedrunMod.Utils;
 
@@ -18,5 +19,6 @@ internal class SteamManagerPatch
         EnableRunToggle.Update();
         RevealTriggerToggle.Update();
         PracticeManager.Update();
+        Triggers.Update();
     }
 }

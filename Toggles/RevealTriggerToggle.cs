@@ -11,11 +11,13 @@ internal static class RevealTriggerToggle
         if (Triggers.IsRevealing())
         {
             EventManager.ShowEvent(new ModEvent("Trigger Toggle turned off"));
+            Plugin.Log.LogInfo("Toggling on show trigger");
             Triggers.HideTriggers();
         }
         else
         {
             EventManager.ShowEvent(new ModEvent("Trigger Toggle turned on"));
+            Plugin.Log.LogInfo("Toggling off show trigger");
             Triggers.RevealTriggers();
         }
     }
