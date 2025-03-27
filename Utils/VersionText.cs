@@ -49,12 +49,6 @@ internal static class VersionText
         {
             text.text = $"Slice's Speedrun Mod : V{MyPluginInfo.PLUGIN_VERSION}";
         }
-        //What is being destroyed here?
-        /*Localization_UIText uiText = speedrunVersionText.GetComponent<Localization_UIText>();
-        if (uiText != null)
-        {
-            Object.Destroy(uiText);
-        }*/
     }
 
     private static GameObject GetNameGameObject(GameObject menu)
