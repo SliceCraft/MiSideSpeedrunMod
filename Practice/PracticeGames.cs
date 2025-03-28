@@ -6,5 +6,7 @@ public enum PracticeGames
     FullRunStartOfGame,
     FullTamagotchiRun,
     TamagotchiCutting, // 2DCutting
-    MakeMannequin
+    MakeMannequin,
+    FullMilaRun,
+    MilaMinigames
 }
