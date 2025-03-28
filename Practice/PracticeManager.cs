@@ -1,4 +1,5 @@
 ﻿using SpeedrunMod.Practice.MakeMannequin;
+using SpeedrunMod.Practice.ReadingBooks;
 using SpeedrunMod.Practice.StartOfGame;
 using UnityEngine.SceneManagement;
 
@@ -26,6 +27,12 @@ public static class PracticeManager
             case PracticeGames.FullRunStartOfGame:
                 if(scene.name == "Scene 2 - InGame") FullRunStartOfGame.StartRun();
                 break;
+            case PracticeGames.FullMilaRun:
+                if(scene.name == "Scene 20 - FightMita") FullRunReadingBooks.StartRun();
+                break;
+            case PracticeGames.MilaMinigames:
+                if(scene.name == "Scene 19 - Glasses") MilaMinigames.QueueLoad();
+                break;
             case PracticeGames.None:
             default:
                 break;
@@ -45,6 +52,9 @@ public static class PracticeManager
                 break;
             case PracticeGames.MakeMannequin:
                 MannequinMinigame.Update();
+                break;
+            case PracticeGames.MilaMinigames:
+                MilaMinigames.Update();
                 break;
             case PracticeGames.None:
             case PracticeGames.FullRunStartOfGame:

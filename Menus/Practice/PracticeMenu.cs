@@ -23,6 +23,15 @@ public static class PracticeMenu
             .SetNextLocation(startOfGameMenu) 
             .Build();
         
+        GameMenu readingBooksMenu = ReadingBooksMenu.CreateMenu(menu);
+        
+        new MenuOptionFactory()
+            .SetName("READING BOOKS, DESTROYING GLITCHES")
+            .SetParent(menu)
+            .PlaceOptionBefore(menu.MenuOptions.Count - 1)
+            .SetNextLocation(readingBooksMenu) 
+            .Build();
+        
         
         // Disabled for now until I figure out how to make this work
         // new MenuOptionFactory()
