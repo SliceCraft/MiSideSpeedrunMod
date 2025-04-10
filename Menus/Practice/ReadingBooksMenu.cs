@@ -46,19 +46,19 @@ public static class ReadingBooksMenu
             .Build();
         
         new MenuOptionFactory()
-            .SetName("SHAPES MINIGAME")
-            .SetParent(menu)
-            .PlaceOptionBefore(menu.MenuOptions.Count - 1)
-            .SetNextLocation(menu) 
-            .SetOnClick(LoadShapesMinigame)
-            .Build();
-        
-        new MenuOptionFactory()
             .SetName("TOWERS MINIGAME")
             .SetParent(menu)
             .PlaceOptionBefore(menu.MenuOptions.Count - 1)
             .SetNextLocation(menu) 
             .SetOnClick(LoadTowersMinigame)
+            .Build();
+        
+        new MenuOptionFactory()
+            .SetName("SHAPES MINIGAME")
+            .SetParent(menu)
+            .PlaceOptionBefore(menu.MenuOptions.Count - 1)
+            .SetNextLocation(menu) 
+            .SetOnClick(LoadShapesMinigame)
             .Build();
         
         new MenuOptionFactory()
@@ -93,19 +93,19 @@ public static class ReadingBooksMenu
         SceneManager.LoadScene("SceneLoading");
     }
     
-    private static void LoadShapesMinigame()
+    private static void LoadTowersMinigame()
     {
         MilaMinigames.LoopThroughAllMinigames = false;
-        MilaMinigames.MilaMinigameMode = MilaMinigames.MilaMinigameModes.Shapes;
+        MilaMinigames.MilaMinigameMode = MilaMinigames.MilaMinigameModes.Towers;
         PracticeManager.SelectedGame = PracticeGames.MilaMinigames;
         GlobalGame.LoadingLevel = "Scene 19 - Glasses";
         SceneManager.LoadScene("SceneLoading");
     }
     
-    private static void LoadTowersMinigame()
+    private static void LoadShapesMinigame()
     {
         MilaMinigames.LoopThroughAllMinigames = false;
-        MilaMinigames.MilaMinigameMode = MilaMinigames.MilaMinigameModes.Towers;
+        MilaMinigames.MilaMinigameMode = MilaMinigames.MilaMinigameModes.Shapes;
         PracticeManager.SelectedGame = PracticeGames.MilaMinigames;
         GlobalGame.LoadingLevel = "Scene 19 - Glasses";
         SceneManager.LoadScene("SceneLoading");

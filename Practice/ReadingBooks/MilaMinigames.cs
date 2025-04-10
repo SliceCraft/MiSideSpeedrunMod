@@ -9,8 +9,8 @@ public static class MilaMinigames
     public enum MilaMinigameModes
     {
         Laser,
-        Shapes,
         Towers,
+        Shapes,
         Invaders
     }
     
@@ -177,10 +177,10 @@ public static class MilaMinigames
             case MilaMinigameModes.Laser:
                 go = Object.Instantiate(_minigame1Clone, _minigame1Clone.transform.parent);
                 break;
-            case MilaMinigameModes.Shapes:
+            case MilaMinigameModes.Towers:
                 go = Object.Instantiate(_minigame2Clone, _minigame2Clone.transform.parent);
                 break;
-            case MilaMinigameModes.Towers:
+            case MilaMinigameModes.Shapes:
                 go = Object.Instantiate(_minigame3Clone, _minigame3Clone.transform.parent);
                 break;
             case MilaMinigameModes.Invaders:
