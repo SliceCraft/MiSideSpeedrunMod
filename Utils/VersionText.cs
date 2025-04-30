@@ -42,18 +42,12 @@ internal static class VersionText
         Text text = speedrunVersionText.GetComponent<Text>();
         if (!MyPluginInfo.PLUGIN_VERSION.Equals(NewestVersion) && NewestVersion != null)
         {
-            text.text = $"Speedrun Mod V{MyPluginInfo.PLUGIN_VERSION} : Version outdated, newest version is V{NewestVersion}";
+            text.text = $"Slice's Speedrun Mod V{MyPluginInfo.PLUGIN_VERSION} : Version outdated, newest is V{NewestVersion}";
             text.resizeTextForBestFit = true;
         }
         else
         {
-            text.text = $"Speedrun Mod : V{MyPluginInfo.PLUGIN_VERSION}";
-        }
-
-        Localization_UIText uiText = speedrunVersionText.GetComponent<Localization_UIText>();
-        if (uiText != null)
-        {
-            Object.Destroy(uiText);
+            text.text = $"Slice's Speedrun Mod : V{MyPluginInfo.PLUGIN_VERSION}";
         }
     }
 
