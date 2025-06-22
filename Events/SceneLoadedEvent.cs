@@ -14,6 +14,9 @@ internal static class SceneLoadedEvent
 
     private static void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
+#if DEBUG
+        Plugin.Log.LogInfo($"Loading scene: {scene.name}");
+#endif
         if (scene.name == "SceneMenu")
         {
             VersionText.Start();

@@ -7,6 +7,7 @@ public enum PracticeGames
     FullTamagotchiRun,
     TamagotchiCutting, // 2DCutting
     MakeMannequin,
+    ConnectTheDots,
     FullMilaRun,
     MilaMinigames
 }
