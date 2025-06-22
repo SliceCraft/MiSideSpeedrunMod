@@ -23,6 +23,15 @@ public static class PracticeMenu
             .SetNextLocation(startOfGameMenu) 
             .Build();
         
+        GameMenu dummiesPuzzlesMenu = DummiesPuzzlesMenu.CreateMenu(menu);
+        
+        new MenuOptionFactory()
+            .SetName("DUMMIES AND FORGOTTEN PUZZLES")
+            .SetParent(menu)
+            .PlaceOptionBefore(menu.MenuOptions.Count - 1)
+            .SetNextLocation(dummiesPuzzlesMenu)
+            .Build();
+        
         GameMenu readingBooksMenu = ReadingBooksMenu.CreateMenu(menu);
         
         new MenuOptionFactory()
