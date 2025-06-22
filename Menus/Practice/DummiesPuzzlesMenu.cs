@@ -17,11 +17,6 @@ public class DummiesPuzzlesMenu
             .Build();
         
         new MenuOptionFactory()
-            .SetParent(menu)
-            .PlaceOptionBefore(menu.MenuOptions.Count - 1)
-            .BuildMenuDivider();
-        
-        new MenuOptionFactory()
             .SetName("CONNECT THE DOTS")
             .SetParent(menu)
             .PlaceOptionBefore(menu.MenuOptions.Count - 1)
