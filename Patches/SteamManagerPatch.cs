@@ -1,5 +1,7 @@
 using HarmonyLib;
 using SpeedrunMod.EventDisplay;
+using SpeedrunMod.Menus.Frames;
+using SpeedrunMod.Menus.Keybinds;
 using SpeedrunMod.Practice;
 using SpeedrunMod.RevealSystems;
 using SpeedrunMod.Toggles;
@@ -16,10 +18,12 @@ internal class SteamManagerPatch
     {
         EventManager.Update();
         VersionText.Update();
+        KeybindCapture.Update();
+        FpsToggle.Update();
         EnableRunToggle.Update();
         RevealTriggerToggle.Update();
-        FpsToggle.Update();
         PracticeManager.Update();
+        FpsSettingsMenu.Update();
         Triggers.Update();
     }
 }

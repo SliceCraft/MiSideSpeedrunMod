@@ -1,8 +1,10 @@
-﻿using MenuLib.API;
+using MenuLib.API;
 using MenuLib.API.Factories;
+using SpeedrunMod.Menus.Frames;
 using SpeedrunMod.Menus.Practice;
 using SpeedrunMod.Utils;
 using UnityEngine;
+
 namespace SpeedrunMod.Menus;
 
 public static class ModMenu
@@ -24,6 +26,15 @@ public static class ModMenu
             .SetParent(menu)
             .PlaceOptionBefore(menu.MenuOptions.Count - 1)
             .BuildMenuDivider();
+
+        GameMenu fpsSettingsMenu = FpsSettingsMenu.CreateMenu(menu);
+
+        new MenuOptionFactory()
+            .SetName("FPS SETTINGS")
+            .SetParent(menu)
+            .PlaceOptionBefore(menu.MenuOptions.Count - 1)
+            .SetNextLocation(fpsSettingsMenu)
+            .Build();
         
         new MenuOptionFactory()
             .SetName(name: Outdated ? "INSTALL LATEST VERSION FROM GITHUB" : "GITHUB PAGE")

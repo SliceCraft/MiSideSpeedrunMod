@@ -1,17 +1,21 @@
 using System;
+using SpeedrunMod.Configs;
 using SpeedrunMod.EventDisplay;
+using SpeedrunMod.Menus.Keybinds;
 using UnityEngine;
 
 namespace SpeedrunMod.Toggles;
 
 internal static class FpsToggle
 {
-    private const int OverrideFps = 5;
     private static int? _previousFps;
 
     internal static void Update()
     {
-        if (!Input.GetKeyDown(KeyCode.F1)) return;
+        // probably should make a base class for all toggles and move this logic there
+        if (KeybindCapture.IsCapturing()) return;
+
+        if (!Input.GetKeyDown(FpsConfig.GetToggleKey())) return;
 
         if (_previousFps.HasValue)
         {
@@ -33,15 +37,16 @@ internal static class FpsToggle
 
         _previousFps = currentFps;
 
-        if (!TryApplyFps(OverrideFps))
+        int overrideFps = FpsConfig.GetTargetFps();
+        if (!TryApplyFps(overrideFps))
         {
             EventManager.ShowEvent(new ModEvent("Unable to set FPS override"));
             Plugin.Log.LogError("Failed to apply FPS override.");
             return;
         }
 
-        EventManager.ShowEvent(new ModEvent($"FPS set to {OverrideFps}"));
-        Plugin.Log.LogInfo($"FPS override enabled, set to {OverrideFps}.");
+        EventManager.ShowEvent(new ModEvent($"FPS set to {FormatFps(overrideFps)}"));
+        Plugin.Log.LogInfo($"FPS override enabled, set to {FormatFps(overrideFps)}.");
     }
 
     private static void RestoreFps()
