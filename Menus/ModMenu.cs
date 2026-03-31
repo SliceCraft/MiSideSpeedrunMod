@@ -21,11 +21,6 @@ public static class ModMenu
             .PlaceOptionBefore(menu.MenuOptions.Count - 1)
             .SetNextLocation(practiceMenu)
             .Build();
-        
-        new MenuOptionFactory()
-            .SetParent(menu)
-            .PlaceOptionBefore(menu.MenuOptions.Count - 1)
-            .BuildMenuDivider();
 
         GameMenu fpsSettingsMenu = FpsSettingsMenu.CreateMenu(menu);
 
@@ -35,7 +30,12 @@ public static class ModMenu
             .PlaceOptionBefore(menu.MenuOptions.Count - 1)
             .SetNextLocation(fpsSettingsMenu)
             .Build();
-        
+
+        new MenuOptionFactory()
+            .SetParent(menu)
+            .PlaceOptionBefore(menu.MenuOptions.Count - 1)
+            .BuildMenuDivider();
+
         new MenuOptionFactory()
             .SetName(name: Outdated ? "INSTALL LATEST VERSION FROM GITHUB" : "GITHUB PAGE")
             .SetParent(menu)

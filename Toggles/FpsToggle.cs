@@ -1,7 +1,6 @@
 using System;
 using SpeedrunMod.Configs;
 using SpeedrunMod.EventDisplay;
-using SpeedrunMod.Menus.Keybinds;
 using UnityEngine;
 
 namespace SpeedrunMod.Toggles;
@@ -12,8 +11,7 @@ internal static class FpsToggle
 
     internal static void Update()
     {
-        // probably should make a base class for all toggles and move this logic there
-        if (KeybindCapture.IsCapturing()) return;
+        if (!IsInGame()) return;
 
         if (!Input.GetKeyDown(FpsConfig.GetToggleKey())) return;
 
@@ -24,6 +22,11 @@ internal static class FpsToggle
         }
 
         EnableOverride();
+    }
+
+    private static bool IsInGame()
+    {
+        return UnityEngine.Object.FindObjectOfType<GameController>() != null;
     }
 
     private static void EnableOverride()

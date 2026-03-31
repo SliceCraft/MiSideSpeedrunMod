@@ -17,11 +17,6 @@ internal static class FpsSettingsMenu
             .SetBackButton(previousMenu)
             .Build();
 
-        new MenuOptionFactory()
-            .SetParent(menu)
-            .PlaceOptionBefore(menu.MenuOptions.Count - 1)
-            .BuildMenuDivider();
-
         _keybindOption = new MenuOptionFactory()
             .SetName($"FPS keybind: {FpsConfig.GetToggleKey()}")
             .SetParent(menu)
@@ -30,6 +25,11 @@ internal static class FpsSettingsMenu
             .SetOnClick(BeginFpsKeyCapture)
             .Build();
 
+        new MenuOptionFactory()
+            .SetParent(menu)
+            .PlaceOptionBefore(menu.MenuOptions.Count - 1)
+            .BuildMenuDivider();
+        
         _targetFpsOption = new MenuOptionFactory()
             .SetName($"Target FPS: {FpsConfig.GetTargetFpsLabel()}")
             .SetParent(menu)
