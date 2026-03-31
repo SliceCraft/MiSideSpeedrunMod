@@ -29,6 +29,11 @@ These parts will automatically restart when you reach the end.
     <td>Toggle Running</td>
     <td>Toggle whether or not you are allowed to run.</td>
   </tr>
+  <tr>
+    <td>F1</td>
+    <td>Toggle FPS Override</td>
+    <td>Switch between FPS 5 and your previous FPS value.</td>
+  </tr>
 </table> 
 
 # Installing
