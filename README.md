@@ -12,6 +12,9 @@ These parts will automatically restart when you reach the end.
 - When pressing the start with a clean slate button the achievements will also be reset if this mod is enabled.
 - When toggling `skipdialogue` the mod will remember the state of this toggle. Meaning when you restart the game you will keep this toggle in the state that you had before you quit the game.
 
+## FPS settings
+In the main menu go to `Settings->Mods->Speedrun Mod->FPS settings` to change the FPS toggle hotkey (press a key to bind, `Esc` to cancel) and the target FPS used while override is on (adjust with `+Target FPS` / `-Target FPS`, `0` means unlimited). Values are saved in the BepInEx config file and persist after restart. Default hotkey is `F1` and default target is `5`.
+
 ## Toggles
  <table>
   <tr>
@@ -30,9 +33,9 @@ These parts will automatically restart when you reach the end.
     <td>Toggle whether or not you are allowed to run.</td>
   </tr>
   <tr>
-    <td>F1</td>
+    <td>Configurable (default F1)</td>
     <td>Toggle FPS Override</td>
-    <td>Switch between FPS 5 and your previous FPS value.</td>
+    <td>While in gameplay only: first press applies your configured target FPS, second press restores the FPS from before override. Configure key and target in FPS settings.<td>
   </tr>
 </table> 
 
