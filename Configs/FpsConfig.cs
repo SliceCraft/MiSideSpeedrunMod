@@ -1,3 +1,4 @@
+using SpeedrunMod.Utils;
 using UnityEngine;
 
 namespace SpeedrunMod.Configs;
@@ -8,14 +9,24 @@ internal static class FpsConfig
     private const int MaxFps = 1000;
     private const int StepFps = 5;
 
-    internal static KeyCode GetToggleKey()
+    internal static KeyCode GetOverrideToggleKey()
     {
-        return ModConfig.FpsToggleKeybind.Value;
+        return ModConfig.FpsOverrideToggleKeybind.Value;
     }
 
-    internal static void SetToggleKey(KeyCode keyCode)
+    internal static void SetOverrideToggleKey(KeyCode keyCode)
     {
-        ModConfig.FpsToggleKeybind.Value = keyCode;
+        ModConfig.FpsOverrideToggleKeybind.Value = keyCode;
+    }
+
+    internal static KeyCode GetUncapToggleKey()
+    {
+        return ModConfig.FpsUncapToggleKeybind.Value;
+    }
+
+    internal static void SetUncapToggleKey(KeyCode keyCode)
+    {
+        ModConfig.FpsUncapToggleKeybind.Value = keyCode;
     }
 
     internal static int GetTargetFps()
@@ -35,8 +46,7 @@ internal static class FpsConfig
 
     internal static string GetTargetFpsLabel()
     {
-        int fps = GetTargetFps();
-        return fps <= 0 ? "unlimited" : fps.ToString();
+        return FpsUtil.FormatFps(GetTargetFps());
     }
 
     private static int ClampFps(int fps)

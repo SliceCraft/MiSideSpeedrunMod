@@ -6,7 +6,8 @@ namespace SpeedrunMod.Configs;
 internal static class ModConfig
 {
     internal static ConfigEntry<bool> EnableDialogueSkip;
-    internal static ConfigEntry<KeyCode> FpsToggleKeybind;
+    internal static ConfigEntry<KeyCode> FpsOverrideToggleKeybind;
+    internal static ConfigEntry<KeyCode> FpsUncapToggleKeybind;
     internal static ConfigEntry<int> FpsOverrideTarget;
 
     internal static void Initialize(ConfigFile configFile)
@@ -17,16 +18,22 @@ internal static class ModConfig
             false,
             "Enable the dialogue skip on game startup (NOTE: This value is automatically controlled by the mod)");
 
-        FpsToggleKeybind = configFile.Bind(
+        FpsOverrideToggleKeybind = configFile.Bind(
             "FPS",
-            "ToggleKeybind",
+            "OverrideToggleKeybind",
             KeyCode.F1,
-            "Key used to toggle FPS override mode.");
+            "In-game: toggle between your configured target FPS and the previous FPS.");
 
         FpsOverrideTarget = configFile.Bind(
             "FPS",
             "OverrideTarget",
             5,
-            "Target FPS while override mode is enabled. Use 0 for unlimited.");
+            "Target FPS when the target-FPS override toggle is on (menu: Target FPS). Use 0 for uncapped.");
+
+        FpsUncapToggleKeybind = configFile.Bind(
+            "FPS",
+            "UncapToggleKeybind",
+            KeyCode.F2,
+            "In-game: toggle uncapped FPS (setfps 0) and restore previous FPS.");
     }
 }

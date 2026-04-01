@@ -19,7 +19,8 @@ internal class SteamManagerPatch
         EventManager.Update();
         VersionText.Update();
         KeybindCapture.Update();
-        FpsToggle.Update();
+        FpsOverrideToggle.Update();
+        FpsUncapToggle.Update();
         EnableRunToggle.Update();
         RevealTriggerToggle.Update();
         PracticeManager.Update();

@@ -7,7 +7,8 @@ namespace SpeedrunMod.Menus.Frames;
 
 internal static class FpsSettingsMenu
 {
-    private static MenuOption _keybindOption;
+    private static MenuOption _targetFpsToggleKeyOption;
+    private static MenuOption _uncapFpsToggleKeyOption;
     private static MenuOption _targetFpsOption;
 
     internal static GameMenu CreateMenu(GameMenu previousMenu)
@@ -17,12 +18,20 @@ internal static class FpsSettingsMenu
             .SetBackButton(previousMenu)
             .Build();
 
-        _keybindOption = new MenuOptionFactory()
-            .SetName($"FPS keybind: {FpsConfig.GetToggleKey()}")
+        _targetFpsToggleKeyOption = new MenuOptionFactory()
+            .SetName($"Target FPS toggle key: {FpsConfig.GetOverrideToggleKey()}")
             .SetParent(menu)
             .PlaceOptionBefore(menu.MenuOptions.Count - 1)
             .SetNextLocation(menu)
-            .SetOnClick(BeginFpsKeyCapture)
+            .SetOnClick(BeginTargetFpsToggleKeyCapture)
+            .Build();
+
+        _uncapFpsToggleKeyOption = new MenuOptionFactory()
+            .SetName($"Uncap FPS toggle key: {FpsConfig.GetUncapToggleKey()}")
+            .SetParent(menu)
+            .PlaceOptionBefore(menu.MenuOptions.Count - 1)
+            .SetNextLocation(menu)
+            .SetOnClick(BeginUncapFpsToggleKeyCapture)
             .Build();
 
         new MenuOptionFactory()
@@ -61,10 +70,11 @@ internal static class FpsSettingsMenu
         if (!KeybindCapture.IsCapturing()) return;
         if (IsFpsSettingsMenuVisible()) return;
 
-        Plugin.Log.LogInfo("FPS keybind capture cancelled (left FPS settings menu).");
+        Plugin.Log.LogInfo("FPS settings keybind capture cancelled (left FPS settings menu).");
 
         KeybindCapture.CancelCapture();
-        RefreshKeybindText();
+        RefreshTargetFpsToggleKeyText();
+        RefreshUncapFpsToggleKeyText();
     }
 
     private static void IncreaseFpsTarget()
@@ -79,21 +89,42 @@ internal static class FpsSettingsMenu
         RefreshTargetFpsText();
     }
 
-    private static void BeginFpsKeyCapture()
+    private static void BeginTargetFpsToggleKeyCapture()
     {
-        SetMenuOptionText(_keybindOption, "FPS keybind: <press key... Esc to cancel>");
-        KeybindCapture.BeginCapture(OnFpsKeyCaptureComplete);
+        SetMenuOptionText(_targetFpsToggleKeyOption, "Target FPS toggle key: <press key... Esc to cancel>");
+        KeybindCapture.BeginCapture(OnTargetFpsToggleKeyCaptureComplete);
     }
 
-    private static void OnFpsKeyCaptureComplete(bool success, UnityEngine.KeyCode keyCode)
+    private static void OnTargetFpsToggleKeyCaptureComplete(bool success, UnityEngine.KeyCode keyCode)
     {
         if (success)
         {
-            FpsConfig.SetToggleKey(keyCode);
-            Plugin.Log.LogInfo($"FPS keybind updated to {keyCode}.");
+            FpsConfig.SetOverrideToggleKey(keyCode);
+            SetMenuOptionText(_targetFpsToggleKeyOption, $"Target FPS toggle key: {keyCode}");
+            Plugin.Log.LogInfo($"Target FPS toggle key updated to {keyCode}.");
+            return;
         }
 
-        RefreshKeybindText();
+        RefreshTargetFpsToggleKeyText();
+    }
+
+    private static void BeginUncapFpsToggleKeyCapture()
+    {
+        SetMenuOptionText(_uncapFpsToggleKeyOption, "Uncap FPS toggle key: <press key... Esc to cancel>");
+        KeybindCapture.BeginCapture(OnUncapFpsToggleKeyCaptureComplete);
+    }
+
+    private static void OnUncapFpsToggleKeyCaptureComplete(bool success, UnityEngine.KeyCode keyCode)
+    {
+        if (success)
+        {
+            FpsConfig.SetUncapToggleKey(keyCode);
+            SetMenuOptionText(_uncapFpsToggleKeyOption, $"Uncap FPS toggle key: {keyCode}");
+            Plugin.Log.LogInfo($"Uncap FPS toggle key updated to {keyCode}.");
+            return;
+        }
+
+        RefreshUncapFpsToggleKeyText();
     }
 
     private static void RefreshTargetFpsText()
@@ -101,9 +132,14 @@ internal static class FpsSettingsMenu
         SetMenuOptionText(_targetFpsOption, $"Target FPS: {FpsConfig.GetTargetFpsLabel()}");
     }
 
-    private static void RefreshKeybindText()
+    private static void RefreshTargetFpsToggleKeyText()
     {
-        SetMenuOptionText(_keybindOption, $"FPS keybind: {FpsConfig.GetToggleKey()}");
+        SetMenuOptionText(_targetFpsToggleKeyOption, $"Target FPS toggle key: {FpsConfig.GetOverrideToggleKey()}");
+    }
+
+    private static void RefreshUncapFpsToggleKeyText()
+    {
+        SetMenuOptionText(_uncapFpsToggleKeyOption, $"Uncap FPS toggle key: {FpsConfig.GetUncapToggleKey()}");
     }
 
     private static void SetMenuOptionText(MenuOption menuOption, string text)
@@ -120,8 +156,13 @@ internal static class FpsSettingsMenu
 
     private static bool IsFpsSettingsMenuVisible()
     {
-        return _keybindOption != null &&
-               _keybindOption.TextComponent != null &&
-               _keybindOption.TextComponent.gameObject.activeInHierarchy;
+        return IsMenuRowVisible(_targetFpsToggleKeyOption) || IsMenuRowVisible(_uncapFpsToggleKeyOption);
+    }
+
+    private static bool IsMenuRowVisible(MenuOption option)
+    {
+        return option != null &&
+               option.TextComponent != null &&
+               option.TextComponent.gameObject.activeInHierarchy;
     }
 }
