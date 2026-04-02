@@ -11,7 +11,7 @@ internal static class ScreenCurrentResolutionPatch
     [HarmonyPostfix]
     private static void Postfix(ref Resolution __result)
     {
-        if (!ModConfig.RefreshRateOverrideEnabled.Value) return;
+        if (!RefreshRateConfig.OverrideEnabled.Value) return;
 
         int hz = RefreshRateConfig.GetTargetHz();
         __result.refreshRate = hz;

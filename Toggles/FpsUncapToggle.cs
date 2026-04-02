@@ -21,7 +21,7 @@ internal static class FpsUncapToggle
 
         if (!IsInGame()) return;
         if (KeybindCapture.IsCapturing()) return;
-        if (!Input.GetKeyDown(FpsConfig.GetUncapToggleKey())) return;
+        if (!Input.GetKeyDown(FpsConfig.UncapToggleKeybind.Value)) return;
 
         if (_enabled)
         {

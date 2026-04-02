@@ -21,7 +21,7 @@ internal static class FpsOverrideToggle
 
         if (!IsInGame()) return;
         if (KeybindCapture.IsCapturing()) return;
-        if (!Input.GetKeyDown(FpsConfig.GetOverrideToggleKey())) return;
+        if (!Input.GetKeyDown(FpsConfig.OverrideToggleKeybind.Value)) return;
 
         if (_enabled)
         {

@@ -1,5 +1,6 @@
 using MenuLib.API;
 using MenuLib.API.Factories;
+using SpeedrunMod.Menus.Debug;
 using SpeedrunMod.Menus.Frames;
 using SpeedrunMod.Menus.Practice;
 using SpeedrunMod.Utils;
@@ -38,6 +39,15 @@ public static class ModMenu
             .SetParent(menu)
             .PlaceOptionBefore(menu.MenuOptions.Count - 1)
             .SetNextLocation(refreshRateSettingsMenu)
+            .Build();
+
+        GameMenu debugSettingsMenu = DebugSettingsMenu.CreateMenu(menu);
+
+        new MenuOptionFactory()
+            .SetName("DEBUG")
+            .SetParent(menu)
+            .PlaceOptionBefore(menu.MenuOptions.Count - 1)
+            .SetNextLocation(debugSettingsMenu)
             .Build();
 
         new MenuOptionFactory()

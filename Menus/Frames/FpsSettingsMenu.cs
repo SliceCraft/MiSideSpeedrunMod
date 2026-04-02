@@ -11,6 +11,15 @@ internal static class FpsSettingsMenu
     private static MenuOption _uncapFpsToggleKeyOption;
     private static MenuOption _targetFpsOption;
 
+    private static string TargetFpsToggleKeyMenuLabel =>
+        $"Target FPS toggle key: {FpsConfig.OverrideToggleKeybind.Value}";
+
+    private static string UncapFpsToggleKeyMenuLabel =>
+        $"Uncap FPS toggle key: {FpsConfig.UncapToggleKeybind.Value}";
+
+    private static string TargetFpsMenuLabel =>
+        $"Target FPS: {FpsConfig.GetTargetFpsLabel()}";
+
     internal static GameMenu CreateMenu(GameMenu previousMenu)
     {
         GameMenu menu = new MenuFactory()
@@ -19,7 +28,7 @@ internal static class FpsSettingsMenu
             .Build();
 
         _targetFpsToggleKeyOption = new MenuOptionFactory()
-            .SetName($"Target FPS toggle key: {FpsConfig.GetOverrideToggleKey()}")
+            .SetName(TargetFpsToggleKeyMenuLabel)
             .SetParent(menu)
             .PlaceOptionBefore(menu.MenuOptions.Count - 1)
             .SetNextLocation(menu)
@@ -27,7 +36,7 @@ internal static class FpsSettingsMenu
             .Build();
 
         _uncapFpsToggleKeyOption = new MenuOptionFactory()
-            .SetName($"Uncap FPS toggle key: {FpsConfig.GetUncapToggleKey()}")
+            .SetName(UncapFpsToggleKeyMenuLabel)
             .SetParent(menu)
             .PlaceOptionBefore(menu.MenuOptions.Count - 1)
             .SetNextLocation(menu)
@@ -40,7 +49,7 @@ internal static class FpsSettingsMenu
             .BuildMenuDivider();
 
         _targetFpsOption = new MenuOptionFactory()
-            .SetName($"Target FPS: {FpsConfig.GetTargetFpsLabel()}")
+            .SetName(TargetFpsMenuLabel)
             .SetParent(menu)
             .PlaceOptionBefore(menu.MenuOptions.Count - 1)
             .SetNextLocation(menu)
@@ -125,7 +134,7 @@ internal static class FpsSettingsMenu
     {
         if (success)
         {
-            FpsConfig.SetOverrideToggleKey(keyCode);
+            FpsConfig.OverrideToggleKeybind.Value = keyCode;
             SetMenuOptionText(_targetFpsToggleKeyOption, $"Target FPS toggle key: {keyCode}");
             Plugin.Log.LogInfo($"Target FPS toggle key updated to {keyCode}.");
             return;
@@ -144,7 +153,7 @@ internal static class FpsSettingsMenu
     {
         if (success)
         {
-            FpsConfig.SetUncapToggleKey(keyCode);
+            FpsConfig.UncapToggleKeybind.Value = keyCode;
             SetMenuOptionText(_uncapFpsToggleKeyOption, $"Uncap FPS toggle key: {keyCode}");
             Plugin.Log.LogInfo($"Uncap FPS toggle key updated to {keyCode}.");
             return;
@@ -155,17 +164,17 @@ internal static class FpsSettingsMenu
 
     private static void RefreshTargetFpsText()
     {
-        SetMenuOptionText(_targetFpsOption, $"Target FPS: {FpsConfig.GetTargetFpsLabel()}");
+        SetMenuOptionText(_targetFpsOption, TargetFpsMenuLabel);
     }
 
     private static void RefreshTargetFpsToggleKeyText()
     {
-        SetMenuOptionText(_targetFpsToggleKeyOption, $"Target FPS toggle key: {FpsConfig.GetOverrideToggleKey()}");
+        SetMenuOptionText(_targetFpsToggleKeyOption, TargetFpsToggleKeyMenuLabel);
     }
 
     private static void RefreshUncapFpsToggleKeyText()
     {
-        SetMenuOptionText(_uncapFpsToggleKeyOption, $"Uncap FPS toggle key: {FpsConfig.GetUncapToggleKey()}");
+        SetMenuOptionText(_uncapFpsToggleKeyOption, UncapFpsToggleKeyMenuLabel);
     }
 
     private static void SetMenuOptionText(MenuOption menuOption, string text)

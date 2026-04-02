@@ -9,6 +9,14 @@ internal static class RefreshRateSettingsMenu
     private static MenuOption _overrideEnabledOption;
     private static MenuOption _targetHzOption;
 
+    private static string OverrideEnabledMenuLabel =>
+        RefreshRateConfig.OverrideEnabled.Value
+            ? "Refresh override: On"
+            : "Refresh override: Off";
+
+    private static string TargetHzMenuLabel =>
+        $"Target Hz: {RefreshRateConfig.GetTargetHzLabel()}";
+
     internal static GameMenu CreateMenu(GameMenu previousMenu)
     {
         GameMenu menu = new MenuFactory()
@@ -29,7 +37,7 @@ internal static class RefreshRateSettingsMenu
             .BuildMenuDivider();
 
         _overrideEnabledOption = new MenuOptionFactory()
-            .SetName(GetOverrideEnabledLabel())
+            .SetName(OverrideEnabledMenuLabel)
             .SetParent(menu)
             .PlaceOptionBefore(menu.MenuOptions.Count - 1)
             .SetNextLocation(menu)
@@ -37,7 +45,7 @@ internal static class RefreshRateSettingsMenu
             .Build();
 
         _targetHzOption = new MenuOptionFactory()
-            .SetName($"Target Hz: {RefreshRateConfig.GetTargetHzLabel()}")
+            .SetName(TargetHzMenuLabel)
             .SetParent(menu)
             .PlaceOptionBefore(menu.MenuOptions.Count - 1)
             .SetNextLocation(menu)
@@ -102,26 +110,19 @@ internal static class RefreshRateSettingsMenu
 
     private static void ToggleOverrideEnabled()
     {
-        ModConfig.RefreshRateOverrideEnabled.Value = !ModConfig.RefreshRateOverrideEnabled.Value;
+        RefreshRateConfig.OverrideEnabled.Value = !RefreshRateConfig.OverrideEnabled.Value;
         RefreshOverrideEnabledText();
-        Plugin.Log.LogInfo($"Refresh rate override {(ModConfig.RefreshRateOverrideEnabled.Value ? "enabled" : "disabled")}.");
-    }
-
-    private static string GetOverrideEnabledLabel()
-    {
-        return ModConfig.RefreshRateOverrideEnabled.Value
-            ? "Refresh override: On"
-            : "Refresh override: Off";
+        Plugin.Log.LogInfo(OverrideEnabledMenuLabel);
     }
 
     private static void RefreshOverrideEnabledText()
     {
-        SetMenuOptionText(_overrideEnabledOption, GetOverrideEnabledLabel());
+        SetMenuOptionText(_overrideEnabledOption, OverrideEnabledMenuLabel);
     }
 
     private static void RefreshTargetHzText()
     {
-        SetMenuOptionText(_targetHzOption, $"Target Hz: {RefreshRateConfig.GetTargetHzLabel()}");
+        SetMenuOptionText(_targetHzOption, TargetHzMenuLabel);
     }
 
     private static void SetMenuOptionText(MenuOption menuOption, string text)
