@@ -38,7 +38,7 @@ internal static class FpsSettingsMenu
             .SetParent(menu)
             .PlaceOptionBefore(menu.MenuOptions.Count - 1)
             .BuildMenuDivider();
-        
+
         _targetFpsOption = new MenuOptionFactory()
             .SetName($"Target FPS: {FpsConfig.GetTargetFpsLabel()}")
             .SetParent(menu)
@@ -47,19 +47,51 @@ internal static class FpsSettingsMenu
             .Build();
 
         new MenuOptionFactory()
-            .SetName("+Target FPS")
+            .SetName("+100 FPS")
             .SetParent(menu)
             .PlaceOptionBefore(menu.MenuOptions.Count - 1)
             .SetNextLocation(menu)
-            .SetOnClick(IncreaseFpsTarget)
+            .SetOnClick(() => AdjustTargetFpsAndRefresh(100))
             .Build();
 
         new MenuOptionFactory()
-            .SetName("-Target FPS")
+            .SetName("+10 FPS")
             .SetParent(menu)
             .PlaceOptionBefore(menu.MenuOptions.Count - 1)
             .SetNextLocation(menu)
-            .SetOnClick(DecreaseFpsTarget)
+            .SetOnClick(() => AdjustTargetFpsAndRefresh(10))
+            .Build();
+
+        new MenuOptionFactory()
+            .SetName("+5 FPS")
+            .SetParent(menu)
+            .PlaceOptionBefore(menu.MenuOptions.Count - 1)
+            .SetNextLocation(menu)
+            .SetOnClick(() => AdjustTargetFpsAndRefresh(5))
+            .Build();
+
+        new MenuOptionFactory()
+            .SetName("-5 FPS")
+            .SetParent(menu)
+            .PlaceOptionBefore(menu.MenuOptions.Count - 1)
+            .SetNextLocation(menu)
+            .SetOnClick(() => AdjustTargetFpsAndRefresh(-5))
+            .Build();
+
+        new MenuOptionFactory()
+            .SetName("-10 FPS")
+            .SetParent(menu)
+            .PlaceOptionBefore(menu.MenuOptions.Count - 1)
+            .SetNextLocation(menu)
+            .SetOnClick(() => AdjustTargetFpsAndRefresh(-10))
+            .Build();
+
+        new MenuOptionFactory()
+            .SetName("-100 FPS")
+            .SetParent(menu)
+            .PlaceOptionBefore(menu.MenuOptions.Count - 1)
+            .SetNextLocation(menu)
+            .SetOnClick(() => AdjustTargetFpsAndRefresh(-100))
             .Build();
 
         return menu;
@@ -77,15 +109,9 @@ internal static class FpsSettingsMenu
         RefreshUncapFpsToggleKeyText();
     }
 
-    private static void IncreaseFpsTarget()
+    private static void AdjustTargetFpsAndRefresh(int delta)
     {
-        FpsConfig.IncreaseTargetFps();
-        RefreshTargetFpsText();
-    }
-
-    private static void DecreaseFpsTarget()
-    {
-        FpsConfig.DecreaseTargetFps();
+        FpsConfig.AdjustTargetFps(delta);
         RefreshTargetFpsText();
     }
 
@@ -145,7 +171,7 @@ internal static class FpsSettingsMenu
     private static void SetMenuOptionText(MenuOption menuOption, string text)
     {
         if (menuOption == null) return;
-        
+
         menuOption.Text = text;
 
         if (menuOption.TextComponent != null)
@@ -156,7 +182,8 @@ internal static class FpsSettingsMenu
 
     private static bool IsFpsSettingsMenuVisible()
     {
-        return IsMenuRowVisible(_targetFpsToggleKeyOption) || IsMenuRowVisible(_uncapFpsToggleKeyOption);
+        return IsMenuRowVisible(_targetFpsToggleKeyOption) ||
+               IsMenuRowVisible(_uncapFpsToggleKeyOption);
     }
 
     private static bool IsMenuRowVisible(MenuOption option)

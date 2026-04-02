@@ -7,7 +7,6 @@ internal static class FpsConfig
 {
     private const int MinFps = 0;
     private const int MaxFps = 1000;
-    private const int StepFps = 5;
 
     internal static KeyCode GetOverrideToggleKey()
     {
@@ -34,14 +33,9 @@ internal static class FpsConfig
         return ClampFps(ModConfig.FpsOverrideTarget.Value);
     }
 
-    internal static void IncreaseTargetFps()
+    internal static void AdjustTargetFps(int delta)
     {
-        ModConfig.FpsOverrideTarget.Value = ClampFps(GetTargetFps() + StepFps);
-    }
-
-    internal static void DecreaseTargetFps()
-    {
-        ModConfig.FpsOverrideTarget.Value = ClampFps(GetTargetFps() - StepFps);
+        ModConfig.FpsOverrideTarget.Value = ClampFps(GetTargetFps() + delta);
     }
 
     internal static string GetTargetFpsLabel()

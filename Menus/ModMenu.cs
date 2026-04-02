@@ -31,6 +31,15 @@ public static class ModMenu
             .SetNextLocation(fpsSettingsMenu)
             .Build();
 
+        GameMenu refreshRateSettingsMenu = RefreshRateSettingsMenu.CreateMenu(menu);
+
+        new MenuOptionFactory()
+            .SetName("REFRESH RATE")
+            .SetParent(menu)
+            .PlaceOptionBefore(menu.MenuOptions.Count - 1)
+            .SetNextLocation(refreshRateSettingsMenu)
+            .Build();
+
         new MenuOptionFactory()
             .SetParent(menu)
             .PlaceOptionBefore(menu.MenuOptions.Count - 1)
