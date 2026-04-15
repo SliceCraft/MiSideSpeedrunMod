@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+using HarmonyLib;
+using SpeedrunMod.Configs;
 
 namespace SpeedrunMod.Patches;
 
@@ -9,6 +10,6 @@ public class ConsoleCommandsGamePatch
     [HarmonyPatch(nameof(ConsoleCommandsGame.Command))]
     public static void CommandPostfix()
     {
-        Plugin.configEnableDialogueSkip.Value = GlobalGame.canSkipDialogue;
+        ModConfig.EnableDialogueSkip.Value = GlobalGame.canSkipDialogue;
     }
 }

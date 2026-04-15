@@ -29,6 +29,16 @@ These parts will automatically restart when you reach the end.
     <td>Toggle Running</td>
     <td>Toggle whether or not you are allowed to run.</td>
   </tr>
+  <tr>
+    <td>F1 (configurable)</td>
+    <td>Target FPS toggle</td>
+    <td>In-game: switch between your configured target FPS and your previous FPS. Rebind under FPS settings.</td>
+  </tr>
+  <tr>
+    <td>F2 (configurable)</td>
+    <td>Uncap FPS toggle</td>
+    <td>In-game: switch between uncapped FPS with VSync disabled and your previous FPS/VSync settings. Rebind under FPS settings.</td>
+  </tr>
 </table> 
 
 # Installing
