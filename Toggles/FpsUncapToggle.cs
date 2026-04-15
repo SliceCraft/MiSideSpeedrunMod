@@ -9,14 +9,17 @@ namespace SpeedrunMod.Toggles;
 internal static class FpsUncapToggle
 {
     private static int? _previousFps;
+    private static int? _previousVSyncCount;
     private static bool _enabled;
 
     internal static void Update()
     {
-        if (!_previousFps.HasValue)
+        if (!_previousFps.HasValue || !_previousVSyncCount.HasValue)
         {
-            if (!FpsUtil.TryReadCurrentFps(out int fps)) return;
+            int fps = FpsUtil.GetCurrentFps();
+            int vSyncMode = FpsUtil.GetCurrentVSyncCount();
             _previousFps = fps;
+            _previousVSyncCount = vSyncMode;
         }
 
         if (!IsInGame()) return;
@@ -34,48 +37,39 @@ internal static class FpsUncapToggle
 
     private static bool IsInGame()
     {
-        return UnityEngine.Object.FindObjectOfType<GameController>() != null;
+        return Object.FindObjectOfType<GameController>() != null;
     }
 
     private static void EnableUncap()
     {
-        if (!_previousFps.HasValue)
+        if (!_previousFps.HasValue || !_previousVSyncCount.HasValue)
         {
-            EventManager.ShowEvent(new ModEvent("Unable to read previous FPS"));
-            Plugin.Log.LogError("Previous FPS not captured; cannot uncap.");
+            EventManager.ShowEvent(new ModEvent("Unable to read previous FPS or VSync count"));
+            Plugin.Log.LogError("Previous FPS not captured or VSync count not captured; cannot uncap.");
             return;
         }
 
-        if (!FpsUtil.TryApplyFps(0))
-        {
-            EventManager.ShowEvent(new ModEvent("Unable to uncap FPS"));
-            Plugin.Log.LogError("Failed to apply uncapped FPS.");
-            return;
-        }
+        FpsUtil.UncapFps(disableVSync: true);
 
         _enabled = true;
-        EventManager.ShowEvent(new ModEvent("FPS uncapped"));
-        Plugin.Log.LogInfo("FPS uncap enabled.");
+        EventManager.ShowEvent(new ModEvent("FPS uncapped and VSync disabled"));
+        Plugin.Log.LogInfo("FPS uncap enabled and VSync disabled.");
     }
 
     private static void RestoreFps()
     {
-        if (!_previousFps.HasValue)
+        if (!_previousFps.HasValue || !_previousVSyncCount.HasValue)
         {
-            EventManager.ShowEvent(new ModEvent("Unable to read previous FPS"));
-            Plugin.Log.LogError("Previous FPS not captured; cannot restore FPS after uncap.");
+            EventManager.ShowEvent(new ModEvent("Unable to read previous FPS or VSync count"));
+            Plugin.Log.LogError("Previous FPS not captured or VSync count not captured; cannot restore FPS after uncap.");
             return;
         }
 
-        if (!FpsUtil.TryApplyFps(_previousFps.Value))
-        {
-            EventManager.ShowEvent(new ModEvent("Unable to restore FPS after uncap"));
-            Plugin.Log.LogError($"Failed to restore FPS to {FpsUtil.FormatFps(_previousFps.Value)}.");
-            return;
-        }
+        FpsUtil.SetFps(_previousFps.Value);
+        FpsUtil.SetVSyncCount(_previousVSyncCount.Value);
 
         _enabled = false;
-        EventManager.ShowEvent(new ModEvent($"FPS restored to {FpsUtil.FormatFps(_previousFps.Value)}"));
-        Plugin.Log.LogInfo($"FPS uncap disabled, restored to {FpsUtil.FormatFps(_previousFps.Value)}.");
+        EventManager.ShowEvent(new ModEvent($"VSync restored, FPS uncap disabled and restored to {FpsUtil.FormatFps(_previousFps.Value)}"));
+        Plugin.Log.LogInfo($"VSync restored, FPS uncap disabled and restored to {FpsUtil.FormatFps(_previousFps.Value)}.");
     }
 }
