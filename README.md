@@ -37,7 +37,7 @@ These parts will automatically restart when you reach the end.
   <tr>
     <td>F2 (configurable)</td>
     <td>Uncap FPS toggle</td>
-    <td>In-game: switch between uncapped FPS (<code>setfps 0</code>) and your previous FPS. Rebind under FPS settings.</td>
+    <td>In-game: switch between uncapped FPS with VSync disabled and your previous FPS/VSync settings. Rebind under FPS settings.</td>
   </tr>
 </table> 
 

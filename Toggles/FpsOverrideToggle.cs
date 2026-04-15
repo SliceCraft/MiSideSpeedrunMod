@@ -15,7 +15,7 @@ internal static class FpsOverrideToggle
     {
         if (!_previousFps.HasValue) 
         {
-            if (!FpsUtil.TryReadCurrentFps(out int fps)) return;
+            int fps = FpsUtil.GetCurrentFps();
             _previousFps = fps;
         }
 
@@ -35,7 +35,7 @@ internal static class FpsOverrideToggle
 
     private static bool IsInGame()
     {
-        return UnityEngine.Object.FindObjectOfType<GameController>() != null;
+        return Object.FindObjectOfType<GameController>() != null;
     }
 
     private static void EnableOverride()
@@ -48,12 +48,7 @@ internal static class FpsOverrideToggle
         }
 
         int overrideFps = FpsConfig.GetTargetFps();
-        if (!FpsUtil.TryApplyFps(overrideFps))
-        {
-            EventManager.ShowEvent(new ModEvent("Unable to set FPS override"));
-            Plugin.Log.LogError("Failed to apply FPS override.");
-            return;
-        }
+        FpsUtil.SetFps(overrideFps);
 
         _enabled = true;
         EventManager.ShowEvent(new ModEvent($"FPS set to {FpsUtil.FormatFps(overrideFps)}"));
@@ -69,12 +64,7 @@ internal static class FpsOverrideToggle
             return;
         }
 
-        if (!FpsUtil.TryApplyFps(_previousFps.Value))
-        {
-            EventManager.ShowEvent(new ModEvent("Unable to restore FPS"));
-            Plugin.Log.LogError($"Failed to restore FPS to {FpsUtil.FormatFps(_previousFps.Value)}.");
-            return;
-        }
+        FpsUtil.SetFps(_previousFps.Value);
 
         _enabled = false;
         EventManager.ShowEvent(new ModEvent($"FPS restored to {FpsUtil.FormatFps(_previousFps.Value)}"));
