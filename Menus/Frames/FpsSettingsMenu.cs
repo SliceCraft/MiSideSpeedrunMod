@@ -72,19 +72,19 @@ internal static class FpsSettingsMenu
             .Build();
 
         new MenuOptionFactory()
-            .SetName("+5 FPS")
+            .SetName("+1 FPS")
             .SetParent(menu)
             .PlaceOptionBefore(menu.MenuOptions.Count - 1)
             .SetNextLocation(menu)
-            .SetOnClick(() => AdjustTargetFpsAndRefresh(5))
+            .SetOnClick(() => AdjustTargetFpsAndRefresh(1))
             .Build();
 
         new MenuOptionFactory()
-            .SetName("-5 FPS")
+            .SetName("-1 FPS")
             .SetParent(menu)
             .PlaceOptionBefore(menu.MenuOptions.Count - 1)
             .SetNextLocation(menu)
-            .SetOnClick(() => AdjustTargetFpsAndRefresh(-5))
+            .SetOnClick(() => AdjustTargetFpsAndRefresh(-1))
             .Build();
 
         new MenuOptionFactory()

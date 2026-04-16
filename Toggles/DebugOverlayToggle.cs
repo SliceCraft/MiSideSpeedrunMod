@@ -1,6 +1,5 @@
 using SpeedrunMod.Configs;
 using SpeedrunMod.EventDisplay;
-using SpeedrunMod.Menus.Debug;
 using SpeedrunMod.Menus.Keybinds;
 using UnityEngine;
 

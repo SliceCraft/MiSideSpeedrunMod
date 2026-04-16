@@ -52,3 +52,27 @@ Thanks for being interested in contributing to this mod!
 To setup your dev environment make sure to clone this repository and copy the interop files from your BepInEx folder (should be in `MiSide/BepInEx/interop`) to the `Dependencies` folder.  
 Then download the most recent version from the [MenuLib](https://github.com/SliceCraft/MiSideMenuLib/releases) and also place this dll file in the Dependencies folder.  
 You can find some good first issues over [here](https://github.com/SliceCraft/MiSideSpeedrunMod/issues?q=is%3Aissue%20state%3Aopen%20label%3A%22good%20first%20issue%22), feel free to ask for help although I won't teach you how to code.
+
+## Build And Deploy
+You can clean, build, and copy mod DLLs to your game/plugin folder with `dotnet` commands. Copy step runs only when you pass `DeployOutputDir`.
+
+Default deploy flow:
+
+```sh
+dotnet clean -c Release
+dotnet build -c Release -p:DeployOutputDir=/path/to/MiSide/BepInEx/plugins
+```
+
+By default this deploys:
+
+- `SliceCraft.SpeedrunMod.dll`
+- `SliceCraft.MenuLib.dll`
+
+To deploy different files, pass `DeployAssemblies` as comma-separated list:
+
+```sh
+dotnet clean -c Release
+dotnet build -c Release \
+  -p:DeployOutputDir=/path/to/MiSide/BepInEx/plugins \
+  -p:DeployAssemblies="SliceCraft.SpeedrunMod.dll,SliceCraft.MenuLib.dll"
+```

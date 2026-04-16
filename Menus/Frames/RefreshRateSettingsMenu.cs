@@ -15,7 +15,7 @@ internal static class RefreshRateSettingsMenu
             : "Refresh override: Off";
 
     private static string TargetHzMenuLabel =>
-        $"Target Hz: {RefreshRateConfig.GetTargetHzLabel()}";
+        $"Target Hz: {RefreshRateConfig.GetTargetHz()}";
 
     internal static GameMenu CreateMenu(GameMenu previousMenu)
     {
@@ -50,6 +50,14 @@ internal static class RefreshRateSettingsMenu
             .PlaceOptionBefore(menu.MenuOptions.Count - 1)
             .SetNextLocation(menu)
             .Build();
+        
+        new MenuOptionFactory()
+            .SetName("+1000 Hz")
+            .SetParent(menu)
+            .PlaceOptionBefore(menu.MenuOptions.Count - 1)
+            .SetNextLocation(menu)
+            .SetOnClick(() => AdjustTargetHzAndRefresh(1000))
+            .Build();
 
         new MenuOptionFactory()
             .SetName("+100 Hz")
@@ -68,19 +76,19 @@ internal static class RefreshRateSettingsMenu
             .Build();
 
         new MenuOptionFactory()
-            .SetName("+5 Hz")
+            .SetName("+1 Hz")
             .SetParent(menu)
             .PlaceOptionBefore(menu.MenuOptions.Count - 1)
             .SetNextLocation(menu)
-            .SetOnClick(() => AdjustTargetHzAndRefresh(5))
+            .SetOnClick(() => AdjustTargetHzAndRefresh(1))
             .Build();
 
         new MenuOptionFactory()
-            .SetName("-5 Hz")
+            .SetName("-1 Hz")
             .SetParent(menu)
             .PlaceOptionBefore(menu.MenuOptions.Count - 1)
             .SetNextLocation(menu)
-            .SetOnClick(() => AdjustTargetHzAndRefresh(-5))
+            .SetOnClick(() => AdjustTargetHzAndRefresh(-1))
             .Build();
 
         new MenuOptionFactory()
@@ -99,12 +107,20 @@ internal static class RefreshRateSettingsMenu
             .SetOnClick(() => AdjustTargetHzAndRefresh(-100))
             .Build();
 
+        new MenuOptionFactory()
+            .SetName("-1000 Hz")
+            .SetParent(menu)
+            .PlaceOptionBefore(menu.MenuOptions.Count - 1)
+            .SetNextLocation(menu)
+            .SetOnClick(() => AdjustTargetHzAndRefresh(-1000))
+            .Build();
+
         return menu;
     }
 
     private static void AdjustTargetHzAndRefresh(int delta)
     {
-        RefreshRateConfig.AdjustTargetHz(delta);
+        RefreshRateConfig.SetTargetHz(RefreshRateConfig.GetTargetHz() + delta);
         RefreshTargetHzText();
     }
 

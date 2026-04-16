@@ -13,6 +13,7 @@
       https://nuget.samboy.dev/v3/index.json
     </RestoreAdditionalProjectSources>
     <RootNamespace>SpeedrunMod</RootNamespace>
+    <DeployAssemblies Condition="'$(DeployAssemblies)' == ''">SliceCraft.SpeedrunMod.dll,SliceCraft.MenuLib.dll</DeployAssemblies>
   </PropertyGroup>
 
   <ItemGroup>
@@ -23,4 +24,21 @@
   <ItemGroup>
     <Reference Include="Dependencies/*.dll" />
   </ItemGroup>
+
+  <Target Name="DeployConfiguredAssembliesAfterBuild" AfterTargets="Build" Condition="'$(DeployOutputDir)' != ''">
+    <ItemGroup>
+      <DeployAssembly Include="$([System.String]::Copy('$(DeployAssemblies)').Split(','))" />
+      <DeployFile Include="@(DeployAssembly->'$(TargetDir)%(Identity)')" Condition="Exists('$(TargetDir)%(Identity)')" />
+      <MissingDeployAssembly Include="@(DeployAssembly)" Condition="!Exists('$(TargetDir)%(Identity)')" />
+    </ItemGroup>
+
+    <MakeDir Directories="$(DeployOutputDir)" />
+    <Copy
+      SourceFiles="@(DeployFile)"
+      DestinationFiles="@(DeployFile->'$(DeployOutputDir)/%(Filename)%(Extension)')"
+      SkipUnchangedFiles="true" />
+
+    <Warning Text="Deploy skipped missing file: %(MissingDeployAssembly.Identity)" Condition="'@(MissingDeployAssembly)' != ''" />
+    <Message Text="Deployed @(DeployFile->'%(Filename)%(Extension)', ', ') to $(DeployOutputDir)" Importance="high" Condition="'@(DeployFile)' != ''" />
+  </Target>
 </Project>

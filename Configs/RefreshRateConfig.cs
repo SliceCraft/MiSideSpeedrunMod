@@ -6,7 +6,7 @@ namespace SpeedrunMod.Configs;
 internal static class RefreshRateConfig
 {
     private const int MinHz = 1;
-    private const int MaxHz = 1000;
+    private const int MaxHz = 100000;
 
     internal static ConfigEntry<bool> OverrideEnabled;
     internal static ConfigEntry<int> OverrideTarget;
@@ -31,13 +31,8 @@ internal static class RefreshRateConfig
         return Mathf.Clamp(OverrideTarget.Value, MinHz, MaxHz);
     }
 
-    internal static void AdjustTargetHz(int delta)
+    internal static void SetTargetHz(int hz)
     {
-        OverrideTarget.Value = Mathf.Clamp(GetTargetHz() + delta, MinHz, MaxHz);
-    }
-
-    internal static string GetTargetHzLabel()
-    {
-        return $"{GetTargetHz()} Hz";
+        OverrideTarget.Value = Mathf.Clamp(hz, MinHz, MaxHz);
     }
 }

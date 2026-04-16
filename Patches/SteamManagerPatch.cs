@@ -6,6 +6,7 @@ using SpeedrunMod.Menus.Keybinds;
 using SpeedrunMod.Practice;
 using SpeedrunMod.RevealSystems;
 using SpeedrunMod.Toggles;
+using SpeedrunMod.Debug;
 using SpeedrunMod.Utils;
 
 namespace SpeedrunMod.Patches;
