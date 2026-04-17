@@ -5,9 +5,9 @@ using SpeedrunMod.EventDisplay;
 using SpeedrunMod.Menus.Keybinds;
 using UnityEngine;
 
-namespace SpeedrunMod.Menus.Debug;
+namespace SpeedrunMod.Menus.Overlay;
 
-internal static class DebugSettingsMenu
+internal static class OverlaySettingsMenu
 {
 	private static MenuOption _overlayEnabledOption;
 
@@ -16,19 +16,19 @@ internal static class DebugSettingsMenu
 	private static MenuOption _overlayToggleKeyOption;
 
 	private static string OverlayEnabledMenuLabel =>
-		DebugConfig.OverlayEnabled.Value
-			? "Debug overlay: On"
-			: "Debug overlay: Off";
+		OverlayConfig.OverlayEnabled.Value
+			? "Overlay: On"
+			: "Overlay: Off";
 
 	private static string LogIntervalMenuLabel =>
-		DebugConfig.OverlayLogInterval.Value <= 0f
+		OverlayConfig.OverlayLogInterval.Value <= 0f
 			? "Overlay update: every frame"
-			: $"Overlay update: every {DebugConfig.OverlayLogInterval.Value:F2} s";
+			: $"Overlay update: every {OverlayConfig.OverlayLogInterval.Value:F2} s";
 
 	internal static GameMenu CreateMenu(GameMenu previousMenu)
 	{
 		var gameMenu = new MenuFactory()
-			.SetTitle("DEBUG")
+			.SetTitle("OVERLAY")
 			.SetBackButton(previousMenu)
 			.Build();
 
@@ -41,7 +41,7 @@ internal static class DebugSettingsMenu
 			.Build();
 
 		_overlayToggleKeyOption = new MenuOptionFactory()
-			.SetName($"Debug overlay toggle key: {DebugConfig.OverlayToggleKeybind.Value}")
+			.SetName($"Overlay toggle key: {OverlayConfig.OverlayToggleKeybind.Value}")
 			.SetParent(gameMenu)
 			.PlaceOptionBefore(gameMenu.MenuOptions.Count - 1)
 			.SetNextLocation(gameMenu)
@@ -113,9 +113,9 @@ internal static class DebugSettingsMenu
 
 	internal static void Update()
 	{
-		if (KeybindCapture.IsCapturing() && !IsDebugSettingsMenuVisible())
+		if (KeybindCapture.IsCapturing() && !IsOverlaySettingsMenuVisible())
 		{
-			Plugin.Log.LogInfo("Debug settings keybind capture cancelled (left DEBUG menu).");
+			Plugin.Log.LogInfo("Overlay settings keybind capture cancelled (left OVERLAY menu).");
 			KeybindCapture.CancelCapture();
 			RefreshOverlayToggleKeyText();
 		}
@@ -123,7 +123,7 @@ internal static class DebugSettingsMenu
 
 	private static void ToggleOverlaySetting()
 	{
-		DebugConfig.OverlayEnabled.Value = !DebugConfig.OverlayEnabled.Value;
+		OverlayConfig.OverlayEnabled.Value = !OverlayConfig.OverlayEnabled.Value;
 		RefreshOverlayEnabledText();
 		Plugin.Log.LogInfo(OverlayEnabledMenuLabel);
 		EventManager.ShowEvent(new ModEvent(OverlayEnabledMenuLabel));
@@ -131,13 +131,13 @@ internal static class DebugSettingsMenu
 
 	private static void AdjustLogIntervalAndRefresh(float delta)
 	{
-		DebugConfig.AdjustLogInterval(delta);
+		OverlayConfig.AdjustLogInterval(delta);
 		RefreshLogIntervalText();
 	}
 
 	private static void BeginOverlayToggleKeyCapture()
 	{
-		SetMenuOptionText(_overlayToggleKeyOption, "Debug overlay toggle key: <press key... Esc to cancel>");
+		SetMenuOptionText(_overlayToggleKeyOption, "Overlay toggle key: <press key... Esc to cancel>");
 		KeybindCapture.BeginCapture(OnOverlayToggleKeyCaptureComplete);
 	}
 
@@ -145,9 +145,9 @@ internal static class DebugSettingsMenu
 	{
 		if (success)
 		{
-			DebugConfig.OverlayToggleKeybind.Value = keyCode;
-			SetMenuOptionText(_overlayToggleKeyOption, $"Debug overlay toggle key: {keyCode}");
-			Plugin.Log.LogInfo($"Debug overlay toggle key updated to {keyCode}.");
+			OverlayConfig.OverlayToggleKeybind.Value = keyCode;
+			SetMenuOptionText(_overlayToggleKeyOption, $"Overlay toggle key: {keyCode}");
+			Plugin.Log.LogInfo($"Overlay toggle key updated to {keyCode}.");
 		}
 		else
 		{
@@ -167,7 +167,7 @@ internal static class DebugSettingsMenu
 
 	private static void RefreshOverlayToggleKeyText()
 	{
-		SetMenuOptionText(_overlayToggleKeyOption, $"Debug overlay toggle key: {DebugConfig.OverlayToggleKeybind.Value}");
+		SetMenuOptionText(_overlayToggleKeyOption, $"Overlay toggle key: {OverlayConfig.OverlayToggleKeybind.Value}");
 	}
 
 	private static void SetMenuOptionText(MenuOption menuOption, string text)
@@ -182,7 +182,7 @@ internal static class DebugSettingsMenu
 		}
 	}
 
-	private static bool IsDebugSettingsMenuVisible()
+	private static bool IsOverlaySettingsMenuVisible()
 	{
 		if (!IsMenuRowVisible(_overlayToggleKeyOption))
 		{

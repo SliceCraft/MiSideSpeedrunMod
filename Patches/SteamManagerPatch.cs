@@ -1,12 +1,12 @@
 using HarmonyLib;
 using SpeedrunMod.EventDisplay;
-using SpeedrunMod.Menus.Debug;
 using SpeedrunMod.Menus.Frames;
 using SpeedrunMod.Menus.Keybinds;
+using SpeedrunMod.Menus.Overlay;
 using SpeedrunMod.Practice;
 using SpeedrunMod.RevealSystems;
 using SpeedrunMod.Toggles;
-using SpeedrunMod.Debug;
+using SpeedrunMod.Overlay;
 using SpeedrunMod.Utils;
 
 namespace SpeedrunMod.Patches;
@@ -20,16 +20,16 @@ internal class SteamManagerPatch
     {
         EventManager.Update();
         VersionText.Update();
-        DebugOverlay.Update();
+        OverlayManager.Update();
         KeybindCapture.Update();
-        DebugOverlayToggle.Update();
+        OverlayToggle.Update();
         FpsOverrideToggle.Update();
         FpsUncapToggle.Update();
         EnableRunToggle.Update();
         RevealTriggerToggle.Update();
         PracticeManager.Update();
         FpsSettingsMenu.Update();
-        DebugSettingsMenu.Update();
+        OverlaySettingsMenu.Update();
         Triggers.Update();
     }
 }

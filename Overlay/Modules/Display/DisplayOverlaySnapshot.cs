@@ -1,8 +1,9 @@
-using SpeedrunMod.Debug.Models;
+using SpeedrunMod.Overlay.Context;
+using SpeedrunMod.Overlay.Snapshots;
 
-namespace SpeedrunMod.Debug;
+namespace SpeedrunMod.Overlay.Modules.Display;
 
-internal readonly struct DisplayOverlaySnapshot : IDebugOverlaySnapshot
+internal readonly struct DisplayOverlaySnapshot : IOverlaySnapshot
 {
 	internal int Width { get; }
 
@@ -12,7 +13,7 @@ internal readonly struct DisplayOverlaySnapshot : IDebugOverlaySnapshot
 
 	internal float Fps { get; }
 
-	internal DisplayOverlaySnapshot(in DebugOverlayContext ctx)
+	internal DisplayOverlaySnapshot(in OverlayContext ctx)
 	{
 		Width = ctx.Screen.Width;
 		Height = ctx.Screen.Height;

@@ -1,9 +1,10 @@
 using System.Text;
+using SpeedrunMod.Overlay.Snapshots;
 using UnityEngine;
 
-namespace SpeedrunMod.Debug;
+namespace SpeedrunMod.Overlay.Modules.Movement;
 
-internal readonly struct MovementOverlaySnapshot : IDebugOverlaySnapshot
+internal readonly struct MovementOverlaySnapshot : IOverlaySnapshot
 {
 	private readonly Vector3 _position;
 	private readonly string _targetName;
@@ -16,8 +17,8 @@ internal readonly struct MovementOverlaySnapshot : IDebugOverlaySnapshot
 	private readonly float _bodyAccel;
 	private readonly float _maxSpeed;
 	private readonly float _maxBodySpeed;
-	private readonly float _maxAbsTransformAccel;
-	private readonly float _maxAbsBodyAccel;
+	private readonly float _maxTransformAccel;
+	private readonly float _maxBodyAccel;
 	private readonly int _frame;
 
 	internal MovementOverlaySnapshot(
@@ -32,8 +33,8 @@ internal readonly struct MovementOverlaySnapshot : IDebugOverlaySnapshot
 		float bodyAccel,
 		float maxSpeed,
 		float maxBodySpeed,
-		float maxAbsTransformAccel,
-		float maxAbsBodyAccel,
+		float maxTransformAccel,
+		float maxBodyAccel,
 		int frame)
 	{
 		_position = position;
@@ -47,8 +48,8 @@ internal readonly struct MovementOverlaySnapshot : IDebugOverlaySnapshot
 		_bodyAccel = bodyAccel;
 		_maxSpeed = maxSpeed;
 		_maxBodySpeed = maxBodySpeed;
-		_maxAbsTransformAccel = maxAbsTransformAccel;
-		_maxAbsBodyAccel = maxAbsBodyAccel;
+		_maxTransformAccel = maxTransformAccel;
+		_maxBodyAccel = maxBodyAccel;
 		_frame = frame;
 	}
 
@@ -85,13 +86,13 @@ internal readonly struct MovementOverlaySnapshot : IDebugOverlaySnapshot
 		text.AppendLine($"Transform speed:\t{_transformSpeed:F3} u/s");
 		text.AppendLine($"Transform accel:\t{_transformAccel:F3} u/s2");
 		text.AppendLine($"Max transform speed:\t{_maxSpeed:F3} u/s");
-		text.AppendLine($"Max transform accel:\t{_maxAbsTransformAccel:F3} u/s2");
+		text.AppendLine($"Max transform accel:\t{_maxTransformAccel:F3} u/s2");
 
 		text.AppendLine($"Body velocity:\t{_bodyVelocity.x:F3}, {_bodyVelocity.y:F3}, {_bodyVelocity.z:F3} u/s");
 		text.AppendLine($"Body speed:\t{_bodySpeed:F3} u/s");
 		text.AppendLine($"Body accel:\t{_bodyAccel:F3} u/s2");
 		text.AppendLine($"Max body speed:\t{_maxBodySpeed:F3} u/s");
-		text.AppendLine($"Max body accel:\t{_maxAbsBodyAccel:F3} u/s2");
+		text.Append($"Max body accel:\t{_maxBodyAccel:F3} u/s2");
 
 		return text.ToString();
 	}

@@ -8,8 +8,12 @@ internal static class RefreshRateConfig
     private const int MinHz = 1;
     private const int MaxHz = 100000;
 
+    internal const int DefaultOverrideHz = 540;
+    internal const int InvalidThresholdHz = 540;
+
     internal static ConfigEntry<bool> OverrideEnabled;
     internal static ConfigEntry<int> OverrideTarget;
+    internal static int CurrentRefreshRateHz => Screen.currentResolution.refreshRate;
 
     internal static void Initialize(ConfigFile configFile)
     {
@@ -22,7 +26,7 @@ internal static class RefreshRateConfig
         OverrideTarget = configFile.Bind(
             "RefreshRate",
             "OverrideTarget",
-            60,
+            DefaultOverrideHz,
             "Reported refresh rate (Hz) when OverrideEnabled is true (menu: Target Hz).");
     }
 

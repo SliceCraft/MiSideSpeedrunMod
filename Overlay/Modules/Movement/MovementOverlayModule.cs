@@ -1,9 +1,13 @@
+using System;
+using SpeedrunMod.Configs;
+using SpeedrunMod.Overlay.Context;
+using SpeedrunMod.Overlay.Modules;
+using SpeedrunMod.Overlay.Snapshots;
 using UnityEngine;
-using SpeedrunMod.Debug.Models;
 
-namespace SpeedrunMod.Debug;
+namespace SpeedrunMod.Overlay.Modules.Movement;
 
-internal sealed class MovementOverlayModule : IDebugOverlayModule
+internal sealed class MovementOverlayModule : IOverlayModule
 {
 	internal static readonly MovementOverlayModule Instance = new MovementOverlayModule();
 
@@ -15,10 +19,16 @@ internal sealed class MovementOverlayModule : IDebugOverlayModule
 	private float _lastBodySpeed;
 	private float _maxSpeed;
 	private float _maxBodySpeed;
-	private float _maxAbsTransformAccel;
-	private float _maxAbsBodyAccel;
+	private float _maxTransformAccel;
+	private float _maxBodyAccel;
 
 	public string Name => "Movement";
+
+	public string GroupKey => "Core";
+	
+	private readonly TimeSpan _updateInterval = TimeSpan.FromSeconds(Math.Max(0f, OverlayConfig.OverlayLogInterval.Value));
+
+	public TimeSpan UpdateInterval => _updateInterval;
 
 	public void Reset()
 	{
@@ -33,11 +43,11 @@ internal sealed class MovementOverlayModule : IDebugOverlayModule
 		_lastBodySpeed = 0f;
 		_maxSpeed = 0f;
 		_maxBodySpeed = 0f;
-		_maxAbsTransformAccel = 0f;
-		_maxAbsBodyAccel = 0f;
+		_maxTransformAccel = 0f;
+		_maxBodyAccel = 0f;
 	}
 
-	public IDebugOverlaySnapshot Update(in DebugOverlayContext ctx)
+	public IOverlaySnapshot Update(in OverlayContext ctx)
 	{
 		int frameCount = ctx.Time.FrameCount;
 		if (ctx.PlayerMove == null)
@@ -73,21 +83,21 @@ internal sealed class MovementOverlayModule : IDebugOverlayModule
 				0f,
 				_maxSpeed, 
 				_maxBodySpeed, 
-				_maxAbsTransformAccel, 
-				_maxAbsBodyAccel,
+				_maxTransformAccel, 
+				_maxBodyAccel,
 				frameCount);
 		}
 
 		var dpos = position - _anchorPos!.Value;
 		var transformSpeed = dpos.magnitude / dt;
-		var bodySpeed = bodyVelocity.magnitude / dt;
+		var bodySpeed = bodyVelocity.magnitude;
 		var transformAccel = (transformSpeed - _lastSpeed) / dt;
 		var bodyAccel = (bodySpeed - _lastBodySpeed) / dt;
 
 		_maxSpeed = Mathf.Max(_maxSpeed, transformSpeed);
 		_maxBodySpeed = Mathf.Max(_maxBodySpeed, bodySpeed);
-		_maxAbsTransformAccel = Mathf.Max(_maxAbsTransformAccel, transformAccel);
-		_maxAbsBodyAccel = Mathf.Max(_maxAbsBodyAccel, bodyAccel);
+		_maxTransformAccel = Mathf.Max(_maxTransformAccel, transformAccel);
+		_maxBodyAccel = Mathf.Max(_maxBodyAccel, bodyAccel);
 
 		var movementOverlaySnapshot = new MovementOverlaySnapshot(
 			position,
@@ -101,8 +111,8 @@ internal sealed class MovementOverlayModule : IDebugOverlayModule
 			bodyAccel,
 			_maxSpeed,
 			_maxBodySpeed,
-			_maxAbsTransformAccel,
-			_maxAbsBodyAccel,
+			_maxTransformAccel,
+			_maxBodyAccel,
 			frameCount);
 		
 		_lastSpeed = transformSpeed;
@@ -113,7 +123,7 @@ internal sealed class MovementOverlayModule : IDebugOverlayModule
 		return movementOverlaySnapshot;
 	}
 
-	IDebugOverlaySnapshot IDebugOverlayModule.Update(in DebugOverlayContext ctx)
+	IOverlaySnapshot IOverlayModule.Update(in OverlayContext ctx)
 	{
 		return Update(in ctx);
 	}

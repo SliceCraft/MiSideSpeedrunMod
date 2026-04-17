@@ -30,6 +30,13 @@ internal static class RefreshRateSettingsMenu
             .PlaceOptionBefore(menu.MenuOptions.Count - 1)
             .SetNextLocation(menu)
             .Build();
+        
+        new MenuOptionFactory()
+            .SetName($"Using refresh rate above {RefreshRateConfig.InvalidThresholdHz} Hz will invalidate the run.")
+            .SetParent(menu)
+            .PlaceOptionBefore(menu.MenuOptions.Count - 1)
+            .SetNextLocation(menu)
+            .Build();
 
         new MenuOptionFactory()
             .SetParent(menu)

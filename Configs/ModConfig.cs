@@ -16,6 +16,6 @@ internal static class ModConfig
 
         FpsConfig.Initialize(configFile);
         RefreshRateConfig.Initialize(configFile);
-        DebugConfig.Initialize(configFile);
+        OverlayConfig.Initialize(configFile);
     }
 }

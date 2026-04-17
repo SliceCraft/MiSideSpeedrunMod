@@ -1,6 +1,6 @@
-namespace SpeedrunMod.Debug.Models;
+namespace SpeedrunMod.Overlay.Context;
 
-internal record struct DebugTime(
+internal record struct TimeContext(
 	float DeltaTime,
 	float UnscaledDeltaTime,
 	float FixedDeltaTime,
