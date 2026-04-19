@@ -1,12 +1,7 @@
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using SpeedrunMod.Configs;
-using SpeedrunMod.Overlay.Context;
 using SpeedrunMod.Overlay.Modules;
-using SpeedrunMod.Overlay.Modules.Display;
-using SpeedrunMod.Overlay.Modules.Movement;
-using SpeedrunMod.Overlay.Modules.Persistent;
 using UnityEngine;
 using UnityEngine.UI;
 using SpeedrunMod.Menus.Keybinds;
@@ -17,18 +12,11 @@ internal static class OverlayManager
 {
 	private const int OverlayFontSize = 20;
 
-	private static readonly IOverlayModule[] Modules = new IOverlayModule[]
-	{
-		MovementOverlayModule.Instance,
-		DisplayOverlayModule.Instance,
-		RefreshRateWarningOverlayModule.Instance
-	};
+	private static readonly OverlayModulesRepository Modules = OverlayModulesRepository.Repository;
 
 	private static readonly StringBuilder OverlayBuilder = new StringBuilder();
 	
 	private static readonly Dictionary<string, ModuleState> ModuleStates = new Dictionary<string, ModuleState>();
-
-	private static GameController _controller;
 
 	private static GameObject _overlayRoot;
 
@@ -37,49 +25,33 @@ internal static class OverlayManager
 	private static int _currentPageIndex;
 
 	private static readonly KeyCode NextGroupKey = KeyCode.PageDown;
+
 	private static readonly KeyCode PrevGroupKey = KeyCode.PageUp;
 
 	internal static void Update()
 	{
-		if (TryInitialize(out var controller))
+		var isEnabled = OverlayConfig.OverlayEnabled.Value;
+		if (!Modules.IsAnyPersistent && !isEnabled)
 		{
-			Update(controller);
-		}
-	}
-
-	private static bool TryInitialize(out GameController controller)
-	{
-		controller = Object.FindObjectOfType<GameController>();
-		if (controller == null)
-		{
-			TeardownOverlay();
-			ResetModules();
-			_controller = null;
-			return false;
-		}
-
-		if (controller != _controller)
-		{
-			_controller = controller;
-			TeardownOverlay();
-			ResetModules();
-			return false;
-		}
-
-		return true;
-	}
-
-	private static void Update(GameController controller)
-	{
-		var ctx = BuildContext(controller);
-		ResetOverlay();
-
-		var moduleStates = GetModuleStates(in ctx);
-		if (moduleStates.Count == 0)
-		{
-			TeardownOverlay();
+			Reset();
 			return;
 		}
+
+		var modules = isEnabled ? Modules.GetAll() : Modules.GetPersistent();
+		if (modules.Length == 0)
+		{
+			Reset();
+			return;
+		}
+		
+		var moduleStates = GetModuleStates(modules);
+		if (moduleStates.Count == 0)
+		{
+			Reset();
+			return;
+		}
+
+		ResetOverlay();
 
 		HandleGroupPaging(moduleStates.Count);
 		EnsureOverlay();
@@ -88,28 +60,20 @@ internal static class OverlayManager
 		UpdateOverlay();
 	}
 
-	private static Dictionary<string, List<ModuleState>> GetModuleStates(in OverlayContext ctx)
+	private static SortedDictionary<string, List<ModuleState>> GetModuleStates(IOverlayModule[] modules)
 	{
-		var globalEnabled = OverlayConfig.OverlayEnabled.Value;
-		var groupToStates = new Dictionary<string, List<ModuleState>>();
+		var groupToStates = new SortedDictionary<string, List<ModuleState>>();
+		var realtimeSinceStartup = Time.realtimeSinceStartup;
 
-		foreach (var module in Modules)
+		foreach (var module in modules)
 		{
-			var shouldRender = globalEnabled || module is IPersistentOverlayModule;
-			if (!shouldRender)
-			{
-				ClearModuleState(module);
-				continue;
-			}
-
 			var state = GetOrCreateModuleState(module);
-			var realtimeSinceStartup = ctx.Time.RealtimeSinceStartup;
 			var updateIntervalSeconds = System.Math.Max(0, module.UpdateInterval.TotalSeconds);
 			var shouldUpdateNow = state.CachedSnapshot is null || realtimeSinceStartup - state.LastUpdatedRealtime >= updateIntervalSeconds;
 
 			if (shouldUpdateNow)
 			{
-				state.CachedSnapshot = module.Update(in ctx);
+				state.CachedSnapshot = module.Update();
 				state.LastUpdatedRealtime = realtimeSinceStartup;
 			}
 
@@ -171,7 +135,7 @@ internal static class OverlayManager
 		}
 	}
 
-	private static void RenderCurrentGroup(Dictionary<string, List<ModuleState>> groupsByKey)
+	private static void RenderCurrentGroup(SortedDictionary<string, List<ModuleState>> groupsByKey)
 	{
 		var groupCount = groupsByKey.Count;
 		_currentPageIndex = Mathf.Clamp(_currentPageIndex, 0, groupCount - 1);
@@ -180,7 +144,7 @@ internal static class OverlayManager
 		string activeKey = null;
 		List<ModuleState> activeStates = null;
 		
-		foreach (var kv in groupsByKey.OrderBy(kv => kv.Key))
+		foreach (var kv in groupsByKey)
 		{
 			if (keyIndex == _currentPageIndex)
 			{
@@ -272,11 +236,22 @@ internal static class OverlayManager
 		_overlayText.supportRichText = true;
 	}
 
+	private static void Reset()
+	{
+		ResetModules();
+		ResetOverlay();
+		TeardownOverlay();
+	}
+
 	private static void ResetModules()
 	{
-		foreach (var module in Modules)
+		foreach (var moduleName in ModuleStates.Keys)
 		{
-			module.Reset();
+			var module = Modules.GetByName(moduleName);
+			if (module != null)
+			{
+				ClearModuleState(module);
+			}
 		}
 	}
 
@@ -291,28 +266,4 @@ internal static class OverlayManager
 		}
 	}
 
-	private static OverlayContext BuildContext(GameController controller)
-	{
-		var playerMove = ResolvePlayerMove(controller);
-		var time = new TimeContext(Time.deltaTime, Time.unscaledDeltaTime, Time.fixedDeltaTime, Time.timeScale, Time.realtimeSinceStartup, Time.frameCount);
-		var screen = new ScreenContext(Screen.width, Screen.height, Screen.currentResolution);
-		return new OverlayContext(playerMove, time, screen);
-	}
-
-	private static PlayerMove ResolvePlayerMove(GameController controller)
-	{
-		var playerMove = Object.FindObjectOfType<PlayerMove>();
-		if (playerMove != null)
-		{
-			return playerMove;
-		}
-
-		var player = controller.transform.Find("Player");
-		if (player != null)
-		{
-			return player.GetComponent<PlayerMove>();
-		}
-
-		return null;
-	}
 }

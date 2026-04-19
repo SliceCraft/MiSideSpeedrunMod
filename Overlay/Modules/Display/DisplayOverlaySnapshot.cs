@@ -1,4 +1,3 @@
-using SpeedrunMod.Overlay.Context;
 using SpeedrunMod.Overlay.Snapshots;
 
 namespace SpeedrunMod.Overlay.Modules.Display;
@@ -13,14 +12,12 @@ internal readonly struct DisplayOverlaySnapshot : IOverlaySnapshot
 
 	internal float Fps { get; }
 
-	internal DisplayOverlaySnapshot(in OverlayContext ctx)
+	internal DisplayOverlaySnapshot(int width, int height, int refreshRate, float fps)
 	{
-		Width = ctx.Screen.Width;
-		Height = ctx.Screen.Height;
-		var resolution = ctx.Screen.Resolution;
-		RefreshRate = resolution.refreshRate;
-		var unscaledDeltaTime = ctx.Time.UnscaledDeltaTime;
-		Fps = 1f / unscaledDeltaTime;
+		Width = width;
+		Height = height;
+		RefreshRate = refreshRate;
+		Fps = fps;
 	}
 
 	public string Format()

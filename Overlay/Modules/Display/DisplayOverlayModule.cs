@@ -1,8 +1,7 @@
 using System;
 using SpeedrunMod.Configs;
-using SpeedrunMod.Overlay.Context;
-using SpeedrunMod.Overlay.Modules;
 using SpeedrunMod.Overlay.Snapshots;
+using UnityEngine;
 
 namespace SpeedrunMod.Overlay.Modules.Display;
 
@@ -14,25 +13,19 @@ internal sealed class DisplayOverlayModule : IOverlayModule
 
 	public string GroupKey => "Core";
 
-	private readonly TimeSpan _updateInterval = TimeSpan.FromSeconds(Math.Max(0f, OverlayConfig.OverlayLogInterval.Value));
-
-	public TimeSpan UpdateInterval => _updateInterval;
-
-	private DisplayOverlayModule()
-	{
-	}
+	public TimeSpan UpdateInterval { get; } = TimeSpan.FromSeconds(Math.Max(0f, OverlayConfig.OverlayLogInterval.Value));
 
 	public void Reset()
 	{
 	}
 
-	public IOverlaySnapshot Update(in OverlayContext ctx)
+	public IOverlaySnapshot Update()
 	{
-		return new DisplayOverlaySnapshot(in ctx);
-	}
-
-	IOverlaySnapshot IOverlayModule.Update(in OverlayContext ctx)
-	{
-		return Update(in ctx);
+		return new DisplayOverlaySnapshot(
+			Screen.width,
+			Screen.height,
+			Screen.currentResolution.refreshRate,
+			Time.deltaTime
+		);
 	}
 }

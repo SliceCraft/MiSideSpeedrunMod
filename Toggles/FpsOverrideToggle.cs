@@ -19,9 +19,9 @@ internal static class FpsOverrideToggle
             _previousFps = fps;
         }
 
-        if (!IsInGame()) return;
-        if (KeybindCapture.IsCapturing()) return;
         if (!Input.GetKeyDown(FpsConfig.OverrideToggleKeybind.Value)) return;
+        if (KeybindCapture.IsCapturing()) return;
+        if (!GameUtil.IsInGame()) return;
 
         if (_enabled)
         {
@@ -30,12 +30,6 @@ internal static class FpsOverrideToggle
         }
 
         EnableOverride();
-    }
-
-
-    private static bool IsInGame()
-    {
-        return Object.FindObjectOfType<GameController>() != null;
     }
 
     private static void EnableOverride()

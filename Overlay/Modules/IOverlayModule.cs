@@ -1,5 +1,4 @@
 using System;
-using SpeedrunMod.Overlay.Context;
 using SpeedrunMod.Overlay.Snapshots;
 
 namespace SpeedrunMod.Overlay.Modules;
@@ -14,5 +13,5 @@ internal interface IOverlayModule
 
 	void Reset();
 
-	IOverlaySnapshot Update(in OverlayContext ctx);
+	IOverlaySnapshot Update();
 }

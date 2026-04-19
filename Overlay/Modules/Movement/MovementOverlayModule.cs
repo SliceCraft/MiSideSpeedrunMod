@@ -1,8 +1,7 @@
 using System;
 using SpeedrunMod.Configs;
-using SpeedrunMod.Overlay.Context;
-using SpeedrunMod.Overlay.Modules;
 using SpeedrunMod.Overlay.Snapshots;
+using SpeedrunMod.Utils;
 using UnityEngine;
 
 namespace SpeedrunMod.Overlay.Modules.Movement;
@@ -25,10 +24,8 @@ internal sealed class MovementOverlayModule : IOverlayModule
 	public string Name => "Movement";
 
 	public string GroupKey => "Core";
-	
-	private readonly TimeSpan _updateInterval = TimeSpan.FromSeconds(Math.Max(0f, OverlayConfig.OverlayLogInterval.Value));
 
-	public TimeSpan UpdateInterval => _updateInterval;
+	public TimeSpan UpdateInterval { get; } = TimeSpan.FromSeconds(Math.Max(0f, OverlayConfig.OverlayLogInterval.Value));
 
 	public void Reset()
 	{
@@ -47,19 +44,20 @@ internal sealed class MovementOverlayModule : IOverlayModule
 		_maxBodyAccel = 0f;
 	}
 
-	public IOverlaySnapshot Update(in OverlayContext ctx)
+	public IOverlaySnapshot Update()
 	{
-		int frameCount = ctx.Time.FrameCount;
-		if (ctx.PlayerMove == null)
+		var frameCount = Time.frameCount;
+		var playerMove = ResolvePlayerMove();
+
+		if (playerMove == null)
 		{
 			ClearMovementState();
 			return MovementOverlaySnapshot.Empty(frameCount);
 		}
 
-		var playerMove = ctx.PlayerMove;
 		var transform = playerMove.transform;
 		var position = transform.position;
-		var realtimeSinceStartup = ctx.Time.RealtimeSinceStartup;
+		var realtimeSinceStartup = Time.realtimeSinceStartup;
 		var name = transform.name;
 		
 		var body = playerMove.GetComponent<Rigidbody>();
@@ -123,8 +121,21 @@ internal sealed class MovementOverlayModule : IOverlayModule
 		return movementOverlaySnapshot;
 	}
 
-	IOverlaySnapshot IOverlayModule.Update(in OverlayContext ctx)
+	private static PlayerMove ResolvePlayerMove()
 	{
-		return Update(in ctx);
+		var playerMove = UnityEngine.Object.FindObjectOfType<PlayerMove>();
+		if (playerMove != null)
+		{
+			return playerMove;
+		}
+
+		var controller = GameUtil.GetGameController();
+		if (controller == null)
+		{
+			return null;
+		}
+
+		var player = controller.transform.Find("Player");
+		return player?.GetComponent<PlayerMove>();
 	}
 }

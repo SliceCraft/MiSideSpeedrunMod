@@ -1,8 +1,7 @@
 using System;
 using SpeedrunMod.Configs;
-using SpeedrunMod.Overlay.Context;
-using SpeedrunMod.Overlay.Modules;
 using SpeedrunMod.Overlay.Snapshots;
+using UnityEngine;
 
 namespace SpeedrunMod.Overlay.Modules.Persistent;
 
@@ -24,15 +23,16 @@ internal sealed class RefreshRateWarningOverlayModule : IPersistentOverlayModule
 	{
 	}
 
-	public IOverlaySnapshot Update(in OverlayContext ctx)
+	public IOverlaySnapshot Update()
 	{
-		if (ctx.Screen.Resolution.refreshRate <= RefreshRateConfig.InvalidThresholdHz)
+		var refreshRate = Screen.currentResolution.refreshRate;
+		if (refreshRate <= RefreshRateConfig.InvalidThresholdHz)
 		{
 			return EmptyOverlaySnapshot.Instance;
 		}
 
 		return new TextOverlaySnapshot(
-			$"Invalid run: refresh rate {ctx.Screen.Resolution.refreshRate} Hz exceeds {RefreshRateConfig.InvalidThresholdHz} Hz.",
+			$"Invalid run: refresh rate {refreshRate} Hz exceeds {RefreshRateConfig.InvalidThresholdHz} Hz.",
 			OverlayTextStyle.Warning);
 	}
 }

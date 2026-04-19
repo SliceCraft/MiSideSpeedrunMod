@@ -22,9 +22,9 @@ internal static class FpsUncapToggle
             _previousVSyncCount = vSyncMode;
         }
 
-        if (!IsInGame()) return;
-        if (KeybindCapture.IsCapturing()) return;
         if (!Input.GetKeyDown(FpsConfig.UncapToggleKeybind.Value)) return;
+        if (KeybindCapture.IsCapturing()) return;
+        if (!GameUtil.IsInGame()) return;
 
         if (_enabled)
         {
@@ -33,11 +33,6 @@ internal static class FpsUncapToggle
         }
 
         EnableUncap();
-    }
-
-    private static bool IsInGame()
-    {
-        return Object.FindObjectOfType<GameController>() != null;
     }
 
     private static void EnableUncap()
