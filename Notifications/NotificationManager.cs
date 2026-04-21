@@ -112,9 +112,9 @@ internal static class NotificationManager
 
     private static bool EnsureObjectsSelected()
     {
-        if (_hintScreenTemplate != null || _interfaceObject != null)
+        if (_hintScreenTemplate != null && _interfaceObject != null)
         {
-            return false;
+            return true;
         }
 
         var gc = GameUtil.GetGameController();

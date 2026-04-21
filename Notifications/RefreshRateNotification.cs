@@ -5,6 +5,10 @@ namespace SpeedrunMod.Notifications;
 
 internal sealed class RefreshRateNotification : TimedNotification
 {
+    protected override float PeriodicIntervalSeconds => 300f;
+    
+    protected override float CooldownSeconds => 150f;
+    
     protected override void Initialize()
     {
         SceneLoadedEvent.SceneLoaded += (_, _) => Show();

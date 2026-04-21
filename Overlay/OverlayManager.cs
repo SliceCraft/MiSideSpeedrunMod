@@ -15,62 +15,44 @@ internal static class OverlayManager
 
 	private static readonly OverlayModulesRepository Modules = OverlayModulesRepository.Repository;
 
-	private static readonly StringBuilder OverlayBuilder = new StringBuilder();
+	private static readonly StringBuilder OverlayBuilder = new();
 	
-	private static readonly Dictionary<string, ModuleState> ModuleStates = new Dictionary<string, ModuleState>();
+	private static readonly Dictionary<string, ModuleState> ModuleStates = new();
 
+	private static bool IsEnabled => OverlayConfig.OverlayEnabled.Value;
+	
 	private static GameObject _overlayRoot;
 
 	private static Text _overlayText;
 
 	private static int _currentPageIndex;
 
-	private static readonly KeyCode NextGroupKey = KeyCode.PageDown;
+	private const KeyCode NextGroupKey = KeyCode.PageDown;
 
-	private static readonly KeyCode PrevGroupKey = KeyCode.PageUp;
+	private const KeyCode PrevGroupKey = KeyCode.PageUp;
 
 	internal static void Update()
 	{
-		if (!GameUtil.IsInGame())
-		{
-            Reset();
-			return;
-		}
-
-		var isEnabled = OverlayConfig.OverlayEnabled.Value;
-		if (!Modules.IsAnyPersistent && !isEnabled)
+		if (!GameUtil.IsInGame() || !Modules.IsAnyPersistent && !IsEnabled)
 		{
 			Reset();
 			return;
 		}
 
-		var modules = isEnabled ? Modules.GetAll() : Modules.GetPersistent();
-		if (modules.Length == 0)
-		{
-			Reset();
-			return;
-		}
-		
-		var moduleStates = GetModuleStates(modules);
-		if (moduleStates.Count == 0)
-		{
-			Reset();
-			return;
-		}
-
+		EnsureOverlay();
 		ResetOverlay();
 
-		HandleGroupPaging(moduleStates.Count);
-		EnsureOverlay();
+		UpdateModuleStates();
+		HandleGroupPaging();
+		RenderModules();
 
-		RenderCurrentGroup(moduleStates);
 		UpdateOverlay();
 	}
 
-	private static SortedDictionary<string, List<ModuleState>> GetModuleStates(IOverlayModule[] modules)
+	private static void UpdateModuleStates()
 	{
-		var groupToStates = new SortedDictionary<string, List<ModuleState>>();
 		var realtimeSinceStartup = Time.realtimeSinceStartup;
+		var modules = IsEnabled ? Modules.GetAll() : Modules.GetPersistent();
 
 		foreach (var module in modules)
 		{
@@ -78,23 +60,10 @@ internal static class OverlayManager
 			var updateIntervalSeconds = System.Math.Max(0, module.UpdateInterval.TotalSeconds);
 			var shouldUpdateNow = state.CachedSnapshot is null || realtimeSinceStartup - state.LastUpdatedRealtime >= updateIntervalSeconds;
 
-			if (shouldUpdateNow)
-			{
-				state.CachedSnapshot = module.Update();
-				state.LastUpdatedRealtime = realtimeSinceStartup;
-			}
-
-			var groupKey = string.IsNullOrWhiteSpace(module.GroupKey) ? "General" : module.GroupKey;
-			if (!groupToStates.TryGetValue(groupKey, out var statesInGroup))
-			{
-				statesInGroup = new List<ModuleState>();
-				groupToStates[groupKey] = statesInGroup;
-			}
-
-			statesInGroup.Add(state);
+			if (!shouldUpdateNow) continue;
+			state.CachedSnapshot = module.Update();
+			state.LastUpdatedRealtime = realtimeSinceStartup;
 		}
-
-		return groupToStates;
 	}
 
 	private static void ClearModuleState(IOverlayModule module)
@@ -111,17 +80,16 @@ internal static class OverlayManager
 
 	private static ModuleState GetOrCreateModuleState(IOverlayModule module)
 	{
-		if (!ModuleStates.TryGetValue(module.Name, out var state))
-		{
-			state = new ModuleState { ModuleName = module.Name };
-			ModuleStates[module.Name] = state;
-		}
+		if (ModuleStates.TryGetValue(module.Name, out var state)) return state;
+		state = new ModuleState { ModuleName = module.Name };
+		ModuleStates[module.Name] = state;
 
 		return state;
 	}
 
-	private static void HandleGroupPaging(int groupCount)
+	private static void HandleGroupPaging()
 	{
+		var groupCount = Modules.GroupCount;
 		if (groupCount <= 1 || KeybindCapture.IsCapturing())
 		{
 			_currentPageIndex = 0;
@@ -142,52 +110,48 @@ internal static class OverlayManager
 		}
 	}
 
-	private static void RenderCurrentGroup(SortedDictionary<string, List<ModuleState>> groupsByKey)
+	private static void RenderModules()
 	{
-		var groupCount = groupsByKey.Count;
-		_currentPageIndex = Mathf.Clamp(_currentPageIndex, 0, groupCount - 1);
-
-		var keyIndex = 0;
-		string activeKey = null;
-		List<ModuleState> activeStates = null;
-		
-		foreach (var kv in groupsByKey)
+		var persistent = Modules.GetPersistent();
+		foreach (var module in persistent)
 		{
-			if (keyIndex == _currentPageIndex)
-			{
-				activeKey = kv.Key;
-				activeStates = kv.Value;
-				break;
-			}
-
-			keyIndex++;
+			RenderCurrentState(module);
 		}
 
-		if (activeStates == null)
+		if (!IsEnabled)
 		{
 			return;
 		}
 
+		var groupCount = Modules.GroupCount;
+		var currentGroup = Modules.GetByGroupIndex(_currentPageIndex);
+
 		if (groupCount > 1)
 		{
-			OverlayBuilder.AppendLine($"Overlay group {_currentPageIndex + 1}/{groupCount}: {activeKey}");
+			OverlayBuilder.AppendLine($"Overlay group {_currentPageIndex + 1}/{groupCount}: {currentGroup.Key}");
 			OverlayBuilder.AppendLine($"Switch group: {PrevGroupKey}/{NextGroupKey}");
 			OverlayBuilder.AppendLine();
 		}
 
-		foreach (var state in activeStates)
+		foreach (var module in currentGroup.Value)
 		{
-			var content = state.CachedSnapshot?.Format() ?? string.Empty;
-
-			if (string.IsNullOrWhiteSpace(content))
-			{
-				continue;
-			}
-
-			OverlayBuilder.AppendLine($"[{state.ModuleName}]");
-			OverlayBuilder.AppendLine(content);
-			OverlayBuilder.AppendLine();
+			RenderCurrentState(module);
 		}
+	}
+
+	private static void RenderCurrentState(IOverlayModule module)
+	{
+		var state = ModuleStates.GetValueOrDefault(module.Name);
+		var content = state.CachedSnapshot?.Format() ?? string.Empty;
+
+		if (string.IsNullOrWhiteSpace(content))
+		{
+			return;
+		}
+		
+		OverlayBuilder.AppendLine($"[{state.ModuleName}]");
+		OverlayBuilder.AppendLine(content);
+		OverlayBuilder.AppendLine();
 	}
 
 	private static void UpdateOverlay()

@@ -7,7 +7,7 @@ namespace SpeedrunMod.Overlay.Modules.Display;
 
 internal sealed class DisplayOverlayModule : IOverlayModule
 {
-	internal static readonly DisplayOverlayModule Instance = new DisplayOverlayModule();
+	internal static readonly DisplayOverlayModule Instance = new();
 
 	public string Name => "Display";
 

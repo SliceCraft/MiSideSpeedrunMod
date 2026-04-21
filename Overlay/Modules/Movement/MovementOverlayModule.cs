@@ -8,7 +8,7 @@ namespace SpeedrunMod.Overlay.Modules.Movement;
 
 internal sealed class MovementOverlayModule : IOverlayModule
 {
-	internal static readonly MovementOverlayModule Instance = new MovementOverlayModule();
+	internal static readonly MovementOverlayModule Instance = new();
 
 	private const float MinDeltaTime = 1E-05f;
 

@@ -9,7 +9,7 @@ internal sealed class RefreshRateWarningOverlayModule : IPersistentOverlayModule
 {
 	internal static readonly RefreshRateWarningOverlayModule Instance = new RefreshRateWarningOverlayModule();
 
-	public string Name => "Refresh Warning";
+	public string Name => "Refresh Rate Warning";
 
 	public string GroupKey => "Warnings";
 
@@ -32,7 +32,7 @@ internal sealed class RefreshRateWarningOverlayModule : IPersistentOverlayModule
 		}
 
 		return new TextOverlaySnapshot(
-			$"Invalid run: refresh rate {refreshRate} Hz exceeds {RefreshRateConfig.InvalidThresholdHz} Hz.",
+			$"The refresh rate ({refreshRate} Hz) exceeds the maximum allowed limit ({RefreshRateConfig.InvalidThresholdHz} Hz); this run will be invalidated.",
 			OverlayTextStyle.Warning);
 	}
 }
