@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using SpeedrunMod.EventDisplay;
 using UnityEngine;
 
 namespace SpeedrunMod.Menus.Keybinds;

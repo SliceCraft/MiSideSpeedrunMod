@@ -1,5 +1,5 @@
 using SpeedrunMod.Configs;
-using SpeedrunMod.EventDisplay;
+using SpeedrunMod.Notifications;
 using SpeedrunMod.Menus.Keybinds;
 using SpeedrunMod.Utils;
 using UnityEngine;
@@ -36,7 +36,7 @@ internal static class FpsOverrideToggle
     {
         if (!_previousFps.HasValue)
         {
-            EventManager.ShowEvent(new ModEvent("Unable to read previous FPS"));
+            NotificationManager.Show(new NotificationMessage("Unable to read previous FPS"));
             Plugin.Log.LogError("Previous FPS not captured; cannot enable FPS override.");
             return;
         }
@@ -45,7 +45,7 @@ internal static class FpsOverrideToggle
         FpsUtil.SetFps(overrideFps);
 
         _enabled = true;
-        EventManager.ShowEvent(new ModEvent($"FPS set to {FpsUtil.FormatFps(overrideFps)}"));
+        NotificationManager.Show(new NotificationMessage($"FPS set to {FpsUtil.FormatFps(overrideFps)}"));
         Plugin.Log.LogInfo($"FPS override enabled, set to {FpsUtil.FormatFps(overrideFps)}.");
     }
 
@@ -53,7 +53,7 @@ internal static class FpsOverrideToggle
     {
         if (!_previousFps.HasValue)
         {
-            EventManager.ShowEvent(new ModEvent("Unable to read previous FPS"));
+            NotificationManager.Show(new NotificationMessage("Unable to read previous FPS"));
             Plugin.Log.LogError("Previous FPS not captured; cannot restore FPS.");
             return;
         }
@@ -61,7 +61,7 @@ internal static class FpsOverrideToggle
         FpsUtil.SetFps(_previousFps.Value);
 
         _enabled = false;
-        EventManager.ShowEvent(new ModEvent($"FPS restored to {FpsUtil.FormatFps(_previousFps.Value)}"));
+        NotificationManager.Show(new NotificationMessage($"FPS restored to {FpsUtil.FormatFps(_previousFps.Value)}"));
         Plugin.Log.LogInfo($"FPS override disabled, restored to {FpsUtil.FormatFps(_previousFps.Value)}.");
     }
 }

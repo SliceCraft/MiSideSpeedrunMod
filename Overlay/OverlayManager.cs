@@ -5,6 +5,7 @@ using SpeedrunMod.Overlay.Modules;
 using UnityEngine;
 using UnityEngine.UI;
 using SpeedrunMod.Menus.Keybinds;
+using SpeedrunMod.Utils;
 
 namespace SpeedrunMod.Overlay;
 
@@ -30,6 +31,12 @@ internal static class OverlayManager
 
 	internal static void Update()
 	{
+		if (!GameUtil.IsInGame())
+		{
+            Reset();
+			return;
+		}
+
 		var isEnabled = OverlayConfig.OverlayEnabled.Value;
 		if (!Modules.IsAnyPersistent && !isEnabled)
 		{

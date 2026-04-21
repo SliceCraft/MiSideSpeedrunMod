@@ -1,10 +1,10 @@
 ﻿using UnityEngine;
 
-namespace SpeedrunMod.EventDisplay;
+namespace SpeedrunMod.Notifications;
 
-internal class ModEvent(string eventString)
+internal class NotificationMessage(string text)
 {
-    public string EventString { get; } = eventString;
+    public string Text { get; } = text;
     internal GameObject HintObject = null;
     internal float TimeUntilHide = 5f;
     internal float TimeUntilDestroy = 6f;

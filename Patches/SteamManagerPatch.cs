@@ -1,5 +1,5 @@
 using HarmonyLib;
-using SpeedrunMod.EventDisplay;
+using SpeedrunMod.Notifications;
 using SpeedrunMod.Menus.Frames;
 using SpeedrunMod.Menus.Keybinds;
 using SpeedrunMod.Menus.Overlay;
@@ -18,7 +18,7 @@ internal class SteamManagerPatch
     [HarmonyPrefix]
     private static void UpdatePatch()
     {
-        EventManager.Update();
+        NotificationManager.Update();
         VersionText.Update();
         OverlayManager.Update();
         KeybindCapture.Update();

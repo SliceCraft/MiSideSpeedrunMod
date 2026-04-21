@@ -1,7 +1,7 @@
 using MenuLib.API;
 using MenuLib.API.Factories;
 using SpeedrunMod.Configs;
-using SpeedrunMod.EventDisplay;
+using SpeedrunMod.Notifications;
 using SpeedrunMod.Menus.Keybinds;
 using UnityEngine;
 
@@ -126,7 +126,7 @@ internal static class OverlaySettingsMenu
 		OverlayConfig.OverlayEnabled.Value = !OverlayConfig.OverlayEnabled.Value;
 		RefreshOverlayEnabledText();
 		Plugin.Log.LogInfo(OverlayEnabledMenuLabel);
-		EventManager.ShowEvent(new ModEvent(OverlayEnabledMenuLabel));
+		NotificationManager.Show(new NotificationMessage(OverlayEnabledMenuLabel));
 	}
 
 	private static void AdjustLogIntervalAndRefresh(float delta)

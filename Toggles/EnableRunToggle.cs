@@ -1,4 +1,4 @@
-﻿using SpeedrunMod.EventDisplay;
+﻿using SpeedrunMod.Notifications;
 
 namespace SpeedrunMod.Toggles;
 
@@ -16,12 +16,12 @@ internal static class EnableRunToggle
         if(playerMove.needRun)
         {
             Plugin.Log.LogInfo("Disabling running");
-            EventManager.ShowEvent(new ModEvent("Running disabled"));
+            NotificationManager.Show(new NotificationMessage("Running disabled"));
         }
         else
         {
             Plugin.Log.LogInfo("Enabling running");
-            EventManager.ShowEvent(new ModEvent("Running enabled"));
+            NotificationManager.Show(new NotificationMessage("Running enabled"));
         }
         playerMove.RunNeed(!playerMove.needRun);
     }

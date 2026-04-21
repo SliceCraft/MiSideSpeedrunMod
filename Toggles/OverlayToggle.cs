@@ -1,5 +1,5 @@
 using SpeedrunMod.Configs;
-using SpeedrunMod.EventDisplay;
+using SpeedrunMod.Notifications;
 using SpeedrunMod.Menus.Keybinds;
 using SpeedrunMod.Utils;
 using UnityEngine;
@@ -16,7 +16,7 @@ internal static class OverlayToggle
 
         OverlayConfig.OverlayEnabled.Value = !OverlayConfig.OverlayEnabled.Value;
         bool on = OverlayConfig.OverlayEnabled.Value;
-        EventManager.ShowEvent(new ModEvent(on ? "Overlay on" : "Overlay off"));
+        NotificationManager.Show(new NotificationMessage(on ? "Overlay on" : "Overlay off"));
         Plugin.Log.LogInfo($"Overlay {(on ? "enabled" : "disabled")} (hotkey).");
     }
 }
