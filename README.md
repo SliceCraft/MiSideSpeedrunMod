@@ -8,6 +8,15 @@ This mod has multiple features that can be useful for messing around with the ga
 In the main menu you can go to `Settings->Mods->Speedrun Mod->Practice` to play specific parts of the game to practice them.  
 These parts will automatically restart when you reach the end.
 
+## Refresh rate settings
+In the main menu you can go to `Settings->Mods->Speedrun Mod->Refresh Rate` to configure a reported refresh rate target.  
+Using refresh rate above `540 Hz` will invalidate the run.  
+The mod also shows periodic refresh-rate notifications in-game.
+
+## Overlay
+In the main menu you can go to `Settings->Mods->Speedrun Mod->Overlay` to configure and inspect the debug overlay.  
+By default the overlay toggle hotkey is `F4` (configurable in the overlay menu).
+
 ## Fixes
 - When pressing the start with a clean slate button the achievements will also be reset if this mod is enabled.
 - When toggling `skipdialogue` the mod will remember the state of this toggle. Meaning when you restart the game you will keep this toggle in the state that you had before you quit the game.
@@ -38,6 +47,11 @@ These parts will automatically restart when you reach the end.
     <td>F2 (configurable)</td>
     <td>Uncap FPS toggle</td>
     <td>In-game: switch between uncapped FPS with VSync disabled and your previous FPS/VSync settings. Rebind under FPS settings.</td>
+  </tr>
+  <tr>
+    <td>F4 (configurable)</td>
+    <td>Overlay toggle</td>
+    <td>In-game: toggle overlay on/off. Rebind under Overlay settings.</td>
   </tr>
 </table> 
 
