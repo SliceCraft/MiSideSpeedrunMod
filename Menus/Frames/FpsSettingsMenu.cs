@@ -7,6 +7,8 @@ namespace SpeedrunMod.Menus.Frames;
 
 internal static class FpsSettingsMenu
 {
+    private const string CaptureContext = "FpsSettingsMenu";
+
     private static MenuOption _targetFpsToggleKeyOption;
     private static MenuOption _uncapFpsToggleKeyOption;
     private static MenuOption _targetFpsOption;
@@ -108,14 +110,13 @@ internal static class FpsSettingsMenu
 
     internal static void Update()
     {
-        if (!KeybindCapture.IsCapturing()) return;
-        if (IsFpsSettingsMenuVisible()) return;
-
-        Plugin.Log.LogInfo("FPS settings keybind capture cancelled (left FPS settings menu).");
-
-        KeybindCapture.CancelCapture();
-        RefreshTargetFpsToggleKeyText();
-        RefreshUncapFpsToggleKeyText();
+        if (!KeybindCapture.IsCapturing(CaptureContext)) return;
+		if (!IsFpsSettingsMenuVisible() && KeybindCapture.CancelCapture(CaptureContext))
+		{
+            RefreshTargetFpsToggleKeyText();
+            RefreshUncapFpsToggleKeyText();
+            Plugin.Log.LogInfo("FPS settings keybind capture cancelled (left FPS settings menu).");
+		}
     }
 
     private static void AdjustTargetFpsAndRefresh(int delta)
@@ -127,7 +128,7 @@ internal static class FpsSettingsMenu
     private static void BeginTargetFpsToggleKeyCapture()
     {
         SetMenuOptionText(_targetFpsToggleKeyOption, "Target FPS toggle key: <press key... Esc to cancel>");
-        KeybindCapture.BeginCapture(OnTargetFpsToggleKeyCaptureComplete);
+        KeybindCapture.BeginCapture(CaptureContext, OnTargetFpsToggleKeyCaptureComplete);
     }
 
     private static void OnTargetFpsToggleKeyCaptureComplete(bool success, UnityEngine.KeyCode keyCode)
@@ -146,7 +147,7 @@ internal static class FpsSettingsMenu
     private static void BeginUncapFpsToggleKeyCapture()
     {
         SetMenuOptionText(_uncapFpsToggleKeyOption, "Uncap FPS toggle key: <press key... Esc to cancel>");
-        KeybindCapture.BeginCapture(OnUncapFpsToggleKeyCaptureComplete);
+        KeybindCapture.BeginCapture(CaptureContext, OnUncapFpsToggleKeyCaptureComplete);
     }
 
     private static void OnUncapFpsToggleKeyCaptureComplete(bool success, UnityEngine.KeyCode keyCode)

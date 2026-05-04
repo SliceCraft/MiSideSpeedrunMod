@@ -9,6 +9,8 @@ namespace SpeedrunMod.Menus.Overlay;
 
 internal static class OverlaySettingsMenu
 {
+	private const string CaptureContext = "OverlaySettingsMenu";
+
 	private static MenuOption _overlayEnabledOption;
 
 	private static MenuOption _logIntervalOption;
@@ -113,11 +115,11 @@ internal static class OverlaySettingsMenu
 
 	internal static void Update()
 	{
-		if (KeybindCapture.IsCapturing() && !IsOverlaySettingsMenuVisible())
+		if (!KeybindCapture.IsCapturing(CaptureContext)) return;
+		if (!IsOverlaySettingsMenuVisible() && KeybindCapture.CancelCapture(CaptureContext))
 		{
-			Plugin.Log.LogInfo("Overlay settings keybind capture cancelled (left OVERLAY menu).");
-			KeybindCapture.CancelCapture();
-			RefreshOverlayToggleKeyText();
+            RefreshOverlayToggleKeyText();
+            Plugin.Log.LogInfo("Overlay settings keybind capture cancelled (left OVERLAY menu).");
 		}
 	}
 
@@ -138,7 +140,7 @@ internal static class OverlaySettingsMenu
 	private static void BeginOverlayToggleKeyCapture()
 	{
 		SetMenuOptionText(_overlayToggleKeyOption, "Overlay toggle key: <press key... Esc to cancel>");
-		KeybindCapture.BeginCapture(OnOverlayToggleKeyCaptureComplete);
+		KeybindCapture.BeginCapture(CaptureContext, OnOverlayToggleKeyCaptureComplete);
 	}
 
 	private static void OnOverlayToggleKeyCaptureComplete(bool success, KeyCode keyCode)
@@ -148,11 +150,10 @@ internal static class OverlaySettingsMenu
 			OverlayConfig.OverlayToggleKeybind.Value = keyCode;
 			SetMenuOptionText(_overlayToggleKeyOption, $"Overlay toggle key: {keyCode}");
 			Plugin.Log.LogInfo($"Overlay toggle key updated to {keyCode}.");
+			return;
 		}
-		else
-		{
-			RefreshOverlayToggleKeyText();
-		}
+		
+		RefreshOverlayToggleKeyText();
 	}
 
 	private static void RefreshOverlayEnabledText()
@@ -170,35 +171,27 @@ internal static class OverlaySettingsMenu
 		SetMenuOptionText(_overlayToggleKeyOption, $"Overlay toggle key: {OverlayConfig.OverlayToggleKeybind.Value}");
 	}
 
-	private static void SetMenuOptionText(MenuOption menuOption, string text)
-	{
-		if (menuOption != null)
-		{
-			menuOption.Text = text;
-			if (menuOption.TextComponent != null)
-			{
-				menuOption.TextComponent.text = text;
-			}
-		}
-	}
+    private static void SetMenuOptionText(MenuOption menuOption, string text)
+    {
+        if (menuOption == null) return;
+
+        menuOption.Text = text;
+
+        if (menuOption.TextComponent != null)
+        {
+            menuOption.TextComponent.text = text;
+        }
+    }
 
 	private static bool IsOverlaySettingsMenuVisible()
 	{
-		if (!IsMenuRowVisible(_overlayToggleKeyOption))
-		{
-			return IsMenuRowVisible(_overlayEnabledOption);
-		}
-
-		return true;
+        return IsMenuRowVisible(_overlayToggleKeyOption);
 	}
 
-	private static bool IsMenuRowVisible(MenuOption option)
-	{
-		if (option != null && option.TextComponent != null)
-		{
-			return option.TextComponent.gameObject.activeInHierarchy;
-		}
-
-		return false;
-	}
+    private static bool IsMenuRowVisible(MenuOption option)
+    {
+        return option != null &&
+               option.TextComponent != null &&
+               option.TextComponent.gameObject.activeInHierarchy;
+    }
 }
