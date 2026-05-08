@@ -25,7 +25,7 @@ internal sealed class DisplayOverlayModule : IOverlayModule
 			Screen.width,
 			Screen.height,
 			Screen.currentResolution.refreshRate,
-			Time.deltaTime
+			1f / Time.unscaledDeltaTime
 		);
 	}
 }
