@@ -41,13 +41,12 @@ internal sealed class MovementOverlayModule : IOverlayModule
 
 	public IOverlaySnapshot Update()
 	{
-		var frameCount = Time.frameCount;
 		var playerMove = ResolvePlayerMove();
 
 		if (playerMove == null)
 		{
 			Reset();
-			return MovementOverlaySnapshot.Empty(frameCount);
+			return MovementOverlaySnapshot.Empty();
 		}
 
 		var transform = playerMove.transform;
@@ -77,8 +76,7 @@ internal sealed class MovementOverlayModule : IOverlayModule
 				_maxSpeed, 
 				_maxBodySpeed, 
 				_maxTransformAccel, 
-				_maxBodyAccel,
-				frameCount);
+				_maxBodyAccel);
 		}
 
 		var dpos = position - _anchorPos!.Value;
@@ -105,8 +103,7 @@ internal sealed class MovementOverlayModule : IOverlayModule
 			_maxSpeed,
 			_maxBodySpeed,
 			_maxTransformAccel,
-			_maxBodyAccel,
-			frameCount);
+			_maxBodyAccel);
 		
 		_lastSpeed = transformSpeed;
 		_lastBodySpeed = bodySpeed;

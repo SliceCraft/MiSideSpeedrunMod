@@ -19,8 +19,7 @@ internal readonly struct MovementOverlaySnapshot : IOverlaySnapshot
 	private readonly float _maxBodySpeed;
 	private readonly float _maxTransformAccel;
 	private readonly float _maxBodyAccel;
-	private readonly int _frame;
-
+    
 	internal MovementOverlaySnapshot(
 		Vector3 position,
 		string targetName,
@@ -34,8 +33,7 @@ internal readonly struct MovementOverlaySnapshot : IOverlaySnapshot
 		float maxSpeed,
 		float maxBodySpeed,
 		float maxTransformAccel,
-		float maxBodyAccel,
-		int frame)
+		float maxBodyAccel)
 	{
 		_position = position;
 		_targetName = targetName;
@@ -50,10 +48,9 @@ internal readonly struct MovementOverlaySnapshot : IOverlaySnapshot
 		_maxBodySpeed = maxBodySpeed;
 		_maxTransformAccel = maxTransformAccel;
 		_maxBodyAccel = maxBodyAccel;
-		_frame = frame;
 	}
 
-	internal static MovementOverlaySnapshot Empty(int frame)
+	internal static MovementOverlaySnapshot Empty()
 	{
 		return new MovementOverlaySnapshot(
 			Vector3.zero,
@@ -68,8 +65,7 @@ internal readonly struct MovementOverlaySnapshot : IOverlaySnapshot
 			0f,
 			0f,
 			0f,
-			0f,
-			frame);
+			0f);
 	}
 
 	public string Format()
@@ -78,7 +74,6 @@ internal readonly struct MovementOverlaySnapshot : IOverlaySnapshot
 		var text = new StringBuilder();
 
 		text.AppendLine($"Target:\t{value}");
-		text.AppendLine($"Frame:\t{_frame}");
 		text.AppendLine($"Position:\t{_position.x:F3}, {_position.y:F3}, {_position.z:F3}");
 		text.AppendLine($"Sample interval:\t{_sampleIntervalSeconds:F4} seconds");
 		text.AppendLine($"dpos:\t{_dpos.x:F4}, {_dpos.y:F4}, {_dpos.z:F4}");

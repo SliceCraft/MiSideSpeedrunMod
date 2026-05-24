@@ -25,7 +25,8 @@ internal sealed class DisplayOverlayModule : IOverlayModule
 			Screen.width,
 			Screen.height,
 			RefreshRateConfig.GetActualHz(),
-			1f / Time.unscaledDeltaTime
+			1f / Time.unscaledDeltaTime,
+			Time.frameCount
 		);
 	}
 }
