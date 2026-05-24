@@ -1,6 +1,7 @@
 using MenuLib.API;
 using MenuLib.API.Factories;
 using SpeedrunMod.Menus.Frames;
+using SpeedrunMod.Menus.Overlay;
 using SpeedrunMod.Menus.Practice;
 using SpeedrunMod.Utils;
 using UnityEngine;
@@ -29,6 +30,24 @@ public static class ModMenu
             .SetParent(menu)
             .PlaceOptionBefore(menu.MenuOptions.Count - 1)
             .SetNextLocation(fpsSettingsMenu)
+            .Build();
+
+        GameMenu refreshRateSettingsMenu = RefreshRateSettingsMenu.CreateMenu(menu);
+
+        new MenuOptionFactory()
+            .SetName("REFRESH RATE")
+            .SetParent(menu)
+            .PlaceOptionBefore(menu.MenuOptions.Count - 1)
+            .SetNextLocation(refreshRateSettingsMenu)
+            .Build();
+
+        GameMenu debugSettingsMenu = OverlaySettingsMenu.CreateMenu(menu);
+
+        new MenuOptionFactory()
+            .SetName("OVERLAY")
+            .SetParent(menu)
+            .PlaceOptionBefore(menu.MenuOptions.Count - 1)
+            .SetNextLocation(debugSettingsMenu)
             .Build();
 
         new MenuOptionFactory()

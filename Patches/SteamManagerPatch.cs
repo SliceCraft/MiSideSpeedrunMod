@@ -1,10 +1,12 @@
 using HarmonyLib;
-using SpeedrunMod.EventDisplay;
+using SpeedrunMod.Notifications;
 using SpeedrunMod.Menus.Frames;
 using SpeedrunMod.Menus.Keybinds;
+using SpeedrunMod.Menus.Overlay;
 using SpeedrunMod.Practice;
 using SpeedrunMod.RevealSystems;
 using SpeedrunMod.Toggles;
+using SpeedrunMod.Overlay;
 using SpeedrunMod.Utils;
 
 namespace SpeedrunMod.Patches;
@@ -16,15 +18,18 @@ internal class SteamManagerPatch
     [HarmonyPrefix]
     private static void UpdatePatch()
     {
-        EventManager.Update();
+        NotificationManager.Update();
         VersionText.Update();
+        OverlayManager.Update();
         KeybindCapture.Update();
+        OverlayToggle.Update();
         FpsOverrideToggle.Update();
         FpsUncapToggle.Update();
         EnableRunToggle.Update();
         RevealTriggerToggle.Update();
         PracticeManager.Update();
         FpsSettingsMenu.Update();
+        OverlaySettingsMenu.Update();
         Triggers.Update();
     }
 }

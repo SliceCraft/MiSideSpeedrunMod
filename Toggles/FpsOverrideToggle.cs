@@ -1,5 +1,5 @@
 using SpeedrunMod.Configs;
-using SpeedrunMod.EventDisplay;
+using SpeedrunMod.Notifications;
 using SpeedrunMod.Menus.Keybinds;
 using SpeedrunMod.Utils;
 using UnityEngine;
@@ -22,9 +22,9 @@ internal static class FpsOverrideToggle
             _previousVSyncCount = vSyncMode;
         }
 
-        if (!IsInGame()) return;
+        if (!Input.GetKeyDown(FpsConfig.OverrideToggleKeybind.Value)) return;
         if (KeybindCapture.IsCapturing()) return;
-        if (!Input.GetKeyDown(FpsConfig.GetOverrideToggleKey())) return;
+        if (!GameUtil.IsInGame()) return;
 
         if (_enabled)
         {
@@ -35,17 +35,11 @@ internal static class FpsOverrideToggle
         EnableOverride();
     }
 
-
-    private static bool IsInGame()
-    {
-        return Object.FindObjectOfType<GameController>() != null;
-    }
-
     private static void EnableOverride()
     {
         if (!_previousFps.HasValue || !_previousVSyncCount.HasValue)
         {
-            EventManager.ShowEvent(new ModEvent("Unable to read previous FPS or VSync count"));
+            NotificationManager.Show(new NotificationMessage("Unable to read previous FPS or VSync count"));
             Plugin.Log.LogError("Previous FPS not captured or VSync count not captured; cannot enable FPS override.");
             return;
         }
@@ -55,7 +49,7 @@ internal static class FpsOverrideToggle
         FpsUtil.SetVSyncCount(0);
 
         _enabled = true;
-        EventManager.ShowEvent(new ModEvent($"FPS set to {FpsUtil.FormatFps(overrideFps)} and VSync disabled"));
+        NotificationManager.Show(new NotificationMessage($"FPS set to {FpsUtil.FormatFps(overrideFps)} and VSync disabled"));
         Plugin.Log.LogInfo($"FPS override enabled, set to {FpsUtil.FormatFps(overrideFps)}  and VSync disabled.");
     }
 
@@ -63,7 +57,7 @@ internal static class FpsOverrideToggle
     {
         if (!_previousFps.HasValue || !_previousVSyncCount.HasValue)
         {
-            EventManager.ShowEvent(new ModEvent("Unable to read previous FPS or VSync count"));
+            NotificationManager.Show(new NotificationMessage("Unable to read previous FPS or VSync count"));
             Plugin.Log.LogError("Previous FPS not captured or VSync count not caputred; cannot restore FPS.");
             return;
         }
@@ -72,7 +66,7 @@ internal static class FpsOverrideToggle
         FpsUtil.SetVSyncCount(_previousVSyncCount.Value);
 
         _enabled = false;
-        EventManager.ShowEvent(new ModEvent($"VSync restored, FPS restored to {FpsUtil.FormatFps(_previousFps.Value)}"));
+        NotificationManager.Show(new NotificationMessage($"VSync restored, FPS restored to {FpsUtil.FormatFps(_previousFps.Value)}"));
         Plugin.Log.LogInfo($"VSync restored, FPS override disabled, restored to {FpsUtil.FormatFps(_previousFps.Value)}.");
     }
 }

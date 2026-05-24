@@ -1,5 +1,5 @@
 using SpeedrunMod.Configs;
-using SpeedrunMod.EventDisplay;
+using SpeedrunMod.Notifications;
 using SpeedrunMod.Menus.Keybinds;
 using SpeedrunMod.Utils;
 using UnityEngine;
@@ -22,9 +22,9 @@ internal static class FpsUncapToggle
             _previousVSyncCount = vSyncMode;
         }
 
-        if (!IsInGame()) return;
+        if (!Input.GetKeyDown(FpsConfig.UncapToggleKeybind.Value)) return;
         if (KeybindCapture.IsCapturing()) return;
-        if (!Input.GetKeyDown(FpsConfig.GetUncapToggleKey())) return;
+        if (!GameUtil.IsInGame()) return;
 
         if (_enabled)
         {
@@ -35,16 +35,11 @@ internal static class FpsUncapToggle
         EnableUncap();
     }
 
-    private static bool IsInGame()
-    {
-        return Object.FindObjectOfType<GameController>() != null;
-    }
-
     private static void EnableUncap()
     {
         if (!_previousFps.HasValue || !_previousVSyncCount.HasValue)
         {
-            EventManager.ShowEvent(new ModEvent("Unable to read previous FPS or VSync count"));
+            NotificationManager.Show(new NotificationMessage("Unable to read previous FPS or VSync count"));
             Plugin.Log.LogError("Previous FPS not captured or VSync count not captured; cannot uncap.");
             return;
         }
@@ -52,7 +47,7 @@ internal static class FpsUncapToggle
         FpsUtil.UncapFps(disableVSync: true);
 
         _enabled = true;
-        EventManager.ShowEvent(new ModEvent("FPS uncapped and VSync disabled"));
+        NotificationManager.Show(new NotificationMessage("FPS uncapped and VSync disabled"));
         Plugin.Log.LogInfo("FPS uncap enabled and VSync disabled.");
     }
 
@@ -60,7 +55,7 @@ internal static class FpsUncapToggle
     {
         if (!_previousFps.HasValue || !_previousVSyncCount.HasValue)
         {
-            EventManager.ShowEvent(new ModEvent("Unable to read previous FPS or VSync count"));
+            NotificationManager.Show(new NotificationMessage("Unable to read previous FPS or VSync count"));
             Plugin.Log.LogError("Previous FPS not captured or VSync count not captured; cannot restore FPS after uncap.");
             return;
         }
@@ -69,7 +64,7 @@ internal static class FpsUncapToggle
         FpsUtil.SetVSyncCount(_previousVSyncCount.Value);
 
         _enabled = false;
-        EventManager.ShowEvent(new ModEvent($"VSync restored, FPS uncap disabled and restored to {FpsUtil.FormatFps(_previousFps.Value)}"));
+        NotificationManager.Show(new NotificationMessage($"VSync restored, FPS uncap disabled and restored to {FpsUtil.FormatFps(_previousFps.Value)}"));
         Plugin.Log.LogInfo($"VSync restored, FPS uncap disabled and restored to {FpsUtil.FormatFps(_previousFps.Value)}.");
     }
 }

@@ -1,37 +1,47 @@
 using System;
 using System.Linq;
-using SpeedrunMod.EventDisplay;
 using UnityEngine;
 
 namespace SpeedrunMod.Menus.Keybinds;
 
 internal static class KeybindCapture
 {
-    private static bool _isCapturing;
+    private static string _capturingContext;
     private static Action<bool, KeyCode> _onComplete;
     private static readonly KeyCode[] BindableKeys = BuildBindableKeys();
 
     internal static bool IsCapturing()
     {
-        return _isCapturing;
+        return _capturingContext != null;
     }
 
-    internal static void BeginCapture(Action<bool, KeyCode> onComplete)
+    internal static bool IsCapturing(string context)
+    {
+        return _capturingContext?.Equals(context) ?? false;
+    }
+
+    internal static void BeginCapture(string context, Action<bool, KeyCode> onComplete)
     {
         _onComplete = onComplete;
-        _isCapturing = true;
+        _capturingContext = context;
     }
 
     internal static void CancelCapture()
     {
-        if (!_isCapturing) return;
         _onComplete?.Invoke(false, KeyCode.None);
         EndCapture();
     }
 
+    internal static bool CancelCapture(string context)
+    {
+        if (_capturingContext != context) return false;
+        CancelCapture();
+        return true;
+    }
+
     internal static void Update()
     {
-        if (!_isCapturing) return;
+        if (_capturingContext == null) return;
 
         if (Input.GetKeyDown(KeyCode.Escape))
         {
@@ -50,7 +60,7 @@ internal static class KeybindCapture
 
     private static void EndCapture()
     {
-        _isCapturing = false;
+        _capturingContext = null;
         _onComplete = null;
     }
 

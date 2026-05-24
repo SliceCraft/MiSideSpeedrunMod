@@ -7,9 +7,20 @@ namespace SpeedrunMod.Menus.Frames;
 
 internal static class FpsSettingsMenu
 {
+    private const string CaptureContext = "FpsSettingsMenu";
+
     private static MenuOption _targetFpsToggleKeyOption;
     private static MenuOption _uncapFpsToggleKeyOption;
     private static MenuOption _targetFpsOption;
+
+    private static string TargetFpsToggleKeyMenuLabel =>
+        $"Target FPS toggle key: {FpsConfig.OverrideToggleKeybind.Value}";
+
+    private static string UncapFpsToggleKeyMenuLabel =>
+        $"Uncap FPS toggle key: {FpsConfig.UncapToggleKeybind.Value}";
+
+    private static string TargetFpsMenuLabel =>
+        $"Target FPS: {FpsConfig.GetTargetFpsLabel()}";
 
     internal static GameMenu CreateMenu(GameMenu previousMenu)
     {
@@ -19,7 +30,7 @@ internal static class FpsSettingsMenu
             .Build();
 
         _targetFpsToggleKeyOption = new MenuOptionFactory()
-            .SetName($"Target FPS toggle key: {FpsConfig.GetOverrideToggleKey()}")
+            .SetName(TargetFpsToggleKeyMenuLabel)
             .SetParent(menu)
             .PlaceOptionBefore(menu.MenuOptions.Count - 1)
             .SetNextLocation(menu)
@@ -27,7 +38,7 @@ internal static class FpsSettingsMenu
             .Build();
 
         _uncapFpsToggleKeyOption = new MenuOptionFactory()
-            .SetName($"Uncap FPS toggle key: {FpsConfig.GetUncapToggleKey()}")
+            .SetName(UncapFpsToggleKeyMenuLabel)
             .SetParent(menu)
             .PlaceOptionBefore(menu.MenuOptions.Count - 1)
             .SetNextLocation(menu)
@@ -38,28 +49,60 @@ internal static class FpsSettingsMenu
             .SetParent(menu)
             .PlaceOptionBefore(menu.MenuOptions.Count - 1)
             .BuildMenuDivider();
-        
+
         _targetFpsOption = new MenuOptionFactory()
-            .SetName($"Target FPS: {FpsConfig.GetTargetFpsLabel()}")
+            .SetName(TargetFpsMenuLabel)
             .SetParent(menu)
             .PlaceOptionBefore(menu.MenuOptions.Count - 1)
             .SetNextLocation(menu)
             .Build();
 
         new MenuOptionFactory()
-            .SetName("+Target FPS")
+            .SetName("+100 FPS")
             .SetParent(menu)
             .PlaceOptionBefore(menu.MenuOptions.Count - 1)
             .SetNextLocation(menu)
-            .SetOnClick(IncreaseFpsTarget)
+            .SetOnClick(() => AdjustTargetFpsAndRefresh(100))
             .Build();
 
         new MenuOptionFactory()
-            .SetName("-Target FPS")
+            .SetName("+10 FPS")
             .SetParent(menu)
             .PlaceOptionBefore(menu.MenuOptions.Count - 1)
             .SetNextLocation(menu)
-            .SetOnClick(DecreaseFpsTarget)
+            .SetOnClick(() => AdjustTargetFpsAndRefresh(10))
+            .Build();
+
+        new MenuOptionFactory()
+            .SetName("+1 FPS")
+            .SetParent(menu)
+            .PlaceOptionBefore(menu.MenuOptions.Count - 1)
+            .SetNextLocation(menu)
+            .SetOnClick(() => AdjustTargetFpsAndRefresh(1))
+            .Build();
+
+        new MenuOptionFactory()
+            .SetName("-1 FPS")
+            .SetParent(menu)
+            .PlaceOptionBefore(menu.MenuOptions.Count - 1)
+            .SetNextLocation(menu)
+            .SetOnClick(() => AdjustTargetFpsAndRefresh(-1))
+            .Build();
+
+        new MenuOptionFactory()
+            .SetName("-10 FPS")
+            .SetParent(menu)
+            .PlaceOptionBefore(menu.MenuOptions.Count - 1)
+            .SetNextLocation(menu)
+            .SetOnClick(() => AdjustTargetFpsAndRefresh(-10))
+            .Build();
+
+        new MenuOptionFactory()
+            .SetName("-100 FPS")
+            .SetParent(menu)
+            .PlaceOptionBefore(menu.MenuOptions.Count - 1)
+            .SetNextLocation(menu)
+            .SetOnClick(() => AdjustTargetFpsAndRefresh(-100))
             .Build();
 
         return menu;
@@ -67,39 +110,32 @@ internal static class FpsSettingsMenu
 
     internal static void Update()
     {
-        if (!KeybindCapture.IsCapturing()) return;
-        if (IsFpsSettingsMenuVisible()) return;
-
-        Plugin.Log.LogInfo("FPS settings keybind capture cancelled (left FPS settings menu).");
-
-        KeybindCapture.CancelCapture();
-        RefreshTargetFpsToggleKeyText();
-        RefreshUncapFpsToggleKeyText();
+        if (!KeybindCapture.IsCapturing(CaptureContext)) return;
+		if (!IsFpsSettingsMenuVisible() && KeybindCapture.CancelCapture(CaptureContext))
+		{
+            RefreshTargetFpsToggleKeyText();
+            RefreshUncapFpsToggleKeyText();
+            Plugin.Log.LogInfo("FPS settings keybind capture cancelled (left FPS settings menu).");
+		}
     }
 
-    private static void IncreaseFpsTarget()
+    private static void AdjustTargetFpsAndRefresh(int delta)
     {
-        FpsConfig.IncreaseTargetFps();
-        RefreshTargetFpsText();
-    }
-
-    private static void DecreaseFpsTarget()
-    {
-        FpsConfig.DecreaseTargetFps();
+        FpsConfig.AdjustTargetFps(delta);
         RefreshTargetFpsText();
     }
 
     private static void BeginTargetFpsToggleKeyCapture()
     {
         SetMenuOptionText(_targetFpsToggleKeyOption, "Target FPS toggle key: <press key... Esc to cancel>");
-        KeybindCapture.BeginCapture(OnTargetFpsToggleKeyCaptureComplete);
+        KeybindCapture.BeginCapture(CaptureContext, OnTargetFpsToggleKeyCaptureComplete);
     }
 
     private static void OnTargetFpsToggleKeyCaptureComplete(bool success, UnityEngine.KeyCode keyCode)
     {
         if (success)
         {
-            FpsConfig.SetOverrideToggleKey(keyCode);
+            FpsConfig.OverrideToggleKeybind.Value = keyCode;
             SetMenuOptionText(_targetFpsToggleKeyOption, $"Target FPS toggle key: {keyCode}");
             Plugin.Log.LogInfo($"Target FPS toggle key updated to {keyCode}.");
             return;
@@ -111,14 +147,14 @@ internal static class FpsSettingsMenu
     private static void BeginUncapFpsToggleKeyCapture()
     {
         SetMenuOptionText(_uncapFpsToggleKeyOption, "Uncap FPS toggle key: <press key... Esc to cancel>");
-        KeybindCapture.BeginCapture(OnUncapFpsToggleKeyCaptureComplete);
+        KeybindCapture.BeginCapture(CaptureContext, OnUncapFpsToggleKeyCaptureComplete);
     }
 
     private static void OnUncapFpsToggleKeyCaptureComplete(bool success, UnityEngine.KeyCode keyCode)
     {
         if (success)
         {
-            FpsConfig.SetUncapToggleKey(keyCode);
+            FpsConfig.UncapToggleKeybind.Value = keyCode;
             SetMenuOptionText(_uncapFpsToggleKeyOption, $"Uncap FPS toggle key: {keyCode}");
             Plugin.Log.LogInfo($"Uncap FPS toggle key updated to {keyCode}.");
             return;
@@ -129,23 +165,23 @@ internal static class FpsSettingsMenu
 
     private static void RefreshTargetFpsText()
     {
-        SetMenuOptionText(_targetFpsOption, $"Target FPS: {FpsConfig.GetTargetFpsLabel()}");
+        SetMenuOptionText(_targetFpsOption, TargetFpsMenuLabel);
     }
 
     private static void RefreshTargetFpsToggleKeyText()
     {
-        SetMenuOptionText(_targetFpsToggleKeyOption, $"Target FPS toggle key: {FpsConfig.GetOverrideToggleKey()}");
+        SetMenuOptionText(_targetFpsToggleKeyOption, TargetFpsToggleKeyMenuLabel);
     }
 
     private static void RefreshUncapFpsToggleKeyText()
     {
-        SetMenuOptionText(_uncapFpsToggleKeyOption, $"Uncap FPS toggle key: {FpsConfig.GetUncapToggleKey()}");
+        SetMenuOptionText(_uncapFpsToggleKeyOption, UncapFpsToggleKeyMenuLabel);
     }
 
     private static void SetMenuOptionText(MenuOption menuOption, string text)
     {
         if (menuOption == null) return;
-        
+
         menuOption.Text = text;
 
         if (menuOption.TextComponent != null)
@@ -156,7 +192,8 @@ internal static class FpsSettingsMenu
 
     private static bool IsFpsSettingsMenuVisible()
     {
-        return IsMenuRowVisible(_targetFpsToggleKeyOption) || IsMenuRowVisible(_uncapFpsToggleKeyOption);
+        return IsMenuRowVisible(_targetFpsToggleKeyOption) ||
+               IsMenuRowVisible(_uncapFpsToggleKeyOption);
     }
 
     private static bool IsMenuRowVisible(MenuOption option)
