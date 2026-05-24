@@ -1,4 +1,5 @@
 using BepInEx.Configuration;
+using SpeedrunMod.Utils;
 using UnityEngine;
 
 namespace SpeedrunMod.Configs;
@@ -13,7 +14,8 @@ internal static class RefreshRateConfig
 
     internal static ConfigEntry<bool> OverrideEnabled;
     internal static ConfigEntry<int> OverrideTarget;
-    internal static int CurrentRefreshRateHz => Screen.currentResolution.refreshRate;
+    
+    private static int _cachedRefreshRateHz;
 
     internal static void Initialize(ConfigFile configFile)
     {
@@ -28,6 +30,32 @@ internal static class RefreshRateConfig
             "OverrideTarget",
             DefaultOverrideHz,
             "Reported refresh rate (Hz) when OverrideEnabled is true (menu: Target Hz).");
+
+        _cachedRefreshRateHz = OverrideEnabled.Value ? OverrideTarget.Value : Screen.currentResolution.refreshRate;
+        Plugin.Log.LogInfo($"Cached refresh rate: {_cachedRefreshRateHz} Hz");
+    }
+
+    internal static int GetActualHz()
+    {
+        if (!OverrideEnabled.Value)
+        {
+            return Screen.currentResolution.refreshRate;
+        }
+
+        // Because the actual refresh rate is cached at startup
+        // and requires full game restart to take effect
+        // we need to return the cached value if it has been changed
+        if (_cachedRefreshRateHz != OverrideTarget.Value)
+        {
+            Plugin.Log.LogWarning(
+                $"Refresh rate has been changed since the last call ({OverrideTarget.Value} Hz), returning cached value ({_cachedRefreshRateHz} Hz)",
+                context: nameof(RefreshRateConfig),
+                throttleSeconds: 60);
+
+            return _cachedRefreshRateHz;
+        }
+
+        return OverrideTarget.Value;
     }
 
     internal static int GetTargetHz()

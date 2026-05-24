@@ -1,5 +1,5 @@
+using SpeedrunMod.Configs;
 using SpeedrunMod.Events;
-using UnityEngine;
 
 namespace SpeedrunMod.Notifications;
 
@@ -16,7 +16,7 @@ internal sealed class RefreshRateNotification : TimedNotification
 
     protected override NotificationMessage GetNotification()
     {
-        int hz = Screen.currentResolution.refreshRate;
+        int hz = RefreshRateConfig.GetActualHz();
         return new NotificationMessage($"Refresh rate: {hz} Hz");
     }
 }

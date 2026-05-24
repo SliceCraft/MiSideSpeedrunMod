@@ -24,7 +24,7 @@ internal sealed class DisplayOverlayModule : IOverlayModule
 		return new DisplayOverlaySnapshot(
 			Screen.width,
 			Screen.height,
-			Screen.currentResolution.refreshRate,
+			RefreshRateConfig.GetActualHz(),
 			1f / Time.unscaledDeltaTime
 		);
 	}

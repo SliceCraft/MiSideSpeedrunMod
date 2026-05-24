@@ -8,7 +8,7 @@ internal readonly struct MovementOverlaySnapshot : IOverlaySnapshot
 {
 	private readonly Vector3 _position;
 	private readonly string _targetName;
-	private readonly float _dt;
+	private readonly float _sampleIntervalSeconds;
 	private readonly Vector3 _dpos;
 	private readonly float _transformSpeed;
 	private readonly Vector3 _bodyVelocity;
@@ -24,7 +24,7 @@ internal readonly struct MovementOverlaySnapshot : IOverlaySnapshot
 	internal MovementOverlaySnapshot(
 		Vector3 position,
 		string targetName,
-		float dt,
+		float sampleIntervalSeconds,
 		Vector3 dpos,
 		float transformSpeed,
 		Vector3 bodyVelocity,
@@ -39,7 +39,7 @@ internal readonly struct MovementOverlaySnapshot : IOverlaySnapshot
 	{
 		_position = position;
 		_targetName = targetName;
-		_dt = dt;
+		_sampleIntervalSeconds = sampleIntervalSeconds;
 		_dpos = dpos;
 		_transformSpeed = transformSpeed;
 		_bodyVelocity = bodyVelocity;
@@ -80,7 +80,7 @@ internal readonly struct MovementOverlaySnapshot : IOverlaySnapshot
 		text.AppendLine($"Target:\t{value}");
 		text.AppendLine($"Frame:\t{_frame}");
 		text.AppendLine($"Position:\t{_position.x:F3}, {_position.y:F3}, {_position.z:F3}");
-		text.AppendLine($"dt:\t{_dt:F4} seconds");
+		text.AppendLine($"Sample interval:\t{_sampleIntervalSeconds:F4} seconds");
 		text.AppendLine($"dpos:\t{_dpos.x:F4}, {_dpos.y:F4}, {_dpos.z:F4}");
 		
 		text.AppendLine($"Transform speed:\t{_transformSpeed:F3} u/s");

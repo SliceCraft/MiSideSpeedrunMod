@@ -29,11 +29,6 @@ internal sealed class MovementOverlayModule : IOverlayModule
 
 	public void Reset()
 	{
-		ClearMovementState();
-	}
-
-	private void ClearMovementState()
-	{
 		_anchorPos = null;
 		_anchorTime = 0f;
 		_lastSpeed = 0f;
@@ -51,7 +46,7 @@ internal sealed class MovementOverlayModule : IOverlayModule
 
 		if (playerMove == null)
 		{
-			ClearMovementState();
+			Reset();
 			return MovementOverlaySnapshot.Empty(frameCount);
 		}
 
@@ -62,9 +57,9 @@ internal sealed class MovementOverlayModule : IOverlayModule
 		
 		var body = playerMove.GetComponent<Rigidbody>();
 		var bodyVelocity = body?.velocity ?? Vector3.zero;
-		var dt = realtimeSinceStartup - _anchorTime;
+		var sampleIntervalSeconds = realtimeSinceStartup - _anchorTime;
 		
-		if (_anchorPos == null || dt < MinDeltaTime)
+		if (_anchorPos == null || sampleIntervalSeconds < MinDeltaTime)
 		{
 			_anchorPos = position;
 			_anchorTime = realtimeSinceStartup;
@@ -87,10 +82,10 @@ internal sealed class MovementOverlayModule : IOverlayModule
 		}
 
 		var dpos = position - _anchorPos!.Value;
-		var transformSpeed = dpos.magnitude / dt;
+		var transformSpeed = dpos.magnitude / sampleIntervalSeconds;
 		var bodySpeed = bodyVelocity.magnitude;
-		var transformAccel = (transformSpeed - _lastSpeed) / dt;
-		var bodyAccel = (bodySpeed - _lastBodySpeed) / dt;
+		var transformAccel = (transformSpeed - _lastSpeed) / sampleIntervalSeconds;
+		var bodyAccel = (bodySpeed - _lastBodySpeed) / sampleIntervalSeconds;
 
 		_maxSpeed = Mathf.Max(_maxSpeed, transformSpeed);
 		_maxBodySpeed = Mathf.Max(_maxBodySpeed, bodySpeed);
@@ -100,7 +95,7 @@ internal sealed class MovementOverlayModule : IOverlayModule
 		var movementOverlaySnapshot = new MovementOverlaySnapshot(
 			position,
 			name,
-			dt,
+			sampleIntervalSeconds,
 			dpos,
 			transformSpeed,
 			bodyVelocity,

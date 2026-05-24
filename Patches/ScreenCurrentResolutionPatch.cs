@@ -13,7 +13,7 @@ internal static class ScreenCurrentResolutionPatch
     {
         if (!RefreshRateConfig.OverrideEnabled.Value) return;
 
-        int hz = RefreshRateConfig.GetTargetHz();
+        int hz = RefreshRateConfig.GetActualHz();
         __result.refreshRate = hz;
         __result.m_RefreshRate = hz;
     }

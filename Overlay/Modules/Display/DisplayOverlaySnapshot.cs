@@ -4,25 +4,25 @@ namespace SpeedrunMod.Overlay.Modules.Display;
 
 internal readonly struct DisplayOverlaySnapshot : IOverlaySnapshot
 {
-	internal int Width { get; }
+	private readonly int _width;
 
-	internal int Height { get; }
+	private readonly int _height;
 
-	internal int RefreshRate { get; }
+	private readonly int _refreshRate;
 
-	internal float Fps { get; }
+	private readonly float _fps;
 
 	internal DisplayOverlaySnapshot(int width, int height, int refreshRate, float fps)
 	{
-		Width = width;
-		Height = height;
-		RefreshRate = refreshRate;
-		Fps = fps;
+		_width = width;
+		_height = height;
+		_refreshRate = refreshRate;
+		_fps = fps;
 	}
 
 	public string Format()
 	{
-		return $"Resolution:\t{Width}x{Height}@{RefreshRate} Hz\nFPS:\t{Fps:F1}";
+		return $"Resolution:\t{_width}x{_height}@{_refreshRate} Hz\nFPS:\t{_fps:F1}";
 	}
 
 	public override string ToString()

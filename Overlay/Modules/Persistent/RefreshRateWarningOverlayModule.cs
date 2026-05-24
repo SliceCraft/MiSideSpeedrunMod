@@ -1,7 +1,6 @@
 using System;
 using SpeedrunMod.Configs;
 using SpeedrunMod.Overlay.Snapshots;
-using UnityEngine;
 
 namespace SpeedrunMod.Overlay.Modules.Persistent;
 
@@ -25,7 +24,7 @@ internal sealed class RefreshRateWarningOverlayModule : IPersistentOverlayModule
 
 	public IOverlaySnapshot Update()
 	{
-		var refreshRate = Screen.currentResolution.refreshRate;
+		var refreshRate = RefreshRateConfig.GetActualHz();
 		if (refreshRate <= RefreshRateConfig.InvalidThresholdHz)
 		{
 			return EmptyOverlaySnapshot.Instance;
