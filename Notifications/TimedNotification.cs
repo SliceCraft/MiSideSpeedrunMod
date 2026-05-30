@@ -39,22 +39,17 @@ internal abstract class TimedNotification
         Show();
     }
     
-    public void Show()
+    public void Show(bool force = false)
     {
         EnsureInitialized();
 
         float now = Time.realtimeSinceStartup;
-        if (!IsAllowed(now))
+        if (now < _nextAllowedShowAt && !force)
         {
             return;
         }
 
         ShowNotification(now);
-    }
-
-    private bool IsAllowed(float now)
-    {
-        return now >= _nextAllowedShowAt;
     }
 
     protected void ShowNotification(float now)
