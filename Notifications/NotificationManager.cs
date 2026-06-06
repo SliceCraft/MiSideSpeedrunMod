@@ -31,9 +31,23 @@ internal static class NotificationManager
         }
 
         GameObject go = Object.Instantiate(_hintScreenTemplate);
+
+        if (go == null)
+        {
+            Plugin.Log.LogWarning("Tried instantiating hint screen template but was unable to find it.");
+            return false;
+        }
+
         go.transform.SetParent(_interfaceObject.transform, false);
 
         Text text = go.GetComponentInChildren<Text>();
+
+        if (text == null)
+        {
+            Plugin.Log.LogWarning("Tried getting text component but was unable to find it.");
+            return false;
+        }
+
         text.text = notificationMessage.Text;
 
         notificationMessage.HintObject = go;
@@ -46,7 +60,9 @@ internal static class NotificationManager
 
     private static void UpdatePositions()
     {
-        for (int i = NotificationObjects.Count - 1; i >= 0; i--)
+        NotificationObjects.RemoveAll(static n => n.HintObject == null);
+
+        for (int i = 0; i < NotificationObjects.Count; i++)
         {
             GameObject go = NotificationObjects[i].HintObject;
             if (go == null)
