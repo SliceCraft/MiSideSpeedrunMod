@@ -4,7 +4,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <AssemblyName>SliceCraft.SpeedrunMod</AssemblyName>
     <Product>SpeedrunMod</Product>
-    <Version>1.4.1-beta.1-notification-layout</Version>
+    <Version>1.4.0</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
     <RestoreAdditionalProjectSources>
