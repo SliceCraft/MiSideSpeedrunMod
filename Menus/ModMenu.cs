@@ -50,6 +50,15 @@ public static class ModMenu
             .SetNextLocation(debugSettingsMenu)
             .Build();
 
+        GameMenu skipsSettingsMenu = SkipsSettingsMenu.CreateMenu(menu);
+
+        new MenuOptionFactory()
+            .SetName("SKIPS")
+            .SetParent(menu)
+            .PlaceOptionBefore(menu.MenuOptions.Count - 1)
+            .SetNextLocation(skipsSettingsMenu)
+            .Build();
+
         new MenuOptionFactory()
             .SetParent(menu)
             .PlaceOptionBefore(menu.MenuOptions.Count - 1)
