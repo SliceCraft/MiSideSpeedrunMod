@@ -11,7 +11,7 @@ internal sealed class RefreshRateNotification : TimedNotification
     
     protected override void Initialize()
     {
-        SceneLoadedEvent.SceneLoaded += (_, _) => Show();
+        SceneLoadedEvent.SceneLoaded += (_, _) => Show(force: true);
     }
 
     protected override NotificationMessage GetNotification()

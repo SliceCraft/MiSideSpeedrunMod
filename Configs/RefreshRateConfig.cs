@@ -55,7 +55,7 @@ internal static class RefreshRateConfig
             return _cachedRefreshRateHz;
         }
 
-        return OverrideTarget.Value;
+        return GetTargetHz();
     }
 
     internal static int GetTargetHz()

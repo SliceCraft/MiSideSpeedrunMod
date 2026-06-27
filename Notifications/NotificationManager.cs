@@ -10,6 +10,9 @@ internal static class NotificationManager
     private static GameObject _hintScreenTemplate;
 
     private static GameObject _interfaceObject;
+
+    private static float? _bottomMargin;
+    private static float? _rightMargin;
     
     private static readonly List<TimedNotification> TimedNotifications = 
     [
@@ -27,9 +30,24 @@ internal static class NotificationManager
             return false;
         }
 
-        GameObject go = Object.Instantiate(_hintScreenTemplate, _interfaceObject.gameObject.transform);
+        GameObject go = Object.Instantiate(_hintScreenTemplate);
+
+        if (go == null)
+        {
+            Plugin.Log.LogWarning("Tried instantiating hint screen template but was unable to find it.");
+            return false;
+        }
+
+        go.transform.SetParent(_interfaceObject.transform, false);
 
         Text text = go.GetComponentInChildren<Text>();
+
+        if (text == null)
+        {
+            Plugin.Log.LogWarning("Tried getting text component but was unable to find it.");
+            return false;
+        }
+
         text.text = notificationMessage.Text;
 
         notificationMessage.HintObject = go;
@@ -42,12 +60,25 @@ internal static class NotificationManager
 
     private static void UpdatePositions()
     {
-        for (int i = NotificationObjects.Count - 1; i >= 0; i--)
+        NotificationObjects.RemoveAll(static n => n.HintObject == null);
+
+        for (int i = 0; i < NotificationObjects.Count; i++)
         {
             GameObject go = NotificationObjects[i].HintObject;
-            Vector3 pos = go.transform.position;
-            pos.y = i * 100 + 100;
-            go.transform.position = pos;
+            if (go == null)
+            {
+                continue;
+            }
+
+            if (go.TryGetComponent(out RectTransform rectTransform))
+            {
+                var bottomMargin = _bottomMargin ?? 0f;
+                var rightMargin = _rightMargin ?? 0f;
+                rectTransform.anchorMin = new Vector2(1f, 0f);
+                rectTransform.anchorMax = new Vector2(1f, 0f);
+                rectTransform.pivot = new Vector2(1f, 0f);
+                rectTransform.anchoredPosition = new Vector2(rightMargin, i * 100f + bottomMargin);
+            }
         }
     }
 
@@ -170,6 +201,18 @@ internal static class NotificationManager
 
         _interfaceObject = interfaceObject;
         _hintScreenTemplate = hintScreenObject;
+
+        if (_bottomMargin != null && _rightMargin != null)
+        {
+            return true;
+        }
+
+        if (_hintScreenTemplate.TryGetComponent(out RectTransform templateRect))
+        {
+            _bottomMargin = -templateRect.anchoredPosition.y;
+            _rightMargin = -templateRect.anchoredPosition.x;
+        }
+
         return true;
     }
 }
