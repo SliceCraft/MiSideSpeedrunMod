@@ -11,6 +11,10 @@ internal class Location7_RingWorkPatch
     [HarmonyPatch("Start")]
     private static void StartPostfix(Location7_RingWork __instance)
     {
+        // TODO: This return should be replaced by version checks, see #60
+        Plugin.Log.LogInfo("Cappie ring wait skip is disabled by force in this version. In the future this skip will be unlocked depending on the version you're playing on");
+        return;
+
         if (!ModConfig.EnableCappieRingSkip.Value)
         {
             return;
