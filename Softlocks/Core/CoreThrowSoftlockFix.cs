@@ -35,11 +35,9 @@ internal static class CoreThrowSoftlockFix
 
     private static void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        if (scene.name != SceneName)
-        {
-            _throwSequenceActive = false;
-            _quest5Ensured = false;
-        }
+        // Always clear on any load — including re-entry into Scene 15 (chapter reload).
+        _throwSequenceActive = false;
+        _quest5Ensured = false;
     }
 
     internal static bool IsCoreScene() =>
