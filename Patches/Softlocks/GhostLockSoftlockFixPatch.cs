@@ -1,13 +1,14 @@
 using System;
 using HarmonyLib;
-using SpeedrunMod.Utils;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace SpeedrunMod.Patches.Softlocks;
 
 [HarmonyPatch(typeof(Location11_BlackRoom))]
-internal static class GhostLockSoftlockFix
+internal static class GhostLockSoftlockFixPatch
 {
+    private const string GhostMitaScene = "Scene 11 - Backrooms";
     private const float RepairDelaySeconds = 1.25f;
 
     private static Location11_BlackRoom _instance;
@@ -18,7 +19,7 @@ internal static class GhostLockSoftlockFix
     [HarmonyPatch(nameof(Location11_BlackRoom.PlayerSit))]
     private static void PlayerSitPostfix(Location11_BlackRoom __instance)
     {
-        if (__instance == null || !SceneUtil.IsActive(SceneUtil.Scene11Backrooms))
+        if (__instance == null || SceneManager.GetActiveScene().name != GhostMitaScene)
         {
             return;
         }
@@ -34,33 +35,27 @@ internal static class GhostLockSoftlockFix
     {
         try
         {
-            if (__instance == null || !SceneUtil.IsActive(SceneUtil.Scene11Backrooms))
+            if (__instance == null
+                || __instance != _instance
+                || SceneManager.GetActiveScene().name != GhostMitaScene)
             {
                 return;
             }
 
             if (__instance.glueWork)
             {
-                if (_instance == __instance)
-                {
-                    _instance = null;
-                }
-
+                _instance = null;
                 return;
             }
 
             if (__instance.playPuzle)
             {
                 EnsureAssembleInputUsable(__instance);
-                if (_instance == __instance)
-                {
-                    _instance = null;
-                }
-
+                _instance = null;
                 return;
             }
 
-            if (_instance != __instance || _fixApplied)
+            if (_fixApplied)
             {
                 return;
             }
