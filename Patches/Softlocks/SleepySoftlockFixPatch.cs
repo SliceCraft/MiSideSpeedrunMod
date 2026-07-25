@@ -36,15 +36,20 @@ internal static class SleepySoftlockFixPatch
             }
 
             var tryChairEvents = tryChair.GetComponent<Time_Events>();
-            if (tryChairEvents == null)
+            if (tryChairEvents != null)
+            {
+                // Pending TryChair timers (esp. late WakeUp Idle) race StandChair under fast skip.
+                tryChairEvents.StopAllTime();
+                Plugin.Log.LogInfo("Sleepy Softlock Fix: stopped TryChair timers before StandChair");
+            }
+            else
             {
                 Plugin.Log.LogDebug("Sleepy Softlock Fix: TryChair has no Time_Events");
-                return;
             }
 
-            // Pending TryChair timers (esp. late WakeUp Idle) race StandChair under fast skip.
-            tryChairEvents.StopAllTime();
-            Plugin.Log.LogInfo("Sleepy Softlock Fix: stopped TryChair timers before StandChair");
+            // Click also locks the player in TryChair's ObjectAnimationPlayer (Player WakeUp).
+            // Dialogue skip does not end that anim; StandChair leaves the player frozen.
+            UnlockTryChairPlayer(tryChair);
         }
         catch (Exception ex)
         {
@@ -52,6 +57,25 @@ internal static class SleepySoftlockFixPatch
         }
     }
 
-    private static bool IsDreamerScene() =>
-        SceneManager.GetActiveScene().name == DreamerScene;
+    private static void UnlockTryChairPlayer(GameObject tryChair)
+    {
+        var player = Object.FindObjectOfType<PlayerMove>();
+        if (player == null || !player.animationRun || player.scrAnimationNow == null)
+        {
+            Plugin.Log.LogDebug("Sleepy Softlock Fix: player not locked in a chair anim");
+            return;
+        }
+
+        if (player.scrAnimationNow.gameObject != tryChair)
+        {
+            Plugin.Log.LogDebug(
+                $"Sleepy Softlock Fix: player anim is {player.scrAnimationNow.gameObject.name}, not TryChair");
+            return;
+        }
+
+        player.AnimationFastStop();
+        Plugin.Log.LogInfo("Sleepy Softlock Fix: AnimationFastStop on TryChair player lock");
+    }
+
+    private static bool IsDreamerScene() => SceneManager.GetActiveScene().name == DreamerScene;
 }
