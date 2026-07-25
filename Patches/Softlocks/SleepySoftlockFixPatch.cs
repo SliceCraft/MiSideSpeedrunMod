@@ -49,7 +49,7 @@ internal static class SleepySoftlockFixPatch
 
             // Click also locks the player in TryChair's ObjectAnimationPlayer (Player WakeUp).
             // Dialogue skip does not end that anim; StandChair leaves the player frozen.
-            UnlockTryChairPlayer(tryChair);
+            TryUnlockPlayer(tryChair);
         }
         catch (Exception ex)
         {
@@ -57,7 +57,7 @@ internal static class SleepySoftlockFixPatch
         }
     }
 
-    private static void UnlockTryChairPlayer(GameObject tryChair)
+    private static void TryUnlockPlayer(GameObject animationObject)
     {
         var player = UnityEngine.Object.FindObjectOfType<PlayerMove>();
         if (player == null || !player.animationRun || player.scrAnimationNow == null)
@@ -66,7 +66,7 @@ internal static class SleepySoftlockFixPatch
             return;
         }
 
-        if (player.scrAnimationNow.gameObject != tryChair)
+        if (player.scrAnimationNow.gameObject != animationObject)
         {
             Plugin.Log.LogDebug(
                 $"Sleepy Softlock Fix: player anim is {player.scrAnimationNow.gameObject.name}, not TryChair");
