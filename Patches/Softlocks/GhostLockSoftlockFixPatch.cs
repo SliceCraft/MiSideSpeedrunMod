@@ -30,7 +30,7 @@ internal static class GhostLockSoftlockFixPatch
         _instance = __instance;
         _realtimeSincePlayerSit = Time.realtimeSinceStartup;
         _fixApplied = false;
-        LogDebugState(__instance, "PlayerSit");
+        LogState(__instance, "PlayerSit");
     }
 
     [HarmonyPostfix]
@@ -46,7 +46,7 @@ internal static class GhostLockSoftlockFixPatch
 
             if (__instance.glueWork)
             {
-                LogDebugState(__instance, "glueWork");
+                LogState(__instance, "glueWork");
                 _instance = null;
                 return;
             }
@@ -55,7 +55,7 @@ internal static class GhostLockSoftlockFixPatch
             {
                 if (!_fixApplied)
                 {
-                    LogDebugState(__instance, "playPuzle (vanilla)");
+                    LogState(__instance, "playPuzle (vanilla)");
                 }
 
                 EnsureAssembleInputUsable(__instance);
@@ -93,12 +93,12 @@ internal static class GhostLockSoftlockFixPatch
     {
         try
         {
-            LogDebugState(room, "repair before");
+            LogState(room, "repair before");
             FinishPendingPlacements(room);
             EnableAssembleMode(room);
             _fixApplied = true;
             Plugin.Log.LogInfo("repaired assemble mode", LogContext);
-            LogDebugState(room, "repair after");
+            LogState(room, "repair after");
         }
         catch (Exception ex)
         {
@@ -184,11 +184,10 @@ internal static class GhostLockSoftlockFixPatch
         }
     }
 
-    private static bool IsGhostMitaScene() =>
-        SceneManager.GetActiveScene().name == GhostMitaScene;
+    private static bool IsGhostMitaScene() => SceneManager.GetActiveScene().name == GhostMitaScene;
 
-    private static void LogDebugState(Location11_BlackRoom room, string phase) =>
-        Plugin.Log.LogDebug(DescribeState(room, phase), LogContext);
+    private static void LogState(Location11_BlackRoom room, string phase) =>
+        Plugin.Log.LogInfo(DescribeState(room, phase), LogContext);
 
     private static string DescribeState(Location11_BlackRoom room, string phase)
     {
