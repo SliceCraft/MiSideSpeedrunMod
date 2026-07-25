@@ -11,8 +11,9 @@ namespace SpeedrunMod.Patches;
 /// late WakeUp Idle). Those events fight StandChair's stand-up/quest unlock
 /// and Softlock the chapter.
 ///
-/// Repair: when StandChair restarts, stop TryChair timers and flush its
-/// remaining timed side-effects so skip stays usable.
+/// Repair: when StandChair restarts, stop TryChair's pending timed events so
+/// late WakeUp Idle cannot overwrite StandChair's stand-up. Skip stays usable.
+/// Do not flush EventsOnTime — that would re-fire WakeUp Idle into StandChair.
 /// </summary>
 [HarmonyPatch(typeof(Time_Events))]
 internal static class SleepySoftlockFixPatch
@@ -30,7 +31,7 @@ internal static class SleepySoftlockFixPatch
             return;
         }
 
-        if (__instance == null || __instance.gameObject.name != StandChairName)
+        if (__instance.gameObject.name != StandChairName)
         {
             return;
         }
@@ -48,21 +49,6 @@ internal static class SleepySoftlockFixPatch
         }
 
         tryChairEvents.StopAllTime();
-        FlushTimedEvents(tryChairEvents);
-        Plugin.Log.LogInfo("Sleepy Softlock Fix: completed TryChair before StandChair");
-    }
-
-    private static void FlushTimedEvents(Time_Events timeEvents)
-    {
-        var eventsOnTime = timeEvents.EventsOnTime;
-        if (eventsOnTime == null)
-        {
-            return;
-        }
-
-        for (var i = 0; i < eventsOnTime.Length; i++)
-        {
-            eventsOnTime[i]?._event?.Invoke();
-        }
+        Plugin.Log.LogInfo("Sleepy Softlock Fix: stopped TryChair timers before StandChair");
     }
 }
