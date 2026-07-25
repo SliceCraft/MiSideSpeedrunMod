@@ -35,25 +35,26 @@ internal static class SleepySoftlockFixPatch
                 return;
             }
 
-            var tryChairEvents = tryChair.GetComponent<Time_Events>();
-            if (tryChairEvents != null)
-            {
-                // Pending TryChair timers (esp. late WakeUp Idle) race StandChair under fast skip.
-                tryChairEvents.StopAllTime();
-                Plugin.Log.LogInfo("Sleepy Softlock Fix: stopped TryChair timers before StandChair");
-            }
-            else
-            {
-                Plugin.Log.LogDebug("Sleepy Softlock Fix: TryChair has no Time_Events");
-            }
-
-            // Click also locks the player in TryChair's ObjectAnimationPlayer (Player WakeUp).
-            // Dialogue skip does not end that anim; StandChair leaves the player frozen.
+            TryStopChairTimers(tryChair);
             TryUnlockPlayer(tryChair);
         }
         catch (Exception ex)
         {
             Plugin.Log.LogError($"Sleepy Softlock Fix failed: {ex}");
+        }
+    }
+
+    private static void TryStopChairTimers(GameObject chair)
+    {
+        var events = chair.GetComponent<Time_Events>();
+        if (events != null)
+        {
+            events.StopAllTime();
+            Plugin.Log.LogInfo("Sleepy Softlock Fix: stopped TryChair timers before StandChair");
+        }
+        else
+        {
+            Plugin.Log.LogDebug("Sleepy Softlock Fix: TryChair has no Time_Events");
         }
     }
 
@@ -68,8 +69,7 @@ internal static class SleepySoftlockFixPatch
 
         if (player.scrAnimationNow.gameObject != animationObject)
         {
-            Plugin.Log.LogDebug(
-                $"Sleepy Softlock Fix: player anim is {player.scrAnimationNow.gameObject.name}, not TryChair");
+            Plugin.Log.LogDebug($"Sleepy Softlock Fix: player anim is {player.scrAnimationNow.gameObject.name}, not TryChair");
             return;
         }
 
