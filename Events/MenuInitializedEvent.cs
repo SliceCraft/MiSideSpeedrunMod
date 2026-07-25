@@ -1,4 +1,4 @@
-﻿using MenuLib.API;
+using MenuLib.API;
 using MenuLib.API.Events;
 using SpeedrunMod.Menus;
 
