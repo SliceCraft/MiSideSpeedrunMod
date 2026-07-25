@@ -59,7 +59,7 @@ internal static class SleepySoftlockFixPatch
 
     private static void UnlockTryChairPlayer(GameObject tryChair)
     {
-        var player = Object.FindObjectOfType<PlayerMove>();
+        var player = UnityEngine.Object.FindObjectOfType<PlayerMove>();
         if (player == null || !player.animationRun || player.scrAnimationNow == null)
         {
             Plugin.Log.LogDebug("Sleepy Softlock Fix: player not locked in a chair anim");
