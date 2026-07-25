@@ -1,6 +1,5 @@
 ﻿using MenuLib.API;
 using MenuLib.API.Events;
-using MenuLib.ModSettings;
 using SpeedrunMod.Menus;
 
 namespace SpeedrunMod.Events;
