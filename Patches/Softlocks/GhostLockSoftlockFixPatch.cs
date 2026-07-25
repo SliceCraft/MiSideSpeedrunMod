@@ -1,5 +1,7 @@
 using System;
+using System.Text;
 using HarmonyLib;
+using SpeedrunMod.Utils;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -8,6 +10,7 @@ namespace SpeedrunMod.Patches.Softlocks;
 [HarmonyPatch(typeof(Location11_BlackRoom))]
 internal static class GhostLockSoftlockFixPatch
 {
+    private const string LogContext = "GhostLock";
     private const string GhostMitaScene = "Scene 11 - Backrooms";
     private const float RepairDelaySeconds = 1.25f;
 
@@ -27,6 +30,7 @@ internal static class GhostLockSoftlockFixPatch
         _instance = __instance;
         _realtimeSincePlayerSit = Time.realtimeSinceStartup;
         _fixApplied = false;
+        Plugin.Log.LogInfo(DescribeState(__instance, "PlayerSit"), LogContext);
     }
 
     [HarmonyPostfix]
@@ -44,12 +48,18 @@ internal static class GhostLockSoftlockFixPatch
 
             if (__instance.glueWork)
             {
+                Plugin.Log.LogInfo(DescribeState(__instance, "glueWork"), LogContext);
                 _instance = null;
                 return;
             }
 
             if (__instance.playPuzle)
             {
+                if (!_fixApplied)
+                {
+                    Plugin.Log.LogInfo(DescribeState(__instance, "playPuzle (vanilla)"), LogContext);
+                }
+
                 EnsureAssembleInputUsable(__instance);
                 _instance = null;
                 return;
@@ -77,7 +87,7 @@ internal static class GhostLockSoftlockFixPatch
         }
         catch (Exception ex)
         {
-            Plugin.Log.LogError($"GhostLock Softlock Fix Update failed: {ex}");
+            Plugin.Log.LogError($"Update failed: {ex}", LogContext);
         }
     }
 
@@ -85,14 +95,15 @@ internal static class GhostLockSoftlockFixPatch
     {
         try
         {
+            Plugin.Log.LogInfo(DescribeState(room, "repair before"), LogContext);
             FinishPendingPlacements(room);
             EnableAssembleMode(room);
             _fixApplied = true;
-            Plugin.Log.LogInfo("GhostLock Softlock Fix: repaired assemble mode");
+            Plugin.Log.LogInfo(DescribeState(room, "repair after"), LogContext);
         }
         catch (Exception ex)
         {
-            Plugin.Log.LogError($"GhostLock Softlock Fix repair failed: {ex}");
+            Plugin.Log.LogError($"repair failed: {ex}", LogContext);
         }
     }
 
@@ -164,13 +175,64 @@ internal static class GhostLockSoftlockFixPatch
         if (room.scrgc != null && !room.scrgc.showCursor)
         {
             room.scrgc.ShowCursor(true);
-            Plugin.Log.LogInfo("GhostLock Softlock Fix: re-enabled cursor during assemble");
+            Plugin.Log.LogInfo("re-enabled cursor during assemble", LogContext);
         }
 
         if (room.mouseOverPlane != null && !room.mouseOverPlane.activeSelf)
         {
             room.mouseOverPlane.SetActive(true);
-            Plugin.Log.LogInfo("GhostLock Softlock Fix: re-enabled mouseOverPlane during assemble");
+            Plugin.Log.LogInfo("re-enabled mouseOverPlane during assemble", LogContext);
         }
+    }
+
+    private static string DescribeState(Location11_BlackRoom room, string phase)
+    {
+        var sb = new StringBuilder();
+        sb.Append(phase);
+        sb.Append(" playPuzle=").Append(room.playPuzle);
+        sb.Append(" glueWork=").Append(room.glueWork);
+        sb.Append(" timeStartPlayPuzle=").Append(room.timeStartPlayPuzle.ToString("0.###"));
+        sb.Append(" timeStartPuzle=").Append(room.timeStartPuzle.ToString("0.###"));
+        sb.Append(" indexPuzleWork=").Append(room.indexPuzleWork);
+        sb.Append(" indexPuzleHold=").Append(room.indexPuzleHold);
+        sb.Append(" showCursor=").Append(room.scrgc != null && room.scrgc.showCursor);
+        sb.Append(" mouseOverPlane=")
+            .Append(room.mouseOverPlane != null && room.mouseOverPlane.activeSelf);
+        sb.Append(" interactiveTable=")
+            .Append(room.interactiveTable != null && room.interactiveTable.activeSelf);
+        sb.Append(" pieces=[");
+
+        var frames = room.framesFound;
+        if (frames != null)
+        {
+            for (var i = 0; i < frames.Length; i++)
+            {
+                if (i > 0)
+                {
+                    sb.Append("; ");
+                }
+
+                var frame = frames[i];
+                if (frame?.puzle == null)
+                {
+                    sb.Append(i).Append(":null");
+                    continue;
+                }
+
+                var paper = frame.puzle.GetComponent<Location11_PaperPart>();
+                sb.Append(i)
+                    .Append(":active=")
+                    .Append(frame.puzle.activeSelf)
+                    .Append(" added=")
+                    .Append(frame.addedTable)
+                    .Append(" put=")
+                    .Append(paper != null && paper.put)
+                    .Append(" mouse=")
+                    .Append(paper != null && paper.mouse);
+            }
+        }
+
+        sb.Append(']');
+        return sb.ToString();
     }
 }
