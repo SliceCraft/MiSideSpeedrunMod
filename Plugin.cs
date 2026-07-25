@@ -6,7 +6,6 @@ using BepInEx.Unity.IL2CPP;
 using HarmonyLib;
 using SpeedrunMod.Configs;
 using SpeedrunMod.Events;
-using SpeedrunMod.Softlocks.Core;
 using SpeedrunMod.Utils;
 
 namespace SpeedrunMod;
@@ -29,7 +28,6 @@ internal class Plugin : BasePlugin
         GlobalGame.canSkipDialogue = ModConfig.EnableDialogueSkip.Value;
 
         _harmony.PatchAll();
-        CoreThrowSoftlockFix.Register();
 
         SceneLoadedEvent.RegisterEvent();
         MenuInitializedEvent.RegisterEvent();
