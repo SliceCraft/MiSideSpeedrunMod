@@ -5,39 +5,43 @@ using UnityEngine.SceneManagement;
 
 namespace SpeedrunMod.Patches.Softlocks;
 
-/// <summary>
-/// Kind Mita "baseball" / reset Softlock: spam-skip through KindMita 17–20 while she is
-/// seated after MitaD Drop leaves sit <see cref="Time_Events"/> running; those late sit
-/// events fight <c>МитаДобрая Встаёт обратно</c> and she stays seated / scene stalls.
-/// </summary>
 [HarmonyPatch]
 internal static class BaseballSoftlockFixPatch
 {
-    private const string SceneName = "Scene 7 - Backrooms";
-    private const string StandUpEventsName = "МитаДобрая Встаёт обратно";
-    private const string SitAfterDropEventsName = "TimeAnimation MitaK Sit";
-    private const string DropEventsName = "TimeAnimation MitaD Drop";
-    private const string AnimationSitEventsName = "AnimationMita Sit";
-    private const string StandDialogueName = "KindMita 20";
-    private const int StandDialogueIndex = 169;
+    private const string SceneName = "Scene 14 - MobilePlayer";
+    private const string TakeBatEventsName = "TimeAnimationMita TakeBat";
+    private const string HoldHeadBatEventsName = "TimeAnimationMita HoldHeadBat";
+    private const string StartNearEventsName = "TimeAnimationMita StartNear";
+    private const string HoldHeadDialogueName = "Mita 4";
+    private const int HoldHeadDialogueIndex = 118;
 
     [HarmonyPrefix]
     [HarmonyPatch(typeof(Time_Events), nameof(Time_Events.YieldRestart))]
     private static void YieldRestartPrefix(Time_Events __instance)
     {
-        if (!IsBackroomsScene() || __instance == null || __instance.gameObject.name != StandUpEventsName)
+        if (!IsMobilePlayerScene() || __instance == null)
         {
             return;
         }
 
         try
         {
-            ClearCompetingSitTimers();
-            Plugin.Log.LogInfo("Baseball Softlock Fix: cleared sit/drop timers before Kind Mita stand-up");
+            string name = __instance.gameObject.name;
+            if (name == HoldHeadBatEventsName)
+            {
+                StopTimedEvents(TakeBatEventsName);
+                Plugin.Log.LogInfo("Baseball Softlock Fix: cleared TakeBat before HoldHeadBat");
+            }
+            else if (name == StartNearEventsName)
+            {
+                StopTimedEvents(HoldHeadBatEventsName);
+                StopTimedEvents(TakeBatEventsName);
+                Plugin.Log.LogInfo("Baseball Softlock Fix: cleared bat timers before StartNear");
+            }
         }
         catch (Exception ex)
         {
-            Plugin.Log.LogError($"Baseball Softlock Fix (stand-up prefix) failed: {ex}");
+            Plugin.Log.LogError($"Baseball Softlock Fix (YieldRestart) failed: {ex}");
         }
     }
 
@@ -45,54 +49,34 @@ internal static class BaseballSoftlockFixPatch
     [HarmonyPatch(typeof(Dialogue_3DText), "Start")]
     private static void DialogueStartPostfix(Dialogue_3DText __instance)
     {
-        if (!IsBackroomsScene())
+        if (!IsMobilePlayerScene())
         {
             return;
         }
 
-        if (__instance?.gameObject.name != StandDialogueName || __instance.indexString != StandDialogueIndex)
+        if (__instance?.gameObject.name != HoldHeadDialogueName || __instance.indexString != HoldHeadDialogueIndex)
         {
             return;
         }
 
         try
         {
-            // Clear sits as soon as the stand-up line appears, before eventFinish YieldRestart.
-            ClearCompetingSitTimers();
-            Plugin.Log.LogInfo("Baseball Softlock Fix: cleared sit/drop timers on KindMita 20");
+            StopTimedEvents(TakeBatEventsName);
+            Plugin.Log.LogInfo("Baseball Softlock Fix: cleared TakeBat on Mita 4/118");
         }
         catch (Exception ex)
         {
-            Plugin.Log.LogError($"Baseball Softlock Fix (KindMita 20) failed: {ex}");
+            Plugin.Log.LogError($"Baseball Softlock Fix (Mita 4) failed: {ex}");
         }
-    }
-
-    private static void ClearCompetingSitTimers()
-    {
-        StopTimedEvents(SitAfterDropEventsName);
-        StopTimedEvents(DropEventsName);
-        StopTimedEvents(AnimationSitEventsName);
     }
 
     private static void StopTimedEvents(string name)
     {
         GameObject go = FindIncludingInactive(name);
-        if (go == null)
-        {
-            return;
-        }
-
-        var events = go.GetComponent<Time_Events>();
-        if (events == null)
-        {
-            return;
-        }
-
-        events.StopAllTime();
-        Plugin.Log.LogDebug($"Baseball Softlock Fix: StopAllTime on {name}");
+        go?.GetComponent<Time_Events>()?.StopAllTime();
     }
 
-    private static bool IsBackroomsScene() => SceneManager.GetActiveScene().name == SceneName;
+    private static bool IsMobilePlayerScene() => SceneManager.GetActiveScene().name == SceneName;
 
     private static GameObject FindIncludingInactive(string name)
     {
