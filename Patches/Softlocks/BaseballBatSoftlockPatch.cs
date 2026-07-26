@@ -34,12 +34,12 @@ internal static class BaseballBatSoftlockPatch
             switch (__instance.gameObject.name)
             {
                 case HoldHeadBatEventsName:
-                    TimeEventUtils.StopAll(TakeBatEventsName);
+                    TimeUtil.StopTimeEvents(TakeBatEventsName);
                     Plugin.Log.LogInfo("cleared TakeBat before HoldHeadBat", nameof(BaseballBatSoftlockPatch));
                     break;
                 case StartNearEventsName:
-                    TimeEventUtils.StopAll(HoldHeadBatEventsName);
-                    TimeEventUtils.StopAll(TakeBatEventsName);
+                    TimeUtil.StopTimeEvents(HoldHeadBatEventsName);
+                    TimeUtil.StopTimeEvents(TakeBatEventsName);
                     Plugin.Log.LogInfo("cleared bat timers before StartNear", nameof(BaseballBatSoftlockPatch));
                     break;
             }
@@ -85,7 +85,7 @@ internal static class BaseballBatSoftlockPatch
 
         try
         {
-            TimeEventUtils.StopAll(TakeBatEventsName);
+            TimeUtil.StopTimeEvents(TakeBatEventsName);
             Plugin.Log.LogInfo("cleared TakeBat on Mita 4/118", nameof(BaseballBatSoftlockPatch));
         }
         catch (Exception ex)
@@ -96,13 +96,13 @@ internal static class BaseballBatSoftlockPatch
 
     private static void TryForceStopNearKick(Time_Events stopNear)
     {
-        GameObject canvasKick = GameObjectUtils.FindIncludingInactive(CanvasKickName);
+        GameObject canvasKick = ComponentUtil.FindIncludingInactive(CanvasKickName);
         if (canvasKick != null && canvasKick.activeInHierarchy)
         {
             return;
         }
 
-        GameObject quest2 = GameObjectUtils.FindIncludingInactive(Quest2StartName);
+        GameObject quest2 = ComponentUtil.FindIncludingInactive(Quest2StartName);
         if (quest2 != null && quest2.activeInHierarchy)
         {
             return;

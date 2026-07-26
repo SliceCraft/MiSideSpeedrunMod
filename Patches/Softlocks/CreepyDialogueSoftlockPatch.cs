@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using HarmonyLib;
 using SpeedrunMod.Utils;
 using UnityEngine.SceneManagement;
@@ -40,8 +40,8 @@ internal static class CreepyDialogueSoftlockPatch
     {
         foreach (string name in AnimationTimers)
         {
-            TimeEventUtils.StopAll(name);
-            Plugin.Log.LogDebug($"StopAll on {name}", nameof(CreepyDialogueSoftlockPatch));
+            TimeUtil.StopTimeEvents(name);
+            Plugin.Log.LogDebug($"StopTimeEvents on {name}", nameof(CreepyDialogueSoftlockPatch));
         }
 
         Plugin.Log.LogInfo("cleared animation timers before QuestFinish", nameof(CreepyDialogueSoftlockPatch));

@@ -34,7 +34,7 @@ internal static class KappiRoomEntrySoftlockPatch
         GameObject.Find(OpenDoorEventsName)?.GetComponent<Time_Events>()?.StopAllTime();
         GameObject.Find(CapDoorEventsName)?.GetComponent<Time_Events>()?.StopAllTime();
 
-        GameObject cap = GameObjectUtils.FindIncludingInactive(MitaCapName);
+        GameObject cap = ComponentUtil.FindIncludingInactive(MitaCapName);
         if (cap != null && !cap.activeSelf)
         {
             cap.SetActive(true);

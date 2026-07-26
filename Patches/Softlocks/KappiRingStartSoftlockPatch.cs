@@ -32,13 +32,13 @@ internal static class KappiRingStartSoftlockPatch
 
     private static void EnsureRingWorkStarted()
     {
-        GameObject ringWork = GameObjectUtils.FindIncludingInactive(RingWorkName);
+        GameObject ringWork = ComponentUtil.FindIncludingInactive(RingWorkName);
         if (ringWork != null && ringWork.activeInHierarchy)
         {
             return;
         }
 
-        GameObject sit = GameObjectUtils.FindIncludingInactive(TimeMitaSitName);
+        GameObject sit = ComponentUtil.FindIncludingInactive(TimeMitaSitName);
         if (sit != null)
         {
             sit.SetActive(true);

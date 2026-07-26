@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace SpeedrunMod.Utils;
 
-internal static class GameObjectUtils
+internal static class ComponentUtil
 {
     internal static GameObject FindIncludingInactive(string name)
     {
