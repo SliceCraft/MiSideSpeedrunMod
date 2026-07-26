@@ -190,17 +190,21 @@ internal static class KappiSoftlockDebugPatch
         }
 
         string name = __instance.gameObject.name;
-        if (name is not ("Time Mita Sit" or "TimeAnimationMitaK StandUp" or "TimeAnimation MitaOpenDoor" or "Встаёт"))
+        if (name is not ("Time Mita Sit" or "Time Mita Stand" or "TimeAnimationMitaK StandUp" or "TimeAnimation MitaOpenDoor" or "Встаёт"))
         {
             return;
         }
 
         GameObject ring = ComponentUtil.FindIncludingInactive("RingWork");
         GameObject quest4 = ComponentUtil.FindIncludingInactive("Quest4 - Проводим время с Кепкой");
+        GameObject quest5 = ComponentUtil.FindIncludingInactive("Quest5 - Пора уходить");
+        GameObject takeRing = ComponentUtil.FindIncludingInactive("Interactive TakeRing");
         Plugin.Log.LogInfo(
             $"{DebugTag} {T()} YieldRestart on '{name}' "
             + $"ringWork={(ring == null ? "null" : $"active={ring.activeSelf}/hier={ring.activeInHierarchy}")} "
             + $"quest4={(quest4 == null ? "null" : $"active={quest4.activeSelf}/hier={quest4.activeInHierarchy}")} "
+            + $"quest5={(quest5 == null ? "null" : $"active={quest5.activeSelf}/hier={quest5.activeInHierarchy}")} "
+            + $"takeRing={(takeRing == null ? "null" : $"active={takeRing.activeSelf}/hier={takeRing.activeInHierarchy}")} "
             + $"scene6={Scene6Loaded()} {PlayerAnimSnapshot()} "
             + $"activeScene={SceneManager.GetActiveScene().name} {SceneSnapshot()}",
             nameof(KappiSoftlockDebugPatch));

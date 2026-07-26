@@ -6,13 +6,15 @@ using UnityEngine.SceneManagement;
 namespace SpeedrunMod.Patches.Softlocks;
 
 /// <summary>
-/// Kappi Softlocks in Scene 7 - Backrooms (room-entry silence + ring-start).
+/// Kappi Softlocks in Scene 7 - Backrooms (room-entry silence + ring-start + post-ring).
 /// Room entry: StopAllTime on Cap door/StandUp timers, wake CapMita, ResetVoice.
-/// Ring: wake Quest4 so sit can enable RingWork (no early RingWork / StartAddon /
+/// Ring start: wake Quest4 so sit can enable RingWork (no early RingWork / StartAddon /
 /// House hide). Connect green halo: HandHold enables UI Image "Alpha" (lime) +
 /// AnimationParticle Check; finish calls UI_Alpha.AlphaZeroDeactivated — skip can
 /// drop that, so Softlock Fix clears Alpha/Check at give-ring (KindMita 15).
-/// Door Softlock Fix is intentionally out of scope.
+/// Post-ring: Time Mita Stand only SetActives Quest5 after clip wait — skip can leave
+/// Interactive TakeRing (Kind Mita) unreachable; Softlock Fix wakes Quest5 on stand /
+/// ReadyTime. Door Softlock Fix is intentionally out of scope.
 /// </summary>
 [HarmonyPatch]
 internal static class KappiRingSoftlockPatch
@@ -30,8 +32,10 @@ internal static class KappiRingSoftlockPatch
     private const string SitDialogueName = "KindMita 15";
     private const int SitDialogueIndex = 236;
     private const string TimeMitaSitName = "Time Mita Sit";
+    private const string TimeMitaStandName = "Time Mita Stand";
     private const string RingWorkName = "RingWork";
     private const string Quest4Name = "Quest4 - Проводим время с Кепкой";
+    private const string Quest5Name = "Quest5 - Пора уходить";
     private const string HandHoldAlphaName = "Alpha";
     private const string HandHoldCheckName = "AnimationParticle Check";
 
@@ -109,20 +113,39 @@ internal static class KappiRingSoftlockPatch
 
     [HarmonyPrefix]
     [HarmonyPatch(typeof(Time_Events), nameof(Time_Events.YieldRestart))]
-    private static void TimeMitaSitYieldRestartPrefix(Time_Events __instance)
+    private static void TimeMitaSitOrStandYieldRestartPrefix(Time_Events __instance)
     {
         if (!IsKappiScene() || __instance == null)
         {
             return;
         }
 
-        if (__instance.gameObject.name != TimeMitaSitName)
+        string name = __instance.gameObject.name;
+        if (name == TimeMitaSitName)
+        {
+            EnsureQuest4ReadyForRingWork();
+            ClearStuckHandHoldHalo();
+            return;
+        }
+
+        if (name == TimeMitaStandName)
+        {
+            EnsureQuest5ReadyForTakeRing();
+        }
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(Location7_RingWork), nameof(Location7_RingWork.ReadyTime))]
+    private static void RingWorkReadyTimePostfix(Location7_RingWork __instance)
+    {
+        if (!IsKappiScene() || __instance == null)
         {
             return;
         }
 
-        EnsureQuest4ReadyForRingWork();
-        ClearStuckHandHoldHalo();
+        // eventReady YieldRestarts Time Mita Stand, whose clip-wait SetActives Quest5 —
+        // Softlock Fix arms Quest5 here too if skip drops that wait.
+        EnsureQuest5ReadyForTakeRing();
     }
 
     private static void EnsureQuest4ReadyForRingWork()
@@ -158,6 +181,42 @@ internal static class KappiRingSoftlockPatch
 
         Plugin.Log.LogInfo(
             "armed Quest4 so sit timeline can start RingWork after sit",
+            nameof(KappiRingSoftlockPatch));
+    }
+
+    private static void EnsureQuest5ReadyForTakeRing()
+    {
+        GameObject quest5 = ComponentUtil.FindIncludingInactive(Quest5Name);
+        if (quest5 == null)
+        {
+            Plugin.Log.LogWarning("Quest5 missing for post-ring Softlock Fix", nameof(KappiRingSoftlockPatch));
+            return;
+        }
+
+        if (quest5.activeInHierarchy)
+        {
+            KappiSoftlockDebugPatch.LogRepairAttempt(
+                nameof(KappiRingSoftlockPatch),
+                "post-ring early-return: Quest5 already activeInHierarchy");
+            return;
+        }
+
+        bool wokeQuest5 = false;
+        if (!quest5.activeSelf)
+        {
+            quest5.SetActive(true);
+            wokeQuest5 = true;
+        }
+
+        GameObject takeRing = ComponentUtil.FindIncludingInactive("Interactive TakeRing");
+        KappiSoftlockDebugPatch.LogRepairAttempt(
+            nameof(KappiRingSoftlockPatch),
+            $"post-ring wokeQuest5={wokeQuest5} "
+            + $"quest5=active={quest5.activeSelf}/hier={quest5.activeInHierarchy} "
+            + $"takeRing={(takeRing == null ? "null" : $"active={takeRing.activeSelf}/hier={takeRing.activeInHierarchy}")}");
+
+        Plugin.Log.LogInfo(
+            "armed Quest5 so Interactive TakeRing (Kind Mita) is reachable after ring",
             nameof(KappiRingSoftlockPatch));
     }
 
