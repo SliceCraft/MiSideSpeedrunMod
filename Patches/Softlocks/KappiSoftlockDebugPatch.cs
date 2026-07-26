@@ -173,7 +173,8 @@ internal static class KappiSoftlockDebugPatch
         }
 
         GameObject capDoor = ComponentUtil.FindIncludingInactive("DoorCage Bedroom-Hall");
-        GameObject permDoor = ComponentUtil.FindIncludingInactive("DoorCage Bedroom - Hall");
+        GameObject beyondDoor = ComponentUtil.FindIncludingInactive("Door InRoom");
+        GameObject beyondCage = ComponentUtil.FindIncludingInactive("Doorcage InRoom");
         ObjectDoor capPhysic = capDoor != null ? capDoor.GetComponentInChildren<ObjectDoor>(true) : null;
         Plugin.Log.LogInfo(
             $"{DebugTag} {T()} Location34.StartAddon go={__instance.gameObject.name} "
@@ -181,7 +182,8 @@ internal static class KappiSoftlockDebugPatch
             + $"house={(house == null ? "null" : $"active={house.activeSelf}")} "
             + $"capDoorCage={(capDoor == null ? "null" : $"active={capDoor.activeSelf}")} "
             + $"capDoorOpen={(capPhysic == null ? "null" : capPhysic.open.ToString())} "
-            + $"permDoorCage={(permDoor == null ? "null (destroyed after Cap open)" : $"active={permDoor.activeSelf}")} "
+            + $"beyondDoorInRoom={(beyondDoor == null ? "null" : $"active={beyondDoor.activeSelf}")} "
+            + $"beyondDoorCage={(beyondCage == null ? "null" : $"active={beyondCage.activeSelf}")} "
             + SceneSnapshot(),
             nameof(KappiSoftlockDebugPatch));
     }

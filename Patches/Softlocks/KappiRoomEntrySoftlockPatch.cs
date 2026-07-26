@@ -1,3 +1,4 @@
+using Colorful;
 using HarmonyLib;
 using SpeedrunMod.Utils;
 using UnityEngine;
@@ -8,9 +9,9 @@ namespace SpeedrunMod.Patches.Softlocks;
 /// <summary>
 /// Room-entry Softlock: fast enter + Space-skip races CapMita 1 against door/StandUp
 /// Time_Events that still own CapMita's animator/audio. Softlock Fix stops those timers,
-/// wakes CapMita, resets voice, snaps CapMita's DoorCage Bedroom-Hall closed (do not hide —
-/// DoorCage Bedroom - Hall under Doors is destroyed when Cap opens hers), and clears the
-/// stuck SobelOutline / FastVignette green halo from the interrupted open-door beat.
+/// wakes CapMita, resets voice, finishes Beyond's Door InRoom destroy (TextMita 7
+/// ActiveObject — skip can leave that door stuck open beside Cap's DoorCage Bedroom-Hall),
+/// and force-clears FastVignette / SobelOutline (CameraVignetteActive(false) only fades).
 /// </summary>
 [HarmonyPatch(typeof(Dialogue_3DText), "Start")]
 internal static class KappiRoomEntrySoftlockPatch
@@ -23,8 +24,9 @@ internal static class KappiRoomEntrySoftlockPatch
     private const string StandUpEventsName = "TimeAnimationMitaK StandUp";
     private const string OpenDoorEventsName = "TimeAnimation MitaOpenDoor";
     private const string CapDoorEventsName = "MitaCap AnimDoor";
-    /// <summary>CapMita-opened cage (hyphen). Permanent "DoorCage Bedroom - Hall" is destroyed on open.</summary>
-    private const string CapMitaBedroomHallDoorCageName = "DoorCage Bedroom-Hall";
+    /// <summary>Beyond→Kappi doorway door. TextMita 7 finish starts Animator_OneTimeDestroy on it.</summary>
+    private const string BeyondDoorInRoomName = "Door InRoom";
+    private const string BeyondDoorCageInRoomName = "Doorcage InRoom";
 
     [HarmonyPostfix]
     private static void StartPostfix(Dialogue_3DText __instance)
@@ -66,44 +68,48 @@ internal static class KappiRoomEntrySoftlockPatch
 
         GameObject speak = GameObject.Find(SpeakCapMitaName);
         speak?.GetComponent<AudioDialogue>()?.ResetVoice();
-        string door = CloseCapMitaBedroomHallDoor();
+        string beyondDoor = RemoveBeyondDoorInRoom();
         string fx = ClearStuckLookEffects();
 
         KappiSoftlockDebugPatch.LogRepairAttempt(
             nameof(KappiRoomEntrySoftlockPatch),
             $"standUp={(standUp != null)} openDoor={(openDoor != null)} capDoor={(capDoor != null)} "
             + $"cap={(cap == null ? "null" : $"active={cap.activeSelf}")} wokeCap={wokeCap} "
-            + $"speak={(speak != null)} {door} {fx}");
+            + $"speak={(speak != null)} {beyondDoor} {fx}");
 
         Plugin.Log.LogInfo("repaired CapMita room-entry greeting", nameof(KappiRoomEntrySoftlockPatch));
     }
 
-    private static string CloseCapMitaBedroomHallDoor()
+    private static string RemoveBeyondDoorInRoom()
     {
-        GameObject cage = ComponentUtil.FindIncludingInactive(CapMitaBedroomHallDoorCageName);
-        if (cage == null)
+        GameObject door = ComponentUtil.FindIncludingInactive(BeyondDoorInRoomName);
+        GameObject cage = ComponentUtil.FindIncludingInactive(BeyondDoorCageInRoomName);
+
+        bool destroyedDoor = false;
+        if (door != null)
         {
-            return "closedCapDoor=false (cage null)";
+            // Vanilla: TextMita 7 → Animator_OneTimeDestroy.ActiveObject (destroy anim).
+            // Skip can leave Door InRoom stuck open in the Cap doorway beside DoorCage Bedroom-Hall.
+            var oneTime = door.GetComponent<Animator_OneTimeDestroy>();
+            if (oneTime != null)
+            {
+                oneTime.ActiveObject();
+                oneTime.Finish();
+            }
+
+            Object.Destroy(door);
+            destroyedDoor = true;
         }
 
-        // Cap open destroys DoorCage Bedroom - Hall; keep this cage, only snap the hinge shut.
-        if (!cage.activeSelf)
+        bool hidCage = false;
+        if (cage != null && cage.activeSelf)
         {
-            cage.SetActive(true);
+            cage.SetActive(false);
+            hidCage = true;
         }
 
-        ObjectDoor door = cage.GetComponentInChildren<ObjectDoor>(true);
-        if (door == null)
-        {
-            return $"closedCapDoor=false cageActive={cage.activeSelf} (door null)";
-        }
-
-        door.AnimationStop();
-        door.ResetOriginRotation();
-        door.open = false;
-        door.LockSharply();
-
-        return $"closedCapDoor=True cageActive={cage.activeSelf} doorOpen={door.open}";
+        return $"beyondDoorInRoom={(door == null ? "null" : $"destroyed={destroyedDoor}")} "
+            + $"beyondDoorCage={(cage == null ? "null" : $"hid={hidCage}/active={cage.activeSelf}")}";
     }
 
     private static string ClearStuckLookEffects()
@@ -117,18 +123,28 @@ internal static class KappiRoomEntrySoftlockPatch
         }
 
         WorldPlayer worldPlayer = Object.FindObjectOfType<WorldPlayer>();
-        bool vignetteOff = false;
+        bool vignetteFlagOff = false;
+        bool vignetteForcedOff = false;
         bool sobelOff = false;
         if (worldPlayer != null)
         {
-            // FastVignette (rarely the green edge) + SobelOutline (green full-screen halo).
+            // Flag only starts a slow Darkness fade — force-disable FastVignette immediately.
             worldPlayer.CameraVignetteActive(false);
-            vignetteOff = true;
+            vignetteFlagOff = true;
             worldPlayer.CameraSwitchTypeOutline(false);
             sobelOff = true;
         }
 
-        return $"clearedCast={clearedCast} vignetteOff={vignetteOff} sobelOutlineOff={sobelOff}";
+        FastVignette vignette = Object.FindObjectOfType<FastVignette>();
+        if (vignette != null)
+        {
+            vignette.Darkness = 0f;
+            vignette.enabled = false;
+            vignetteForcedOff = true;
+        }
+
+        return $"clearedCast={clearedCast} vignetteFlagOff={vignetteFlagOff} "
+            + $"vignetteForcedOff={vignetteForcedOff} sobelOutlineOff={sobelOff}";
     }
 
     private static bool IsKappiScene() => SceneManager.GetActiveScene().name == SceneName;

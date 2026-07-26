@@ -7,9 +7,10 @@ namespace SpeedrunMod.Patches.Softlocks;
 
 /// <summary>
 /// Ring Softlock: Time Mita Sit enables RingWork after the sit clip, but RingWork lives under
-/// Quest4/Игры. Skip can leave Quest4 inactive (or drop the sit wait) so RingWork never Starts.
-/// Softlock Fix wakes Quest4, keeps Quest4/House off (duplicate DoorCages), and SetActive's
-/// RingWork directly. Do not call StartAddon here — vanilla Встаёт does that later.
+/// Quest4/Игры. Skip can leave Quest4 inactive so RingWork never becomes activeInHierarchy.
+/// Softlock Fix wakes Quest4 and keeps Quest4/House off (duplicate DoorCages) — do not
+/// SetActive(RingWork) early (sit must finish first). Do not call StartAddon here; vanilla
+/// Встаёт does that later.
 /// </summary>
 [HarmonyPatch(typeof(Time_Events), nameof(Time_Events.YieldRestart))]
 internal static class KappiRingStartSoftlockPatch
@@ -62,7 +63,7 @@ internal static class KappiRingStartSoftlockPatch
         }
 
         // Quest4/House DoorCages duplicate main Doors; keep House off until vanilla StartAddon
-        // (RingWork lives under Quest4/Игры, not House).
+        // (RingWork lives under Quest4/Игры, not House). Sit timeline SetActive's RingWork after wait.
         Transform house = quest4.transform.Find(Quest4HouseName);
         bool hidHouse = false;
         if (house != null && house.gameObject.activeSelf)
@@ -71,22 +72,14 @@ internal static class KappiRingStartSoftlockPatch
             hidHouse = true;
         }
 
-        // Sit EventsOnTime SetActive(RingWork) after clip wait — skip can drop that wait.
-        bool wokeRingWork = false;
-        if (ringWork != null && !ringWork.activeSelf)
-        {
-            ringWork.SetActive(true);
-            wokeRingWork = true;
-        }
-
         KappiSoftlockDebugPatch.LogRepairAttempt(
             nameof(KappiRingStartSoftlockPatch),
-            $"wokeQuest4={wokeQuest4} hidHouse={hidHouse} wokeRingWork={wokeRingWork} "
+            $"wokeQuest4={wokeQuest4} hidHouse={hidHouse} "
             + $"quest4=active={quest4.activeSelf}/hier={quest4.activeInHierarchy} "
             + $"ringWork={(ringWork == null ? "null" : $"active={ringWork.activeSelf}/hier={ringWork.activeInHierarchy}")}");
 
         Plugin.Log.LogInfo(
-            "armed Quest4 (House off) and RingWork so sit Softlock cannot strand the ring job",
+            "armed Quest4 (House off) so sit timeline can start RingWork after sit",
             nameof(KappiRingStartSoftlockPatch));
     }
 
