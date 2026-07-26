@@ -2,16 +2,17 @@ using Colorful;
 using HarmonyLib;
 using SpeedrunMod.Utils;
 using UnityEngine;
+using UnityEngine.Rendering.PostProcessing;
 using UnityEngine.SceneManagement;
+using VertexFragment;
 
 namespace SpeedrunMod.Patches.Softlocks;
 
 /// <summary>
 /// Room-entry Softlock: fast enter + Space-skip races CapMita 1 against door/StandUp
 /// Time_Events that still own CapMita's animator/audio. Softlock Fix stops those timers,
-/// wakes CapMita, resets voice, finishes Beyond's Door InRoom destroy (TextMita 7
-/// ActiveObject — skip can leave that door stuck open beside Cap's DoorCage Bedroom-Hall),
-/// and force-clears FastVignette / SobelOutline (CameraVignetteActive(false) only fades).
+/// wakes CapMita, resets voice, and clears stuck green camera halo (FastVignette + both
+/// outline paths). Door Softlock Fix is intentionally not handled here.
 /// </summary>
 [HarmonyPatch(typeof(Dialogue_3DText), "Start")]
 internal static class KappiRoomEntrySoftlockPatch
@@ -24,9 +25,6 @@ internal static class KappiRoomEntrySoftlockPatch
     private const string StandUpEventsName = "TimeAnimationMitaK StandUp";
     private const string OpenDoorEventsName = "TimeAnimation MitaOpenDoor";
     private const string CapDoorEventsName = "MitaCap AnimDoor";
-    /// <summary>Beyond→Kappi doorway door. TextMita 7 finish starts Animator_OneTimeDestroy on it.</summary>
-    private const string BeyondDoorInRoomName = "Door InRoom";
-    private const string BeyondDoorCageInRoomName = "Doorcage InRoom";
 
     [HarmonyPostfix]
     private static void StartPostfix(Dialogue_3DText __instance)
@@ -68,83 +66,73 @@ internal static class KappiRoomEntrySoftlockPatch
 
         GameObject speak = GameObject.Find(SpeakCapMitaName);
         speak?.GetComponent<AudioDialogue>()?.ResetVoice();
-        string beyondDoor = RemoveBeyondDoorInRoom();
-        string fx = ClearStuckLookEffects();
+        string fx = ClearStuckCameraHalo();
 
         KappiSoftlockDebugPatch.LogRepairAttempt(
             nameof(KappiRoomEntrySoftlockPatch),
             $"standUp={(standUp != null)} openDoor={(openDoor != null)} capDoor={(capDoor != null)} "
             + $"cap={(cap == null ? "null" : $"active={cap.activeSelf}")} wokeCap={wokeCap} "
-            + $"speak={(speak != null)} {beyondDoor} {fx}");
+            + $"speak={(speak != null)} {fx}");
 
         Plugin.Log.LogInfo("repaired CapMita room-entry greeting", nameof(KappiRoomEntrySoftlockPatch));
     }
 
-    private static string RemoveBeyondDoorInRoom()
+    /// <summary>
+    /// Decompiled: CameraVignetteActive(false) only sets fxFV and fades Darkness in Update.
+    /// CameraSwitchTypeOutline(false) disables Sobel but enables OutlinesPostprocessed —
+    /// Softlock Fix forces FastVignette off and disables both outline paths.
+    /// </summary>
+    private static string ClearStuckCameraHalo()
     {
-        GameObject door = ComponentUtil.FindIncludingInactive(BeyondDoorInRoomName);
-        GameObject cage = ComponentUtil.FindIncludingInactive(BeyondDoorCageInRoomName);
-
-        bool destroyedDoor = false;
-        if (door != null)
-        {
-            // Vanilla: TextMita 7 → Animator_OneTimeDestroy.ActiveObject (destroy anim).
-            // Skip can leave Door InRoom stuck open in the Cap doorway beside DoorCage Bedroom-Hall.
-            var oneTime = door.GetComponent<Animator_OneTimeDestroy>();
-            if (oneTime != null)
-            {
-                oneTime.ActiveObject();
-                oneTime.Finish();
-            }
-
-            Object.Destroy(door);
-            destroyedDoor = true;
-        }
-
-        bool hidCage = false;
-        if (cage != null && cage.activeSelf)
-        {
-            cage.SetActive(false);
-            hidCage = true;
-        }
-
-        return $"beyondDoorInRoom={(door == null ? "null" : $"destroyed={destroyedDoor}")} "
-            + $"beyondDoorCage={(cage == null ? "null" : $"hid={hidCage}/active={cage.activeSelf}")}";
-    }
-
-    private static string ClearStuckLookEffects()
-    {
-        PlayerMove player = Object.FindObjectOfType<PlayerMove>();
-        bool clearedCast = false;
-        if (player != null && player.objectCastInteractive != null)
-        {
-            player.objectCastInteractive = null;
-            clearedCast = true;
-        }
-
         WorldPlayer worldPlayer = Object.FindObjectOfType<WorldPlayer>();
         bool vignetteFlagOff = false;
-        bool vignetteForcedOff = false;
-        bool sobelOff = false;
         if (worldPlayer != null)
         {
-            // Flag only starts a slow Darkness fade — force-disable FastVignette immediately.
             worldPlayer.CameraVignetteActive(false);
             vignetteFlagOff = true;
-            worldPlayer.CameraSwitchTypeOutline(false);
-            sobelOff = true;
         }
 
-        FastVignette vignette = Object.FindObjectOfType<FastVignette>();
-        if (vignette != null)
+        bool vignetteForcedOff = false;
+        foreach (FastVignette vignette in Object.FindObjectsOfType<FastVignette>(true))
         {
+            if (vignette == null)
+            {
+                continue;
+            }
+
             vignette.Darkness = 0f;
             vignette.enabled = false;
             vignetteForcedOff = true;
         }
 
-        return $"clearedCast={clearedCast} vignetteFlagOff={vignetteFlagOff} "
-            + $"vignetteForcedOff={vignetteForcedOff} sobelOutlineOff={sobelOff}";
+        // Softlock Fix both outline modes off (false enables OutlinesPostprocessed).
+        bool outlinesOff = false;
+        foreach (OutlinesPostprocessed outlines in Object.FindObjectsOfType<OutlinesPostprocessed>(true))
+        {
+            if (outlines != null && outlines.enabled)
+            {
+                outlines.enabled = false;
+                outlinesOff = true;
+            }
+        }
+
+        bool sobelOff = false;
+        foreach (PostProcessVolume volume in Object.FindObjectsOfType<PostProcessVolume>(true))
+        {
+            if (volume == null || volume.profile == null)
+            {
+                continue;
+            }
+
+            if (volume.profile.TryGetSettings(out SobelOutline sobel) && sobel != null && sobel.enabled)
+            {
+                sobel.enabled.value = false;
+                sobelOff = true;
+            }
+        }
+
+        return $"vignetteFlagOff={vignetteFlagOff} vignetteForcedOff={vignetteForcedOff} "
+            + $"outlinesPostOff={outlinesOff} sobelOff={sobelOff}";
     }
 
     private static bool IsKappiScene() => SceneManager.GetActiveScene().name == SceneName;
