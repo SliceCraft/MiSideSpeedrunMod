@@ -15,7 +15,7 @@ namespace SpeedrunMod.Patches.Softlocks;
 /// RingWork / StartAddon / House hide). Door Softlock Fix is intentionally out of scope.
 /// </summary>
 [HarmonyPatch]
-internal static class KappiSoftlockPatch
+internal static class KappiRingSoftlockPatch
 {
     private const string SceneName = "Scene 7 - Backrooms";
 
@@ -42,7 +42,7 @@ internal static class KappiSoftlockPatch
                 && __instance.indexString == CapMitaGreetingIndex)
             {
                 KappiSoftlockDebugPatch.LogGateMiss(
-                    nameof(KappiSoftlockPatch),
+                    nameof(KappiRingSoftlockPatch),
                     "IsKappiScene=false (active scene gate)",
                     __instance);
             }
@@ -75,12 +75,12 @@ internal static class KappiSoftlockPatch
         string fx = ClearStuckCameraHalo();
 
         KappiSoftlockDebugPatch.LogRepairAttempt(
-            nameof(KappiSoftlockPatch),
+            nameof(KappiRingSoftlockPatch),
             $"room-entry standUp={(standUp != null)} openDoor={(openDoor != null)} capDoor={(capDoor != null)} "
             + $"cap={(cap == null ? "null" : $"active={cap.activeSelf}")} wokeCap={wokeCap} "
             + $"speak={(speak != null)} {fx}");
 
-        Plugin.Log.LogInfo("repaired CapMita room-entry greeting", nameof(KappiSoftlockPatch));
+        Plugin.Log.LogInfo("repaired CapMita room-entry greeting", nameof(KappiRingSoftlockPatch));
     }
 
     [HarmonyPrefix]
@@ -106,7 +106,7 @@ internal static class KappiSoftlockPatch
         if (ringWork != null && ringWork.activeInHierarchy)
         {
             KappiSoftlockDebugPatch.LogRepairAttempt(
-                nameof(KappiSoftlockPatch),
+                nameof(KappiRingSoftlockPatch),
                 "ring early-return: RingWork already activeInHierarchy");
             return;
         }
@@ -114,7 +114,7 @@ internal static class KappiSoftlockPatch
         GameObject quest4 = ComponentUtil.FindIncludingInactive(Quest4Name);
         if (quest4 == null)
         {
-            Plugin.Log.LogWarning("Quest4 missing for ring Softlock Fix", nameof(KappiSoftlockPatch));
+            Plugin.Log.LogWarning("Quest4 missing for ring Softlock Fix", nameof(KappiRingSoftlockPatch));
             return;
         }
 
@@ -126,14 +126,14 @@ internal static class KappiSoftlockPatch
         }
 
         KappiSoftlockDebugPatch.LogRepairAttempt(
-            nameof(KappiSoftlockPatch),
+            nameof(KappiRingSoftlockPatch),
             $"ring wokeQuest4={wokeQuest4} "
             + $"quest4=active={quest4.activeSelf}/hier={quest4.activeInHierarchy} "
             + $"ringWork={(ringWork == null ? "null" : $"active={ringWork.activeSelf}/hier={ringWork.activeInHierarchy}")}");
 
         Plugin.Log.LogInfo(
             "armed Quest4 so sit timeline can start RingWork after sit",
-            nameof(KappiSoftlockPatch));
+            nameof(KappiRingSoftlockPatch));
     }
 
     /// <summary>
