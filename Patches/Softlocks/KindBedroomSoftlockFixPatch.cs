@@ -5,14 +5,8 @@ using UnityEngine.SceneManagement;
 
 namespace SpeedrunMod.Patches.Softlocks;
 
-/// <summary>
-/// Scene 15 bedroom paper Softlock: fast-skip through post-TakeItems dialogue can fire
-/// StayMita / StayUp while <c>AnimationPlayer TakeItems</c> and Mita's TakeItems
-/// <see cref="Time_Events"/> are still live, so she bugs out and the beat stalls.
-/// Dialogue container is named KindMita; speaker is Future Mita handing PaperPassword.
-/// </summary>
 [HarmonyPatch]
-internal static class KindMitaBedroomPaperSoftlockFixPatch
+internal static class KindBedroomSoftlockFixPatch
 {
     private const string SceneName = "Scene 15 - BasementAndDeath";
     private const string TakeItemsName = "AnimationPlayer TakeItems";
@@ -29,20 +23,7 @@ internal static class KindMitaBedroomPaperSoftlockFixPatch
             return;
         }
 
-        try
-        {
-            if (!IsPlayerOnTakeItems())
-            {
-                return;
-            }
-
-            FinishTakeItemsHandoff();
-            Plugin.Log.LogInfo("Kind Mita bedroom Softlock Fix: finished TakeItems before StayMita");
-        }
-        catch (Exception ex)
-        {
-            Plugin.Log.LogError($"Kind Mita bedroom Softlock Fix (StayMita) failed: {ex}");
-        }
+        TryFinishTakeItemsHandoff("StayMita");
     }
 
     [HarmonyPrefix]
@@ -54,47 +35,35 @@ internal static class KindMitaBedroomPaperSoftlockFixPatch
             return;
         }
 
+        TryFinishTakeItemsHandoff("StayUp");
+    }
+
+    private static void TryFinishTakeItemsHandoff(string seam)
+    {
         try
         {
-            if (!IsPlayerOnTakeItems())
+            PlayerMove player = UnityEngine.Object.FindObjectOfType<PlayerMove>();
+            if (player == null || !player.animationRun || !IsTakeItemsAnim(player))
             {
                 return;
             }
 
-            FinishTakeItemsHandoff();
-            Plugin.Log.LogInfo("Kind Mita bedroom Softlock Fix: finished TakeItems before StayUp");
+            FindIncludingInactive(MitaTakeItemsTimeName)?.GetComponent<Time_Events>()?.StopAllTime();
+            GameObject.Find(TakeItemsName)?.GetComponent<ObjectAnimationPlayer>()?.eventStartLoop?.Invoke();
+            player.AnimationFastStop();
+            Plugin.Log.LogInfo($"Kind bedroom Softlock Fix: finished TakeItems before {seam}");
         }
         catch (Exception ex)
         {
-            Plugin.Log.LogError($"Kind Mita bedroom Softlock Fix (StayUp) failed: {ex}");
-        }
-    }
-
-    private static void FinishTakeItemsHandoff()
-    {
-        FindIncludingInactive(MitaTakeItemsTimeName)?.GetComponent<Time_Events>()?.StopAllTime();
-
-        ObjectAnimationPlayer take = GameObject.Find(TakeItemsName)?.GetComponent<ObjectAnimationPlayer>();
-        take?.eventStartLoop?.Invoke();
-
-        PlayerMove player = UnityEngine.Object.FindObjectOfType<PlayerMove>();
-        if (player != null && player.animationRun && IsTakeItemsAnim(player))
-        {
-            player.AnimationFastStop();
+            Plugin.Log.LogError($"Kind bedroom Softlock Fix ({seam}) failed: {ex}");
         }
     }
 
     private static bool IsBasementScene() => SceneManager.GetActiveScene().name == SceneName;
 
     private static bool IsTakeItemsAnim(PlayerMove player) =>
-        player?.scrAnimationNow != null
+        player.scrAnimationNow != null
         && player.scrAnimationNow.gameObject.name == TakeItemsName;
-
-    private static bool IsPlayerOnTakeItems()
-    {
-        PlayerMove player = UnityEngine.Object.FindObjectOfType<PlayerMove>();
-        return player != null && player.animationRun && IsTakeItemsAnim(player);
-    }
 
     private static GameObject FindIncludingInactive(string name)
     {
