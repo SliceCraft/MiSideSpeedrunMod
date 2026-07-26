@@ -5,32 +5,37 @@ using UnityEngine.SceneManagement;
 
 namespace SpeedrunMod.Patches.Softlocks;
 
-[HarmonyPatch(typeof(Dialogue_3DText), "Start")]
+/// <summary>
+/// Ring Softlock: Time Mita Sit enables RingWork only after the sit clip, and RingWork lives
+/// under Quest4. Skip can drop TextMita 29 → Встаёт → Location34.StartAddon, so Quest4 stays
+/// inactive and RingWork never Starts. Bare SetActive(Quest4) half-boots House DoorCages
+/// without eventStartAddon (ObjectDoor.Lock). Softlock Fix: call StartAddon instead.
+/// </summary>
+[HarmonyPatch(typeof(Time_Events), nameof(Time_Events.YieldRestart))]
 internal static class KappiRingStartSoftlockPatch
 {
     private const string SceneName = "Scene 7 - Backrooms";
-    private const string SitDialogueName = "KindMita 15";
-    private const int SitDialogueIndex = 236;
     private const string TimeMitaSitName = "Time Mita Sit";
     private const string RingWorkName = "RingWork";
+    private const string Quest4Name = "Quest4 - Проводим время с Кепкой";
 
-    [HarmonyPostfix]
-    private static void StartPostfix(Dialogue_3DText __instance)
+    [HarmonyPrefix]
+    private static void YieldRestartPrefix(Time_Events __instance)
     {
-        if (!IsKappiScene())
+        if (!IsKappiScene() || __instance == null)
         {
             return;
         }
 
-        if (__instance?.gameObject.name != SitDialogueName || __instance.indexString != SitDialogueIndex)
+        if (__instance.gameObject.name != TimeMitaSitName)
         {
             return;
         }
 
-        EnsureRingWorkStarted();
+        EnsureQuest4StartedViaAddon();
     }
 
-    private static void EnsureRingWorkStarted()
+    private static void EnsureQuest4StartedViaAddon()
     {
         GameObject ringWork = ComponentUtil.FindIncludingInactive(RingWorkName);
         if (ringWork != null && ringWork.activeInHierarchy)
@@ -38,18 +43,30 @@ internal static class KappiRingStartSoftlockPatch
             return;
         }
 
-        GameObject sit = ComponentUtil.FindIncludingInactive(TimeMitaSitName);
-        if (sit != null)
+        GameObject quest4 = ComponentUtil.FindIncludingInactive(Quest4Name);
+        if (quest4 == null)
         {
-            sit.SetActive(true);
-            sit.GetComponent<Time_Events>()?.YieldRestart();
-        }
-        else
-        {
-            ringWork?.SetActive(true);
+            Plugin.Log.LogWarning("Quest4 missing for ring Softlock Fix", nameof(KappiRingStartSoftlockPatch));
+            return;
         }
 
-        Plugin.Log.LogInfo("ensured RingWork start after give-ring dialogue", nameof(KappiRingStartSoftlockPatch));
+        var comm = quest4.GetComponent<Location34_Communication>();
+        if (comm == null)
+        {
+            Plugin.Log.LogWarning(
+                "Location34_Communication missing on Quest4",
+                nameof(KappiRingStartSoftlockPatch));
+            return;
+        }
+
+        // StartAddon SetActive's Quest4, runs eventStartAddon (door Lock), then ActivationAddon.
+        if (!quest4.activeInHierarchy)
+        {
+            comm.StartAddon();
+            Plugin.Log.LogInfo(
+                "StartAddon so sit timeline can start RingWork",
+                nameof(KappiRingStartSoftlockPatch));
+        }
     }
 
     private static bool IsKappiScene() => SceneManager.GetActiveScene().name == SceneName;
