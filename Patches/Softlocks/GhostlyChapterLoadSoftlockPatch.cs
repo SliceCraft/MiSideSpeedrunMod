@@ -46,16 +46,16 @@ internal static class GhostlyChapterLoadSoftlockPatch
 
     private static void SetRoomActive()
     {
-        GameObject room9 = ComponentUtil.FindIncludingInactive(Room9Name);
-        if (room9 == null)
-        {
-            return;
-        }
-
-        var arks = room9.GetComponent<Location11_InfinityArks>();
+        Location11_InfinityArks arks = ComponentUtil.FindIncludingInactive<Location11_InfinityArks>(Room9Name);
         if (arks != null)
         {
             arks.LookPictureOnlyRoom();
+            return;
+        }
+
+        GameObject room9 = ComponentUtil.FindIncludingInactive(Room9Name);
+        if (room9 == null)
+        {
             return;
         }
 

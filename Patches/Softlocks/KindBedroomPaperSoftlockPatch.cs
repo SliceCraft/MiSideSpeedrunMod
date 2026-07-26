@@ -50,7 +50,7 @@ internal static class KindBedroomPaperSoftlockPatch
             }
 
             TimeUtil.StopTimeEvents(MitaTakeItemsTimeName);
-            GameObject.Find(TakeItemsName)?.GetComponent<ObjectAnimationPlayer>()?.eventStartLoop?.Invoke();
+            ComponentUtil.FindIncludingInactive<ObjectAnimationPlayer>(TakeItemsName)?.eventStartLoop?.Invoke();
             player.AnimationFastStop();
             Plugin.Log.LogInfo($"finished TakeItems before {seam}", nameof(KindBedroomPaperSoftlockPatch));
         }
