@@ -5,14 +5,7 @@ using UnityEngine.SceneManagement;
 
 namespace SpeedrunMod.Patches.Softlocks;
 
-/// <summary>
-/// Creepy Softlock: after a DialogueChanger option, <see cref="Location12.Quest"/> arms
-/// <c>TimeAniation CMita Ape N</c> while the answer dialogue chain is delayed 1.5s.
-/// Fast Space-skip reaches <see cref="Location12.QuestFinish"/> (and often chase / prefinish)
-/// while those ape timers are still live; their late <c>AnimationClipSimpleNext</c> fights
-/// the post-answer state and Softlocks the chapter.
-/// </summary>
-[HarmonyPatch(typeof(Location12), nameof(Location12.QuestFinish))]
+[HarmonyPatch(typeof(Location12))]
 internal static class CreepySoftlockFixPatch
 {
     private const string SceneName = "Scene 12 - Freak";
@@ -25,6 +18,7 @@ internal static class CreepySoftlockFixPatch
     };
 
     [HarmonyPrefix]
+    [HarmonyPatch(nameof(Location12.QuestFinish))]
     private static void QuestFinishPrefix()
     {
         if (!IsFreakScene())
