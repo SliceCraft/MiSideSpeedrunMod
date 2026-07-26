@@ -8,15 +8,14 @@ using UnityEngine.SceneManagement;
 namespace SpeedrunMod.Patches.Softlocks;
 
 [HarmonyPatch(typeof(Location11_BlackRoom))]
-internal static class GhostlySoftlockFixPatch
+internal static class GhostlyPuzzleSoftlockPatch
 {
-    private const string LogContext = "GhostlySoftlock";
     private const string GhostMitaScene = "Scene 11 - Backrooms";
     private const float RepairDelaySeconds = 1.25f;
 
     private static Location11_BlackRoom _instance;
     private static float _realtimeSincePlayerSit;
-    private static bool _fixApplied;
+    private static bool _repairApplied;
 
     [HarmonyPostfix]
     [HarmonyPatch(nameof(Location11_BlackRoom.PlayerSit))]
@@ -29,7 +28,7 @@ internal static class GhostlySoftlockFixPatch
 
         _instance = __instance;
         _realtimeSincePlayerSit = Time.realtimeSinceStartup;
-        _fixApplied = false;
+        _repairApplied = false;
         LogState(__instance, "PlayerSit");
     }
 
@@ -53,7 +52,7 @@ internal static class GhostlySoftlockFixPatch
 
             if (__instance.playPuzle)
             {
-                if (!_fixApplied)
+                if (!_repairApplied)
                 {
                     LogState(__instance, "playPuzle (vanilla)");
                 }
@@ -63,7 +62,7 @@ internal static class GhostlySoftlockFixPatch
                 return;
             }
 
-            if (_fixApplied)
+            if (_repairApplied)
             {
                 return;
             }
@@ -85,7 +84,7 @@ internal static class GhostlySoftlockFixPatch
         }
         catch (Exception ex)
         {
-            Plugin.Log.LogError($"Update failed: {ex}", LogContext);
+            Plugin.Log.LogError($"Update failed: {ex}", nameof(GhostlyPuzzleSoftlockPatch));
         }
     }
 
@@ -96,13 +95,13 @@ internal static class GhostlySoftlockFixPatch
             LogState(room, "repair before");
             FinishPendingPlacements(room);
             EnableAssembleMode(room);
-            _fixApplied = true;
-            Plugin.Log.LogInfo("repaired assemble mode", LogContext);
+            _repairApplied = true;
+            Plugin.Log.LogInfo("repaired assemble mode", nameof(GhostlyPuzzleSoftlockPatch));
             LogState(room, "repair after");
         }
         catch (Exception ex)
         {
-            Plugin.Log.LogError($"repair failed: {ex}", LogContext);
+            Plugin.Log.LogError($"repair failed: {ex}", nameof(GhostlyPuzzleSoftlockPatch));
         }
     }
 
@@ -174,20 +173,20 @@ internal static class GhostlySoftlockFixPatch
         if (room.scrgc != null && !room.scrgc.showCursor)
         {
             room.scrgc.ShowCursor(true);
-            Plugin.Log.LogInfo("re-enabled cursor during assemble", LogContext);
+            Plugin.Log.LogInfo("re-enabled cursor during assemble", nameof(GhostlyPuzzleSoftlockPatch));
         }
 
         if (room.mouseOverPlane != null && !room.mouseOverPlane.activeSelf)
         {
             room.mouseOverPlane.SetActive(true);
-            Plugin.Log.LogInfo("re-enabled mouseOverPlane during assemble", LogContext);
+            Plugin.Log.LogInfo("re-enabled mouseOverPlane during assemble", nameof(GhostlyPuzzleSoftlockPatch));
         }
     }
 
     private static bool IsGhostMitaScene() => SceneManager.GetActiveScene().name == GhostMitaScene;
 
     private static void LogState(Location11_BlackRoom room, string phase) =>
-        Plugin.Log.LogInfo(DescribeState(room, phase), LogContext);
+        Plugin.Log.LogInfo(DescribeState(room, phase), nameof(GhostlyPuzzleSoftlockPatch));
 
     private static string DescribeState(Location11_BlackRoom room, string phase)
     {

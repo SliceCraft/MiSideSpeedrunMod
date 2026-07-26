@@ -1,11 +1,12 @@
 using HarmonyLib;
+using SpeedrunMod.Utils;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace SpeedrunMod.Patches.Softlocks;
 
 [HarmonyPatch(typeof(Dialogue_3DText), "Start")]
-internal static class KappiRoomEntrySoftlockFixPatch
+internal static class KappiRoomEntrySoftlockPatch
 {
     private const string SceneName = "Scene 7 - Backrooms";
     private const string CapMitaGreetingName = "CapMita 1";
@@ -23,40 +24,25 @@ internal static class KappiRoomEntrySoftlockFixPatch
         {
             return;
         }
-        
+
         if (__instance?.gameObject.name != CapMitaGreetingName || __instance.indexString != CapMitaGreetingIndex)
         {
             return;
         }
 
-        Stop(StandUpEventsName);
-        Stop(OpenDoorEventsName);
-        Stop(CapDoorEventsName);
+        GameObject.Find(StandUpEventsName)?.GetComponent<Time_Events>()?.StopAllTime();
+        GameObject.Find(OpenDoorEventsName)?.GetComponent<Time_Events>()?.StopAllTime();
+        GameObject.Find(CapDoorEventsName)?.GetComponent<Time_Events>()?.StopAllTime();
 
-        GameObject cap = FindIncludingInactive(MitaCapName);
+        GameObject cap = GameObjectUtils.FindIncludingInactive(MitaCapName);
         if (cap != null && !cap.activeSelf)
         {
             cap.SetActive(true);
         }
 
         GameObject.Find(SpeakCapMitaName)?.GetComponent<AudioDialogue>()?.ResetVoice();
-        Plugin.Log.LogInfo("Kappi Softlock Fix: repaired CapMita room-entry greeting");
+        Plugin.Log.LogInfo("repaired CapMita room-entry greeting", nameof(KappiRoomEntrySoftlockPatch));
     }
 
     private static bool IsKappiScene() => SceneManager.GetActiveScene().name == SceneName;
-
-    private static void Stop(string name) => GameObject.Find(name)?.GetComponent<Time_Events>()?.StopAllTime();
-
-    private static GameObject FindIncludingInactive(string name)
-    {
-        foreach (var t in Object.FindObjectsByType<Transform>(FindObjectsInactive.Include, FindObjectsSortMode.None))
-        {
-            if (t != null && t.gameObject.name == name)
-            {
-                return t.gameObject;
-            }
-        }
-
-        return null;
-    }
 }

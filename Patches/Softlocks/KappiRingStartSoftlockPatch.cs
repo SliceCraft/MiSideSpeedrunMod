@@ -1,11 +1,12 @@
 using HarmonyLib;
+using SpeedrunMod.Utils;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace SpeedrunMod.Patches.Softlocks;
 
 [HarmonyPatch(typeof(Dialogue_3DText), "Start")]
-internal static class KappiRingStartSoftlockFixPatch
+internal static class KappiRingStartSoftlockPatch
 {
     private const string SceneName = "Scene 7 - Backrooms";
     private const string SitDialogueName = "KindMita 15";
@@ -31,13 +32,13 @@ internal static class KappiRingStartSoftlockFixPatch
 
     private static void EnsureRingWorkStarted()
     {
-        GameObject ringWork = FindIncludingInactive(RingWorkName);
+        GameObject ringWork = GameObjectUtils.FindIncludingInactive(RingWorkName);
         if (ringWork != null && ringWork.activeInHierarchy)
         {
             return;
         }
 
-        GameObject sit = FindIncludingInactive(TimeMitaSitName);
+        GameObject sit = GameObjectUtils.FindIncludingInactive(TimeMitaSitName);
         if (sit != null)
         {
             sit.SetActive(true);
@@ -48,21 +49,8 @@ internal static class KappiRingStartSoftlockFixPatch
             ringWork?.SetActive(true);
         }
 
-        Plugin.Log.LogInfo("Kappi Softlock Fix: ensured RingWork start after give-ring dialogue");
+        Plugin.Log.LogInfo("ensured RingWork start after give-ring dialogue", nameof(KappiRingStartSoftlockPatch));
     }
 
     private static bool IsKappiScene() => SceneManager.GetActiveScene().name == SceneName;
-
-    private static GameObject FindIncludingInactive(string name)
-    {
-        foreach (var t in Object.FindObjectsByType<Transform>(FindObjectsInactive.Include, FindObjectsSortMode.None))
-        {
-            if (t != null && t.gameObject.name == name)
-            {
-                return t.gameObject;
-            }
-        }
-
-        return null;
-    }
 }

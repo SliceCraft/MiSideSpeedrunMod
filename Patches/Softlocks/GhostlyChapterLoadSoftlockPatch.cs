@@ -1,12 +1,13 @@
 using System;
 using HarmonyLib;
+using SpeedrunMod.Utils;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace SpeedrunMod.Patches.Softlocks;
 
 [HarmonyPatch(typeof(World))]
-internal static class GhostlyChapterLoadSoftlockFixPatch
+internal static class GhostlyChapterLoadSoftlockPatch
 {
     private const string SceneName = "Scene 11 - Backrooms";
     private const string Room9Name = "Room 9 (Picture)";
@@ -35,17 +36,17 @@ internal static class GhostlyChapterLoadSoftlockFixPatch
             SetRoomActive();
             Physics.SyncTransforms();
             TeleportToChapterSpawn(player);
-            Plugin.Log.LogInfo("Ghostly Softlock Fix: repaired chapter-load spawn");
+            Plugin.Log.LogInfo("repaired chapter-load spawn", nameof(GhostlyChapterLoadSoftlockPatch));
         }
         catch (Exception ex)
         {
-            Plugin.Log.LogError($"Ghostly Softlock Fix failed: {ex}");
+            Plugin.Log.LogError($"failed: {ex}", nameof(GhostlyChapterLoadSoftlockPatch));
         }
     }
 
     private static void SetRoomActive()
     {
-        GameObject room9 = FindIncludingInactive(Room9Name);
+        GameObject room9 = GameObjectUtils.FindIncludingInactive(Room9Name);
         if (room9 == null)
         {
             return;
@@ -74,7 +75,7 @@ internal static class GhostlyChapterLoadSoftlockFixPatch
         Vector3 highOrigin = ChapterSpawn + Vector3.up * 20f;
         if (!Physics.Raycast(highOrigin, Vector3.down, out RaycastHit hit, 40f))
         {
-            Plugin.Log.LogWarning("Ghostly Softlock Fix: no floor under chapter spawn");
+            Plugin.Log.LogWarning("no floor under chapter spawn", nameof(GhostlyChapterLoadSoftlockPatch));
             return;
         }
 
@@ -101,17 +102,4 @@ internal static class GhostlyChapterLoadSoftlockFixPatch
     private static bool IsNear(Vector3 a, Vector3 b) => (a - b).sqrMagnitude < NearSpawnSqr;
 
     private static bool IsBackroomsScene() => SceneManager.GetActiveScene().name == SceneName;
-
-    private static GameObject FindIncludingInactive(string name)
-    {
-        foreach (var t in UnityEngine.Object.FindObjectsByType<Transform>(FindObjectsInactive.Include, FindObjectsSortMode.None))
-        {
-            if (t != null && t.gameObject.name == name)
-            {
-                return t.gameObject;
-            }
-        }
-
-        return null;
-    }
 }

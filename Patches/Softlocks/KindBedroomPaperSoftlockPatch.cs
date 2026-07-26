@@ -1,12 +1,13 @@
 using System;
 using HarmonyLib;
+using SpeedrunMod.Utils;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace SpeedrunMod.Patches.Softlocks;
 
 [HarmonyPatch]
-internal static class KindBedroomSoftlockFixPatch
+internal static class KindBedroomPaperSoftlockPatch
 {
     private const string SceneName = "Scene 15 - BasementAndDeath";
     private const string TakeItemsName = "AnimationPlayer TakeItems";
@@ -48,14 +49,14 @@ internal static class KindBedroomSoftlockFixPatch
                 return;
             }
 
-            FindIncludingInactive(MitaTakeItemsTimeName)?.GetComponent<Time_Events>()?.StopAllTime();
+            TimeEventUtils.StopAll(MitaTakeItemsTimeName);
             GameObject.Find(TakeItemsName)?.GetComponent<ObjectAnimationPlayer>()?.eventStartLoop?.Invoke();
             player.AnimationFastStop();
-            Plugin.Log.LogInfo($"Kind bedroom Softlock Fix: finished TakeItems before {seam}");
+            Plugin.Log.LogInfo($"finished TakeItems before {seam}", nameof(KindBedroomPaperSoftlockPatch));
         }
         catch (Exception ex)
         {
-            Plugin.Log.LogError($"Kind bedroom Softlock Fix ({seam}) failed: {ex}");
+            Plugin.Log.LogError($"{seam} failed: {ex}", nameof(KindBedroomPaperSoftlockPatch));
         }
     }
 
@@ -64,17 +65,4 @@ internal static class KindBedroomSoftlockFixPatch
     private static bool IsTakeItemsAnim(PlayerMove player) =>
         player.scrAnimationNow != null
         && player.scrAnimationNow.gameObject.name == TakeItemsName;
-
-    private static GameObject FindIncludingInactive(string name)
-    {
-        foreach (var t in UnityEngine.Object.FindObjectsByType<Transform>(FindObjectsInactive.Include, FindObjectsSortMode.None))
-        {
-            if (t != null && t.gameObject.name == name)
-            {
-                return t.gameObject;
-            }
-        }
-
-        return null;
-    }
 }

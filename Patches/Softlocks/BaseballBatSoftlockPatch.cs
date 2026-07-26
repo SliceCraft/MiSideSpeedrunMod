@@ -1,12 +1,13 @@
 using System;
 using HarmonyLib;
+using SpeedrunMod.Utils;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace SpeedrunMod.Patches.Softlocks;
 
 [HarmonyPatch]
-internal static class BaseballSoftlockFixPatch
+internal static class BaseballBatSoftlockPatch
 {
     private const string SceneName = "Scene 14 - MobilePlayer";
     private const string TakeBatEventsName = "TimeAnimationMita TakeBat";
@@ -33,19 +34,19 @@ internal static class BaseballSoftlockFixPatch
             switch (__instance.gameObject.name)
             {
                 case HoldHeadBatEventsName:
-                    StopTimedEvents(TakeBatEventsName);
-                    Plugin.Log.LogInfo("Baseball Softlock Fix: cleared TakeBat before HoldHeadBat");
+                    TimeEventUtils.StopAll(TakeBatEventsName);
+                    Plugin.Log.LogInfo("cleared TakeBat before HoldHeadBat", nameof(BaseballBatSoftlockPatch));
                     break;
                 case StartNearEventsName:
-                    StopTimedEvents(HoldHeadBatEventsName);
-                    StopTimedEvents(TakeBatEventsName);
-                    Plugin.Log.LogInfo("Baseball Softlock Fix: cleared bat timers before StartNear");
+                    TimeEventUtils.StopAll(HoldHeadBatEventsName);
+                    TimeEventUtils.StopAll(TakeBatEventsName);
+                    Plugin.Log.LogInfo("cleared bat timers before StartNear", nameof(BaseballBatSoftlockPatch));
                     break;
             }
         }
         catch (Exception ex)
         {
-            Plugin.Log.LogError($"Baseball Softlock Fix (YieldRestart) failed: {ex}");
+            Plugin.Log.LogError($"YieldRestart failed: {ex}", nameof(BaseballBatSoftlockPatch));
         }
     }
 
@@ -64,7 +65,7 @@ internal static class BaseballSoftlockFixPatch
         }
         catch (Exception ex)
         {
-            Plugin.Log.LogError($"Baseball Softlock Fix (StopNear Kick) failed: {ex}");
+            Plugin.Log.LogError($"StopNear Kick failed: {ex}", nameof(BaseballBatSoftlockPatch));
         }
     }
 
@@ -84,24 +85,24 @@ internal static class BaseballSoftlockFixPatch
 
         try
         {
-            StopTimedEvents(TakeBatEventsName);
-            Plugin.Log.LogInfo("Baseball Softlock Fix: cleared TakeBat on Mita 4/118");
+            TimeEventUtils.StopAll(TakeBatEventsName);
+            Plugin.Log.LogInfo("cleared TakeBat on Mita 4/118", nameof(BaseballBatSoftlockPatch));
         }
         catch (Exception ex)
         {
-            Plugin.Log.LogError($"Baseball Softlock Fix (Mita 4) failed: {ex}");
+            Plugin.Log.LogError($"Mita 4 failed: {ex}", nameof(BaseballBatSoftlockPatch));
         }
     }
 
     private static void TryForceStopNearKick(Time_Events stopNear)
     {
-        GameObject canvasKick = FindIncludingInactive(CanvasKickName);
+        GameObject canvasKick = GameObjectUtils.FindIncludingInactive(CanvasKickName);
         if (canvasKick != null && canvasKick.activeInHierarchy)
         {
             return;
         }
 
-        GameObject quest2 = FindIncludingInactive(Quest2StartName);
+        GameObject quest2 = GameObjectUtils.FindIncludingInactive(Quest2StartName);
         if (quest2 != null && quest2.activeInHierarchy)
         {
             return;
@@ -110,13 +111,13 @@ internal static class BaseballSoftlockFixPatch
         TimePoint kick = FindTimePoint(stopNear, KickEventTime);
         if (kick?._event == null)
         {
-            Plugin.Log.LogWarning("Baseball Softlock Fix: StopNear Kick TimePoint missing");
+            Plugin.Log.LogWarning("StopNear Kick TimePoint missing", nameof(BaseballBatSoftlockPatch));
             return;
         }
 
         stopNear.StopAllTime();
         kick._event.Invoke();
-        Plugin.Log.LogInfo("Baseball Softlock Fix: invoked StopNear Kick TimePoint");
+        Plugin.Log.LogInfo("invoked StopNear Kick TimePoint", nameof(BaseballBatSoftlockPatch));
     }
 
     private static TimePoint FindTimePoint(Time_Events events, float time)
@@ -139,24 +140,5 @@ internal static class BaseballSoftlockFixPatch
         return null;
     }
 
-    private static void StopTimedEvents(string name)
-    {
-        GameObject go = FindIncludingInactive(name);
-        go?.GetComponent<Time_Events>()?.StopAllTime();
-    }
-
     private static bool IsMobilePlayerScene() => SceneManager.GetActiveScene().name == SceneName;
-
-    private static GameObject FindIncludingInactive(string name)
-    {
-        foreach (var t in UnityEngine.Object.FindObjectsByType<Transform>(FindObjectsInactive.Include, FindObjectsSortMode.None))
-        {
-            if (t != null && t.gameObject.name == name)
-            {
-                return t.gameObject;
-            }
-        }
-
-        return null;
-    }
 }

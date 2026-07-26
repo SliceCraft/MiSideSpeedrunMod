@@ -1,11 +1,12 @@
 using HarmonyLib;
+using SpeedrunMod.Utils;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace SpeedrunMod.Patches.Softlocks;
 
 [HarmonyPatch]
-internal static class CoreThrowSoftlockFixPatch
+internal static class CoreThrowSoftlockPatch
 {
     private const string SceneName = "Scene 15 - BasementAndDeath";
     private const string AnimationPlayerThrowName = "AnimationPlayer Throw";
@@ -25,19 +26,19 @@ internal static class CoreThrowSoftlockFixPatch
             return true;
         }
 
-        Plugin.Log.LogInfo("Core Softlock Fix: skipped post-throw AnimationPlayOnPlayer during Throw");
+        Plugin.Log.LogInfo("skipped post-throw AnimationPlayOnPlayer during Throw", nameof(CoreThrowSoftlockPatch));
         return false;
     }
 
     private static bool IsCoreScene() => SceneManager.GetActiveScene().name == SceneName;
 
     private static bool IsThrowAnim(PlayerMove player) =>
-        player?.scrAnimationNow != null
-        && player.scrAnimationNow.gameObject.name == AnimationPlayerThrowName;
+        player?.scrAnimationNow != null &&
+        player.scrAnimationNow.gameObject.name == AnimationPlayerThrowName;
 
     private static bool IsPlayerOnThrow()
     {
-        PlayerMove player = Object.FindObjectOfType<PlayerMove>();
+        PlayerMove player = UnityEngine.Object.FindObjectOfType<PlayerMove>();
         return IsThrowAnim(player);
     }
 }

@@ -1,12 +1,13 @@
 using System;
 using HarmonyLib;
+using SpeedrunMod.Utils;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace SpeedrunMod.Patches.Softlocks;
 
 [HarmonyPatch(typeof(Time_Events))]
-internal static class SleepySoftlockFixPatch
+internal static class SleepyDialogueSoftlockPatch
 {
     private const string DreamerScene = "Scene 17 - Dreamer";
     private const string StandChairName = "AnimationMita StandChair";
@@ -31,7 +32,7 @@ internal static class SleepySoftlockFixPatch
             var tryChair = GameObject.Find(TryChairName);
             if (tryChair == null)
             {
-                Plugin.Log.LogDebug("Sleepy Softlock Fix: TryChair not found");
+                Plugin.Log.LogDebug("TryChair not found", nameof(SleepyDialogueSoftlockPatch));
                 return;
             }
 
@@ -40,7 +41,7 @@ internal static class SleepySoftlockFixPatch
         }
         catch (Exception ex)
         {
-            Plugin.Log.LogError($"Sleepy Softlock Fix failed: {ex}");
+            Plugin.Log.LogError($"failed: {ex}", nameof(SleepyDialogueSoftlockPatch));
         }
     }
 
@@ -50,11 +51,11 @@ internal static class SleepySoftlockFixPatch
         if (events != null)
         {
             events.StopAllTime();
-            Plugin.Log.LogInfo("Sleepy Softlock Fix: stopped TryChair timers before StandChair");
+            Plugin.Log.LogInfo("stopped TryChair timers before StandChair", nameof(SleepyDialogueSoftlockPatch));
         }
         else
         {
-            Plugin.Log.LogDebug("Sleepy Softlock Fix: TryChair has no Time_Events");
+            Plugin.Log.LogDebug("TryChair has no Time_Events", nameof(SleepyDialogueSoftlockPatch));
         }
     }
 
@@ -63,18 +64,20 @@ internal static class SleepySoftlockFixPatch
         var player = UnityEngine.Object.FindObjectOfType<PlayerMove>();
         if (player == null || !player.animationRun || player.scrAnimationNow == null)
         {
-            Plugin.Log.LogDebug("Sleepy Softlock Fix: player not locked in a chair anim");
+            Plugin.Log.LogDebug("player not locked in a chair anim", nameof(SleepyDialogueSoftlockPatch));
             return;
         }
 
         if (player.scrAnimationNow.gameObject != animationObject)
         {
-            Plugin.Log.LogDebug($"Sleepy Softlock Fix: player anim is {player.scrAnimationNow.gameObject.name}, not TryChair");
+            Plugin.Log.LogDebug(
+                $"player anim is {player.scrAnimationNow.gameObject.name}, not TryChair",
+                nameof(SleepyDialogueSoftlockPatch));
             return;
         }
 
         player.AnimationFastStop();
-        Plugin.Log.LogInfo("Sleepy Softlock Fix: AnimationFastStop on TryChair player lock");
+        Plugin.Log.LogInfo("AnimationFastStop on TryChair player lock", nameof(SleepyDialogueSoftlockPatch));
     }
 
     private static bool IsDreamerScene() => SceneManager.GetActiveScene().name == DreamerScene;
