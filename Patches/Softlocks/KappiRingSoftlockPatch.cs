@@ -1,18 +1,18 @@
-using Colorful;
 using HarmonyLib;
 using SpeedrunMod.Utils;
 using UnityEngine;
-using UnityEngine.Rendering.PostProcessing;
 using UnityEngine.SceneManagement;
-using VertexFragment;
 
 namespace SpeedrunMod.Patches.Softlocks;
 
 /// <summary>
 /// Kappi Softlocks in Scene 7 - Backrooms (room-entry silence + ring-start).
-/// Room entry: StopAllTime on Cap door/StandUp timers, wake CapMita, ResetVoice, clear
-/// stuck green camera halo. Ring: wake Quest4 so sit can enable RingWork (no early
-/// RingWork / StartAddon / House hide). Door Softlock Fix is intentionally out of scope.
+/// Room entry: StopAllTime on Cap door/StandUp timers, wake CapMita, ResetVoice.
+/// Ring: wake Quest4 so sit can enable RingWork (no early RingWork / StartAddon /
+/// House hide). Connect green halo: HandHold enables UI Image "Alpha" (lime) +
+/// AnimationParticle Check; finish calls UI_Alpha.AlphaZeroDeactivated — skip can
+/// drop that, so Softlock Fix clears Alpha/Check at give-ring (KindMita 15).
+/// Door Softlock Fix is intentionally out of scope.
 /// </summary>
 [HarmonyPatch]
 internal static class KappiRingSoftlockPatch
@@ -27,9 +27,13 @@ internal static class KappiRingSoftlockPatch
     private const string OpenDoorEventsName = "TimeAnimation MitaOpenDoor";
     private const string CapDoorEventsName = "MitaCap AnimDoor";
 
+    private const string SitDialogueName = "KindMita 15";
+    private const int SitDialogueIndex = 236;
     private const string TimeMitaSitName = "Time Mita Sit";
     private const string RingWorkName = "RingWork";
     private const string Quest4Name = "Quest4 - Проводим время с Кепкой";
+    private const string HandHoldAlphaName = "Alpha";
+    private const string HandHoldCheckName = "AnimationParticle Check";
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(Dialogue_3DText), "Start")]
@@ -72,15 +76,35 @@ internal static class KappiRingSoftlockPatch
 
         GameObject speak = GameObject.Find(SpeakCapMitaName);
         speak?.GetComponent<AudioDialogue>()?.ResetVoice();
-        string fx = ClearStuckCameraHalo();
 
         KappiSoftlockDebugPatch.LogRepairAttempt(
             nameof(KappiRingSoftlockPatch),
             $"room-entry standUp={(standUp != null)} openDoor={(openDoor != null)} capDoor={(capDoor != null)} "
             + $"cap={(cap == null ? "null" : $"active={cap.activeSelf}")} wokeCap={wokeCap} "
-            + $"speak={(speak != null)} {fx}");
+            + $"speak={(speak != null)}");
 
         Plugin.Log.LogInfo("repaired CapMita room-entry greeting", nameof(KappiRingSoftlockPatch));
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(Dialogue_3DText), "Start")]
+    private static void KindMitaGiveRingPostfix(Dialogue_3DText __instance)
+    {
+        if (!IsKappiScene())
+        {
+            return;
+        }
+
+        if (__instance?.gameObject.name != SitDialogueName || __instance.indexString != SitDialogueIndex)
+        {
+            return;
+        }
+
+        // HandHold (connect/check) is over by give-ring; clear overlay if skip dropped finish.
+        string fx = ClearStuckHandHoldHalo();
+        KappiSoftlockDebugPatch.LogRepairAttempt(
+            nameof(KappiRingSoftlockPatch),
+            $"give-ring halo clear {fx}");
     }
 
     [HarmonyPrefix]
@@ -98,6 +122,7 @@ internal static class KappiRingSoftlockPatch
         }
 
         EnsureQuest4ReadyForRingWork();
+        ClearStuckHandHoldHalo();
     }
 
     private static void EnsureQuest4ReadyForRingWork()
@@ -137,60 +162,40 @@ internal static class KappiRingSoftlockPatch
     }
 
     /// <summary>
-    /// Decompiled: CameraVignetteActive(false) only sets fxFV and fades Darkness in Update.
-    /// CameraSwitchTypeOutline(false) disables Sobel but enables OutlinesPostprocessed —
-    /// Softlock Fix forces FastVignette off and disables both outline paths.
+    /// Connect/check green halo is UI Image "Alpha" (lime, UI_Alpha) + AnimationParticle Check,
+    /// armed by AnimationPlayer HandHold and normally cleared via AlphaZeroDeactivated on finish.
+    /// Softlock Fix mirrors AlphaZeroInstant then deactivates both. Scene has many GOs named
+    /// Alpha — only clear the one that owns UI_Alpha (HandHold overlay), not ScreenKick / others.
     /// </summary>
-    private static string ClearStuckCameraHalo()
+    private static string ClearStuckHandHoldHalo()
     {
-        WorldPlayer worldPlayer = Object.FindObjectOfType<WorldPlayer>();
-        bool vignetteFlagOff = false;
-        if (worldPlayer != null)
+        bool alphaZeroed = false;
+        bool alphaDeactivated = false;
+        foreach (UI_Alpha uiAlpha in Object.FindObjectsOfType<UI_Alpha>(true))
         {
-            worldPlayer.CameraVignetteActive(false);
-            vignetteFlagOff = true;
-        }
-
-        bool vignetteForcedOff = false;
-        foreach (FastVignette vignette in Object.FindObjectsOfType<FastVignette>(true))
-        {
-            if (vignette == null)
+            if (uiAlpha == null || uiAlpha.gameObject.name != HandHoldAlphaName)
             {
                 continue;
             }
 
-            vignette.Darkness = 0f;
-            vignette.enabled = false;
-            vignetteForcedOff = true;
+            uiAlpha.AlphaZeroInstant();
+            alphaZeroed = true;
+            if (uiAlpha.gameObject.activeSelf)
+            {
+                uiAlpha.gameObject.SetActive(false);
+                alphaDeactivated = true;
+            }
         }
 
-        bool outlinesOff = false;
-        foreach (OutlinesPostprocessed outlines in Object.FindObjectsOfType<OutlinesPostprocessed>(true))
+        bool checkOff = false;
+        GameObject check = ComponentUtil.FindIncludingInactive(HandHoldCheckName);
+        if (check != null && check.activeSelf)
         {
-            if (outlines != null && outlines.enabled)
-            {
-                outlines.enabled = false;
-                outlinesOff = true;
-            }
+            check.SetActive(false);
+            checkOff = true;
         }
 
-        bool sobelOff = false;
-        foreach (PostProcessVolume volume in Object.FindObjectsOfType<PostProcessVolume>(true))
-        {
-            if (volume == null || volume.profile == null)
-            {
-                continue;
-            }
-
-            if (volume.profile.TryGetSettings(out SobelOutline sobel) && sobel != null && sobel.enabled)
-            {
-                sobel.enabled.value = false;
-                sobelOff = true;
-            }
-        }
-
-        return $"vignetteFlagOff={vignetteFlagOff} vignetteForcedOff={vignetteForcedOff} "
-            + $"outlinesPostOff={outlinesOff} sobelOff={sobelOff}";
+        return $"alphaZeroed={alphaZeroed} alphaDeactivated={alphaDeactivated} checkOff={checkOff}";
     }
 
     private static bool IsKappiScene() => SceneManager.GetActiveScene().name == SceneName;
