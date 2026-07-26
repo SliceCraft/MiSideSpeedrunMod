@@ -8,9 +8,9 @@ using UnityEngine.SceneManagement;
 namespace SpeedrunMod.Patches.Softlocks;
 
 [HarmonyPatch(typeof(Location11_BlackRoom))]
-internal static class GhostLockSoftlockFixPatch
+internal static class GhostlySoftlockFixPatch
 {
-    private const string LogContext = "GhostLock";
+    private const string LogContext = "GhostlySoftlock";
     private const string GhostMitaScene = "Scene 11 - Backrooms";
     private const float RepairDelaySeconds = 1.25f;
 
