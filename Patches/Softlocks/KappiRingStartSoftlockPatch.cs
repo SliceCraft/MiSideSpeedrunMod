@@ -6,10 +6,10 @@ using UnityEngine.SceneManagement;
 namespace SpeedrunMod.Patches.Softlocks;
 
 /// <summary>
-/// Ring Softlock: Time Mita Sit enables RingWork only after the sit clip, and RingWork lives
-/// under Quest4. Skip can drop TextMita 29 → Встаёт → Location34.StartAddon, so Quest4 stays
-/// inactive and RingWork never Starts. Bare SetActive(Quest4) half-boots House DoorCages
-/// without eventStartAddon (ObjectDoor.Lock). Softlock Fix: call StartAddon instead.
+/// Ring Softlock: Time Mita Sit enables RingWork after the sit clip, but RingWork lives under
+/// Quest4/Игры. Skip can leave Quest4 inactive (or drop the sit wait) so RingWork never Starts.
+/// Softlock Fix wakes Quest4, keeps Quest4/House off (duplicate DoorCages), and SetActive's
+/// RingWork directly. Do not call StartAddon here — vanilla Встаёт does that later.
 /// </summary>
 [HarmonyPatch(typeof(Time_Events), nameof(Time_Events.YieldRestart))]
 internal static class KappiRingStartSoftlockPatch
@@ -18,6 +18,7 @@ internal static class KappiRingStartSoftlockPatch
     private const string TimeMitaSitName = "Time Mita Sit";
     private const string RingWorkName = "RingWork";
     private const string Quest4Name = "Quest4 - Проводим время с Кепкой";
+    private const string Quest4HouseName = "House";
 
     [HarmonyPrefix]
     private static void YieldRestartPrefix(Time_Events __instance)
@@ -32,14 +33,17 @@ internal static class KappiRingStartSoftlockPatch
             return;
         }
 
-        EnsureQuest4StartedViaAddon();
+        EnsureQuest4ReadyForRingWork();
     }
 
-    private static void EnsureQuest4StartedViaAddon()
+    private static void EnsureQuest4ReadyForRingWork()
     {
         GameObject ringWork = ComponentUtil.FindIncludingInactive(RingWorkName);
         if (ringWork != null && ringWork.activeInHierarchy)
         {
+            KappiSoftlockDebugPatch.LogRepairAttempt(
+                nameof(KappiRingStartSoftlockPatch),
+                "early-return: RingWork already activeInHierarchy");
             return;
         }
 
@@ -50,23 +54,40 @@ internal static class KappiRingStartSoftlockPatch
             return;
         }
 
-        var comm = quest4.GetComponent<Location34_Communication>();
-        if (comm == null)
+        bool wokeQuest4 = false;
+        if (!quest4.activeSelf)
         {
-            Plugin.Log.LogWarning(
-                "Location34_Communication missing on Quest4",
-                nameof(KappiRingStartSoftlockPatch));
-            return;
+            quest4.SetActive(true);
+            wokeQuest4 = true;
         }
 
-        // StartAddon SetActive's Quest4, runs eventStartAddon (door Lock), then ActivationAddon.
-        if (!quest4.activeInHierarchy)
+        // Quest4/House DoorCages duplicate main Doors; keep House off until vanilla StartAddon
+        // (RingWork lives under Quest4/Игры, not House).
+        Transform house = quest4.transform.Find(Quest4HouseName);
+        bool hidHouse = false;
+        if (house != null && house.gameObject.activeSelf)
         {
-            comm.StartAddon();
-            Plugin.Log.LogInfo(
-                "StartAddon so sit timeline can start RingWork",
-                nameof(KappiRingStartSoftlockPatch));
+            house.gameObject.SetActive(false);
+            hidHouse = true;
         }
+
+        // Sit EventsOnTime SetActive(RingWork) after clip wait — skip can drop that wait.
+        bool wokeRingWork = false;
+        if (ringWork != null && !ringWork.activeSelf)
+        {
+            ringWork.SetActive(true);
+            wokeRingWork = true;
+        }
+
+        KappiSoftlockDebugPatch.LogRepairAttempt(
+            nameof(KappiRingStartSoftlockPatch),
+            $"wokeQuest4={wokeQuest4} hidHouse={hidHouse} wokeRingWork={wokeRingWork} "
+            + $"quest4=active={quest4.activeSelf}/hier={quest4.activeInHierarchy} "
+            + $"ringWork={(ringWork == null ? "null" : $"active={ringWork.activeSelf}/hier={ringWork.activeInHierarchy}")}");
+
+        Plugin.Log.LogInfo(
+            "armed Quest4 (House off) and RingWork so sit Softlock cannot strand the ring job",
+            nameof(KappiRingStartSoftlockPatch));
     }
 
     private static bool IsKappiScene() => SceneManager.GetActiveScene().name == SceneName;
