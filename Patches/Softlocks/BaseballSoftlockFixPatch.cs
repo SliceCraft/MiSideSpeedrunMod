@@ -80,7 +80,7 @@ internal static class BaseballSoftlockFixPatch
 
     private static GameObject FindIncludingInactive(string name)
     {
-        foreach (var t in Object.FindObjectsByType<Transform>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+        foreach (var t in UnityEngine.Object.FindObjectsByType<Transform>(FindObjectsInactive.Include, FindObjectsSortMode.None))
         {
             if (t != null && t.gameObject.name == name)
             {
