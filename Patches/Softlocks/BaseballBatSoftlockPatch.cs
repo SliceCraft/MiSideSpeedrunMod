@@ -11,6 +11,7 @@ internal static class BaseballBatSoftlockPatch
 {
     private const string SceneName = "Scene 14 - MobilePlayer";
     private const string KickClipName = "Mita Kick";
+    private const string CanvasKickName = "Canvas Kick";
     private const string Quest2StartName = "Quest 2 Start";
     private const int KickHandoffEventIndex = 1;
 
@@ -23,6 +24,7 @@ internal static class BaseballBatSoftlockPatch
     private static float _repairDelaySeconds = MinRepairDelaySeconds;
     private static bool _repairApplied;
     private static bool _handoffSeen;
+    private static bool _loggedMissingAnimator;
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(Animator_FunctionsOverride), nameof(Animator_FunctionsOverride.AnimationClipSimpleNext))]
@@ -49,9 +51,14 @@ internal static class BaseballBatSoftlockPatch
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(Animator_FunctionsOverride), nameof(Animator_FunctionsOverride.NewEvent))]
-    private static void NewEventPostfix(int x)
+    private static void NewEventPostfix(Animator_FunctionsOverride __instance, int x)
     {
         if (!IsMobilePlayerScene() || x != KickHandoffEventIndex)
+        {
+            return;
+        }
+
+        if (_kickAnimator != null && __instance != _kickAnimator)
         {
             return;
         }
@@ -97,14 +104,25 @@ internal static class BaseballBatSoftlockPatch
             return;
         }
 
-        if (_kickAnimator == null)
+        Animator_FunctionsOverride animator = _kickAnimator;
+        if (animator == null)
         {
-            Plugin.Log.LogWarning("Kick animator missing for NewEvent repair", nameof(BaseballBatSoftlockPatch));
-            _repairApplied = true;
+            animator = UnityEngine.Object.FindObjectOfType<Animator_FunctionsOverride>();
+        }
+
+        if (animator == null)
+        {
+            if (!_loggedMissingAnimator)
+            {
+                _loggedMissingAnimator = true;
+                Plugin.Log.LogWarning("Kick animator missing for NewEvent repair", nameof(BaseballBatSoftlockPatch));
+            }
+
             return;
         }
 
-        _kickAnimator.NewEvent(KickHandoffEventIndex);
+        animator.NewEvent(KickHandoffEventIndex);
+        _kickAnimator = animator;
         _repairApplied = true;
         _handoffSeen = true;
         Plugin.Log.LogInfo("repaired Kick NewEvent(1) handoff", nameof(BaseballBatSoftlockPatch));
@@ -113,7 +131,13 @@ internal static class BaseballBatSoftlockPatch
     private static bool IsHandoffActive()
     {
         GameObject quest2 = ComponentUtil.FindIncludingInactive(Quest2StartName);
-        return quest2 != null && quest2.activeInHierarchy;
+        if (quest2 != null && quest2.activeInHierarchy)
+        {
+            return true;
+        }
+
+        GameObject canvasKick = ComponentUtil.FindIncludingInactive(CanvasKickName);
+        return canvasKick != null && canvasKick.activeInHierarchy;
     }
 
     private static void ResetSession()
