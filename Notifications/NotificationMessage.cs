@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 namespace SpeedrunMod.Notifications;
 
@@ -10,6 +10,6 @@ internal class NotificationMessage(string text, float cooldown = 0f)
     internal GameObject HintObject = null;
     internal float TimeUntilHide = 5f;
     internal float TimeUntilDestroy = 6f;
-
     internal bool OnScreen => HintObject != null;
+    internal bool IsExpired => Time.realtimeSinceStartup - CreatedAt >= Cooldown;
 }

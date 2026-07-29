@@ -12,6 +12,7 @@ namespace SpeedrunMod.Patches.Softlocks;
 internal static class GhostlyPuzzleSoftlockPatch
 {
     private const string GhostMitaScene = "Scene 11 - Backrooms";
+    private const string Notification = "Softlock Fix: Ghostly puzzle";
     private const float RepairDelaySeconds = 1.25f;
 
     private static Location11_BlackRoom _instance;
@@ -102,7 +103,7 @@ internal static class GhostlyPuzzleSoftlockPatch
             FinishPendingPlacements(room);
             EnableAssembleMode(room);
             _repairApplied = true;
-            NotificationManager.Show(new NotificationMessage("Softlock Fix: Ghostly puzzle", 5f));
+            NotificationManager.Show(new NotificationMessage(Notification, cooldown: 5f));
             Plugin.Log.LogInfo("repaired assemble mode", nameof(GhostlyPuzzleSoftlockPatch));
         }
         catch (Exception ex)

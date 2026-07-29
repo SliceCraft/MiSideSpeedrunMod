@@ -25,10 +25,7 @@ internal static class NotificationManager
 
     public static bool Show(NotificationMessage notificationMessage)
     {
-        float now = Time.realtimeSinceStartup;
-        if (NotificationObjects.Exists(n =>
-                n.Text == notificationMessage.Text
-                && now - n.CreatedAt < n.Cooldown))
+        if (IsDuplicate(notificationMessage))
         {
             return false;
         }
@@ -64,6 +61,12 @@ internal static class NotificationManager
 
         go.SetActive(true);
         return true;
+    }
+
+    private static bool IsDuplicate(NotificationMessage notificationMessage)
+    {
+        return NotificationObjects.Exists(n =>
+            n.Text == notificationMessage.Text && !n.IsExpired);
     }
 
     private static void UpdatePositions()
@@ -112,7 +115,6 @@ internal static class NotificationManager
 
     private static void ShowNotifications()
     {
-        float now = Time.realtimeSinceStartup;
         List<NotificationMessage> objectsToBeRemoved = [];
         bool destroyedHint = false;
 
@@ -138,7 +140,7 @@ internal static class NotificationManager
                 }
             }
 
-            if (!notificationMessage.OnScreen && now - notificationMessage.CreatedAt >= notificationMessage.Cooldown)
+            if (!notificationMessage.OnScreen && notificationMessage.IsExpired)
             {
                 objectsToBeRemoved.Add(notificationMessage);
             }

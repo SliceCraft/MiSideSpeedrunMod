@@ -13,6 +13,7 @@ internal static class CoreThrowSoftlockPatch
     private const string SceneName = "Scene 15 - BasementAndDeath";
     private const string AnimationPlayerThrowName = "AnimationPlayer Throw";
     private const string PostThrowAnimationName = "Animation";
+    private const string Notification = "Softlock Fix: Core throw";
 
     [HarmonyPrefix]
     [HarmonyPatch(typeof(ObjectAnimationPlayer), nameof(ObjectAnimationPlayer.AnimationPlayOnPlayer))]
@@ -33,7 +34,7 @@ internal static class CoreThrowSoftlockPatch
             return true;
         }
 
-        NotificationManager.Show(new NotificationMessage("Softlock Fix: Core throw", 5f));
+        NotificationManager.Show(new NotificationMessage(Notification, cooldown: 5f));
         Plugin.Log.LogInfo("skipped post-throw AnimationPlayOnPlayer during Throw", nameof(CoreThrowSoftlockPatch));
         return false;
     }

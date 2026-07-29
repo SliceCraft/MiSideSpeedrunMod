@@ -15,6 +15,7 @@ internal static class BaseballBatSoftlockPatch
     private const string KickClipName = "Mita Kick";
     private const string CanvasKickName = "Canvas Kick";
     private const string Quest2StartName = "Quest 2 Start";
+    private const string Notification = "Softlock Fix: Baseball bat";
     private const int KickHandoffEventIndex = 1;
 
     // Mita Kick.anim fires NewEvent(1) near clip end (~0.78s of 0.8s).
@@ -144,7 +145,7 @@ internal static class BaseballBatSoftlockPatch
         _kickAnimator = animator;
         _repairApplied = true;
         _handoffSeen = true;
-        NotificationManager.Show(new NotificationMessage("Softlock Fix: Baseball bat", 5f));
+        NotificationManager.Show(new NotificationMessage(Notification, cooldown: 5f));
         Plugin.Log.LogInfo("repaired Kick NewEvent(1) handoff", nameof(BaseballBatSoftlockPatch));
     }
 
