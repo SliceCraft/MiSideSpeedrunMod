@@ -1,6 +1,7 @@
 using System;
 using HarmonyLib;
 using SpeedrunMod.Configs;
+using SpeedrunMod.Notifications;
 using SpeedrunMod.Utils;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -15,6 +16,7 @@ internal static class KindBedroomPaperSoftlockPatch
     private const string StayMitaName = "AnimationPlayer StayMita";
     private const string StayUpEventsName = "TimeAnimation Mita StayUp";
     private const string MitaTakeItemsTimeName = "TimeAnimation Mita TakeItems";
+    private const string Notification = "Softlock Fix: Kind bedroom paper";
 
     [HarmonyPrefix]
     [HarmonyPatch(typeof(ObjectAnimationPlayer), nameof(ObjectAnimationPlayer.AnimationPlay))]
@@ -63,6 +65,7 @@ internal static class KindBedroomPaperSoftlockPatch
             TimeUtil.StopTimeEvents(MitaTakeItemsTimeName);
             ComponentUtil.FindIncludingInactive<ObjectAnimationPlayer>(TakeItemsName)?.eventStartLoop?.Invoke();
             player.AnimationFastStop();
+            NotificationManager.Show(new NotificationMessage(Notification, cooldown: 5f));
             Plugin.Log.LogInfo($"finished TakeItems before {seam}", nameof(KindBedroomPaperSoftlockPatch));
         }
         catch (Exception ex)

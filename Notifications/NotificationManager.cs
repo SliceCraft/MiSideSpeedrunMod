@@ -25,6 +25,11 @@ internal static class NotificationManager
 
     public static bool Show(NotificationMessage notificationMessage)
     {
+        if (IsDuplicate(notificationMessage))
+        {
+            return false;
+        }
+
         if (!EnsureObjectsSelected())
         {
             return false;
@@ -58,27 +63,34 @@ internal static class NotificationManager
         return true;
     }
 
+    private static bool IsDuplicate(NotificationMessage notificationMessage)
+    {
+        return NotificationObjects.Exists(n =>
+            n.Text == notificationMessage.Text && !n.IsExpired);
+    }
+
     private static void UpdatePositions()
     {
-        NotificationObjects.RemoveAll(static n => n.HintObject == null);
-
+        int onScreenIndex = 0;
         for (int i = 0; i < NotificationObjects.Count; i++)
         {
-            GameObject go = NotificationObjects[i].HintObject;
-            if (go == null)
+            NotificationMessage notification = NotificationObjects[i];
+            if (!notification.OnScreen)
             {
                 continue;
             }
 
-            if (go.TryGetComponent(out RectTransform rectTransform))
+            if (notification.HintObject.TryGetComponent(out RectTransform rectTransform))
             {
                 var bottomMargin = _bottomMargin ?? 0f;
                 var rightMargin = _rightMargin ?? 0f;
                 rectTransform.anchorMin = new Vector2(1f, 0f);
                 rectTransform.anchorMax = new Vector2(1f, 0f);
                 rectTransform.pivot = new Vector2(1f, 0f);
-                rectTransform.anchoredPosition = new Vector2(rightMargin, i * 100f + bottomMargin);
+                rectTransform.anchoredPosition = new Vector2(rightMargin, onScreenIndex * 100f + bottomMargin);
             }
+
+            onScreenIndex++;
         }
     }
 
@@ -104,26 +116,31 @@ internal static class NotificationManager
     private static void ShowNotifications()
     {
         List<NotificationMessage> objectsToBeRemoved = [];
+        bool destroyedHint = false;
 
         foreach (NotificationMessage notificationMessage in NotificationObjects)
         {
-            if (notificationMessage.HintObject == null)
+            if (notificationMessage.OnScreen)
             {
-                objectsToBeRemoved.Add(notificationMessage);
-                continue;
+                notificationMessage.TimeUntilHide -= Time.deltaTime;
+                notificationMessage.TimeUntilDestroy -= Time.deltaTime;
+
+                if (notificationMessage.TimeUntilHide <= 0)
+                {
+                    notificationMessage.HintObject.GetComponent<Animator>().SetBool(Hide, true);
+                    // Prevent the hide animation from playing again
+                    notificationMessage.TimeUntilHide = 1e10f;
+                }
+
+                if (notificationMessage.TimeUntilDestroy <= 0)
+                {
+                    Object.Destroy(notificationMessage.HintObject);
+                    notificationMessage.HintObject = null;
+                    destroyedHint = true;
+                }
             }
 
-            notificationMessage.TimeUntilHide -= Time.deltaTime;
-            notificationMessage.TimeUntilDestroy -= Time.deltaTime;
-
-            if (notificationMessage.TimeUntilHide <= 0)
-            {
-                notificationMessage.HintObject.GetComponent<Animator>().SetBool(Hide, true);
-                // Prevent the hide animation from playing again
-                notificationMessage.TimeUntilHide = 1e10f;
-            }
-
-            if (notificationMessage.TimeUntilDestroy <= 0)
+            if (!notificationMessage.OnScreen && notificationMessage.IsExpired)
             {
                 objectsToBeRemoved.Add(notificationMessage);
             }
@@ -132,10 +149,9 @@ internal static class NotificationManager
         foreach (var notificationMessage in objectsToBeRemoved)
         {
             NotificationObjects.Remove(notificationMessage);
-            Object.Destroy(notificationMessage.HintObject);
         }
 
-        if (objectsToBeRemoved.Count > 0)
+        if (destroyedHint || objectsToBeRemoved.Count > 0)
         {
             UpdatePositions();
         }

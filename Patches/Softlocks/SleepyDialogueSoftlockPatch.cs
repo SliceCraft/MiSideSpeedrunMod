@@ -1,6 +1,7 @@
 using System;
 using HarmonyLib;
 using SpeedrunMod.Configs;
+using SpeedrunMod.Notifications;
 using SpeedrunMod.Utils;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -13,6 +14,7 @@ internal static class SleepyDialogueSoftlockPatch
     private const string DreamerScene = "Scene 17 - Dreamer";
     private const string StandChairName = "AnimationMita StandChair";
     private const string TryChairName = "AnimationMita TryChair";
+    private const string Notification = "Softlock Fix: Sleepy dialogue";
 
     [HarmonyPrefix]
     [HarmonyPatch(nameof(Time_Events.YieldRestart))]
@@ -57,6 +59,7 @@ internal static class SleepyDialogueSoftlockPatch
         if (events != null)
         {
             events.StopAllTime();
+            NotificationManager.Show(new NotificationMessage(Notification, cooldown: 5f));
             Plugin.Log.LogInfo("stopped TryChair timers before StandChair", nameof(SleepyDialogueSoftlockPatch));
         }
         else
@@ -83,6 +86,7 @@ internal static class SleepyDialogueSoftlockPatch
         }
 
         player.AnimationFastStop();
+        NotificationManager.Show(new NotificationMessage(Notification, cooldown: 5f));
         Plugin.Log.LogInfo("AnimationFastStop on TryChair player lock", nameof(SleepyDialogueSoftlockPatch));
     }
 

@@ -1,5 +1,6 @@
 using HarmonyLib;
 using SpeedrunMod.Configs;
+using SpeedrunMod.Notifications;
 using SpeedrunMod.Utils;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -34,6 +35,10 @@ internal static class KappiRingSoftlockPatch
     private const string TriggerCameUpName = "Trigger Near CameUp";
     private const string HandHoldAlphaName = "Alpha";
     private const string HandHoldCheckName = "AnimationParticle Check";
+    
+    private const string EntryNotification = "Softlock Fix: Kappi entry";
+    private const string RingStartNotification = "Softlock Fix: Kappi ring start";
+    private const string RingEndNotification = "Softlock Fix: Kappi ring end";
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(Dialogue_3DText), "Start")]
@@ -86,6 +91,7 @@ internal static class KappiRingSoftlockPatch
 
         ComponentUtil.Enable(Quest4Name, true);
         ClearHaloEffect();
+        NotificationManager.Show(new NotificationMessage(RingStartNotification, cooldown: 5f));
         Plugin.Log.LogInfo("armed Quest4 for RingWork after sit", nameof(KappiRingSoftlockPatch));
     }
 
@@ -106,6 +112,7 @@ internal static class KappiRingSoftlockPatch
         // eventStart already armed Trigger Near; Softlock Fix finishes what EventsOnTime skips.
         ComponentUtil.Enable(Quest5Name, true);
         EnableKindMitaInteract();
+        NotificationManager.Show(new NotificationMessage(RingEndNotification, cooldown: 5f));
         Plugin.Log.LogInfo("enabled post-ring Kind Mita interact", nameof(KappiRingSoftlockPatch));
     }
 
@@ -117,6 +124,7 @@ internal static class KappiRingSoftlockPatch
 
         ComponentUtil.Enable(MitaCapName, true);
         ComponentUtil.FindIncludingInactive<AudioDialogue>(SpeakCapMitaName)?.ResetVoice();
+        NotificationManager.Show(new NotificationMessage(EntryNotification, cooldown: 5f));
         Plugin.Log.LogInfo("repaired CapMita room-entry greeting", nameof(KappiRingSoftlockPatch));
     }
 

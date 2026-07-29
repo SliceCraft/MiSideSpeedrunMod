@@ -1,6 +1,7 @@
 using System;
 using HarmonyLib;
 using SpeedrunMod.Configs;
+using SpeedrunMod.Notifications;
 using SpeedrunMod.Utils;
 using UnityEngine.SceneManagement;
 
@@ -10,6 +11,7 @@ namespace SpeedrunMod.Patches.Softlocks;
 internal static class CreepyDialogueSoftlockPatch
 {
     private const string SceneName = "Scene 12 - Freak";
+    private const string Notification = "Softlock Fix: Creepy dialogue";
 
     private static readonly string[] AnimationTimers =
     {
@@ -50,6 +52,7 @@ internal static class CreepyDialogueSoftlockPatch
             Plugin.Log.LogDebug($"StopTimeEvents on {name}", nameof(CreepyDialogueSoftlockPatch));
         }
 
+        NotificationManager.Show(new NotificationMessage(Notification, cooldown: 5f));
         Plugin.Log.LogInfo("cleared animation timers before QuestFinish", nameof(CreepyDialogueSoftlockPatch));
     }
 
