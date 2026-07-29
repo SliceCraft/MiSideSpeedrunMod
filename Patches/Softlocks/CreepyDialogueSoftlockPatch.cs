@@ -1,6 +1,7 @@
 using System;
 using HarmonyLib;
 using SpeedrunMod.Configs;
+using SpeedrunMod.Notifications;
 using SpeedrunMod.Utils;
 using UnityEngine.SceneManagement;
 
@@ -50,6 +51,7 @@ internal static class CreepyDialogueSoftlockPatch
             Plugin.Log.LogDebug($"StopTimeEvents on {name}", nameof(CreepyDialogueSoftlockPatch));
         }
 
+        SoftlockFixNotifications.Show(SoftlockFixNotifications.CreepyDialogue);
         Plugin.Log.LogInfo("cleared animation timers before QuestFinish", nameof(CreepyDialogueSoftlockPatch));
     }
 

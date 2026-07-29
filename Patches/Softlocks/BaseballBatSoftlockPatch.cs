@@ -1,6 +1,7 @@
 using System;
 using HarmonyLib;
 using SpeedrunMod.Configs;
+using SpeedrunMod.Notifications;
 using SpeedrunMod.Utils;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -143,6 +144,7 @@ internal static class BaseballBatSoftlockPatch
         _kickAnimator = animator;
         _repairApplied = true;
         _handoffSeen = true;
+        SoftlockFixNotifications.Show(SoftlockFixNotifications.BaseballBat);
         Plugin.Log.LogInfo("repaired Kick NewEvent(1) handoff", nameof(BaseballBatSoftlockPatch));
     }
 

@@ -1,6 +1,7 @@
 using System;
 using HarmonyLib;
 using SpeedrunMod.Configs;
+using SpeedrunMod.Notifications;
 using SpeedrunMod.Utils;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -57,6 +58,7 @@ internal static class SleepyDialogueSoftlockPatch
         if (events != null)
         {
             events.StopAllTime();
+            SoftlockFixNotifications.Show(SoftlockFixNotifications.SleepyDialogue);
             Plugin.Log.LogInfo("stopped TryChair timers before StandChair", nameof(SleepyDialogueSoftlockPatch));
         }
         else
@@ -83,6 +85,7 @@ internal static class SleepyDialogueSoftlockPatch
         }
 
         player.AnimationFastStop();
+        SoftlockFixNotifications.Show(SoftlockFixNotifications.SleepyDialogue);
         Plugin.Log.LogInfo("AnimationFastStop on TryChair player lock", nameof(SleepyDialogueSoftlockPatch));
     }
 

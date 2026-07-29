@@ -1,6 +1,7 @@
 using System;
 using HarmonyLib;
 using SpeedrunMod.Configs;
+using SpeedrunMod.Notifications;
 using SpeedrunMod.Utils;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -101,6 +102,7 @@ internal static class GhostlyPuzzleSoftlockPatch
             FinishPendingPlacements(room);
             EnableAssembleMode(room);
             _repairApplied = true;
+            SoftlockFixNotifications.Show(SoftlockFixNotifications.GhostlyPuzzle);
             Plugin.Log.LogInfo("repaired assemble mode", nameof(GhostlyPuzzleSoftlockPatch));
         }
         catch (Exception ex)

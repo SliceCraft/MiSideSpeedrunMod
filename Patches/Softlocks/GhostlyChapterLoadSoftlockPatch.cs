@@ -1,6 +1,7 @@
 using System;
 using HarmonyLib;
 using SpeedrunMod.Configs;
+using SpeedrunMod.Notifications;
 using SpeedrunMod.Utils;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -42,6 +43,7 @@ internal static class GhostlyChapterLoadSoftlockPatch
             SetRoomActive();
             Physics.SyncTransforms();
             TeleportToChapterSpawn(player);
+            SoftlockFixNotifications.Show(SoftlockFixNotifications.GhostlyChapterLoad);
             Plugin.Log.LogInfo("repaired chapter-load spawn", nameof(GhostlyChapterLoadSoftlockPatch));
         }
         catch (Exception ex)

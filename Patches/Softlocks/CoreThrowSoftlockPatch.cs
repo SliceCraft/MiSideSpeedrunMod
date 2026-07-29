@@ -1,5 +1,6 @@
 using HarmonyLib;
 using SpeedrunMod.Configs;
+using SpeedrunMod.Notifications;
 using SpeedrunMod.Utils;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -32,6 +33,7 @@ internal static class CoreThrowSoftlockPatch
             return true;
         }
 
+        SoftlockFixNotifications.Show(SoftlockFixNotifications.CoreThrow);
         Plugin.Log.LogInfo("skipped post-throw AnimationPlayOnPlayer during Throw", nameof(CoreThrowSoftlockPatch));
         return false;
     }

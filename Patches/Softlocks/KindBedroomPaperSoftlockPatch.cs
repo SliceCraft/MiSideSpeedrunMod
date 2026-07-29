@@ -1,6 +1,7 @@
 using System;
 using HarmonyLib;
 using SpeedrunMod.Configs;
+using SpeedrunMod.Notifications;
 using SpeedrunMod.Utils;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -63,6 +64,7 @@ internal static class KindBedroomPaperSoftlockPatch
             TimeUtil.StopTimeEvents(MitaTakeItemsTimeName);
             ComponentUtil.FindIncludingInactive<ObjectAnimationPlayer>(TakeItemsName)?.eventStartLoop?.Invoke();
             player.AnimationFastStop();
+            SoftlockFixNotifications.Show(SoftlockFixNotifications.KindBedroomPaper);
             Plugin.Log.LogInfo($"finished TakeItems before {seam}", nameof(KindBedroomPaperSoftlockPatch));
         }
         catch (Exception ex)
