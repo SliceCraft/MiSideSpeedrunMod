@@ -1,7 +1,6 @@
 using System;
 using System.Text;
 using HarmonyLib;
-using SpeedrunMod.Events;
 using SpeedrunMod.Utils;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -11,16 +10,7 @@ namespace SpeedrunMod.Patches.Softlocks.Debug;
 /// <summary>
 /// DEBUG ONLY (ticket 12). Do not merge to the public Softlock Fixes tip.
 /// Grep BepInEx LogOutput for: [DEBUG-ghostly12]
-///
-/// Softlock / Softlock Fix signals (independent; do not rely on one alone):
-/// - STUCK_DUMP — runner presses F8 when stuck (primary manual path)
-/// - SIG_INCOMPLETE_PUT — active piece with addedTable but paper.put still false (root Softlock shape)
-/// - SIG_IDLE_NO_ASSEMBLE — place/play timers idle and playPuzle never latched (first time)
-/// - CANDIDATE_DELAY — still stuck after Softlock Fix RepairDelaySeconds (1.25s realtime)
-/// - STUCK_LATE — still stuck after longer window (Softlock Fix missing or failed)
-/// - ASSEMBLE_INPUT_BROKEN — playPuzle true but cursor / mouseOverPlane off
-/// - playPuzle / playPuzle (after idle) — assemble latched; after-idle often Softlock Fix or late vanilla
-/// Softlock Fix itself also logs: "repaired assemble mode", "finished pending placement slot=…"
+/// F8 = STUCK_DUMP when the runner is stuck.
 /// </summary>
 [HarmonyPatch]
 internal static class GhostlyPuzzleSoftlockDebug
@@ -29,11 +19,10 @@ internal static class GhostlyPuzzleSoftlockDebug
     private const string SceneName = "Scene 11 - Backrooms";
     private const KeyCode StuckDumpKey = KeyCode.F8;
 
-    // Same window Softlock Fix uses — one of several signals, not the only Softlock detector.
     private const float SoftlockFixRepairDelaySeconds = 1.25f;
     private const float SoftlockStuckLateSeconds = 3.5f;
 
-    private static bool _subscribed;
+    private static string _lastSceneName = "";
     private static Location11_BlackRoom _room;
     private static float _sitRealtime = -1f;
     private static bool _loggedPlayPuzle;
@@ -45,41 +34,11 @@ internal static class GhostlyPuzzleSoftlockDebug
     private static bool _loggedAssembleInputBroken;
     private static string _lastPhase = "";
 
-    static GhostlyPuzzleSoftlockDebug()
-    {
-        TrySubscribeSceneLoaded();
-    }
-
-    private static void TrySubscribeSceneLoaded()
-    {
-        if (_subscribed)
-        {
-            return;
-        }
-
-        SceneLoadedEvent.SceneLoaded += OnSceneLoaded;
-        _subscribed = true;
-    }
-
-    private static void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-    {
-        if (scene.name != SceneName)
-        {
-            return;
-        }
-
-        ResetSession();
-        Plugin.Log.LogInfo(
-            $"[{Tag}] entered {SceneName}; GhostLock debug armed (F8 = STUCK_DUMP)",
-            nameof(GhostlyPuzzleSoftlockDebug));
-    }
-
     [HarmonyPostfix]
     [HarmonyPatch(typeof(Location11_BlackRoom), nameof(Location11_BlackRoom.PlayerSit))]
     [HarmonyPriority(Priority.High)]
     private static void PlayerSitPostfix(Location11_BlackRoom __instance)
     {
-        TrySubscribeSceneLoaded();
         if (!IsGhostMitaScene() || __instance == null)
         {
             return;
@@ -171,11 +130,12 @@ internal static class GhostlyPuzzleSoftlockDebug
         ResetSession();
     }
 
-    // Same as baseball Debug: F8 on GameController so runners can dump even when puzzle Update is odd.
     [HarmonyPostfix]
     [HarmonyPatch(typeof(GameController), "Update")]
     private static void GameControllerUpdatePostfix()
     {
+        MaybeArmOnSceneChange();
+
         if (!IsGhostMitaScene() || !Input.GetKeyDown(StuckDumpKey))
         {
             return;
@@ -208,6 +168,31 @@ internal static class GhostlyPuzzleSoftlockDebug
         }
     }
 
+    private static void MaybeArmOnSceneChange()
+    {
+        var sceneName = SceneManager.GetActiveScene().name;
+        if (sceneName == _lastSceneName)
+        {
+            return;
+        }
+
+        var wasGhostMita = _lastSceneName == SceneName;
+        _lastSceneName = sceneName;
+
+        if (sceneName == SceneName)
+        {
+            ResetSession();
+            Plugin.Log.LogInfo(
+                $"[{Tag}] entered {SceneName}; GhostLock debug armed (F8 = STUCK_DUMP)",
+                nameof(GhostlyPuzzleSoftlockDebug));
+            return;
+        }
+
+        if (wasGhostMita)
+        {
+            ResetSession();
+        }
+    }
     // Priority.High so this postfix runs before the Softlock Fix postfix — we dump
     // the pre-repair state before the Fix mutates playPuzle / timers.
     [HarmonyPostfix]
