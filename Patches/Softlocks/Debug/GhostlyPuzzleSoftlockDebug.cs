@@ -17,9 +17,9 @@ internal static class GhostlyPuzzleSoftlockDebug
 {
     private const string Tag = "DEBUG-ghostly12";
     private const string SceneName = "Scene 11 - Backrooms";
-    // Slightly before Softlock Fix RepairDelaySeconds (1.25) so HITL still gets a stuck-state
-    // dump when Softlock Fix is loaded and about to repair.
-    private const float SoftlockCandidateDelaySeconds = 1.2f;
+    // Match Softlock Fix RepairDelaySeconds so the dump fires on the same frame the Fix
+    // would repair (Debug postfix runs first via Priority.High).
+    private const float SoftlockCandidateDelaySeconds = 1.25f;
 
     private static bool _subscribed;
     private static Location11_BlackRoom _room;
@@ -60,6 +60,7 @@ internal static class GhostlyPuzzleSoftlockDebug
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(Location11_BlackRoom), nameof(Location11_BlackRoom.PlayerSit))]
+    [HarmonyPriority(Priority.High)]
     private static void PlayerSitPostfix(Location11_BlackRoom __instance)
     {
         TrySubscribeSceneLoaded();
@@ -150,8 +151,11 @@ internal static class GhostlyPuzzleSoftlockDebug
         ResetSession();
     }
 
+    // Priority.High so this postfix runs before the Softlock Fix postfix — we dump
+    // the pre-repair state before the Fix mutates playPuzle / timers.
     [HarmonyPostfix]
     [HarmonyPatch(typeof(Location11_BlackRoom), "Update")]
+    [HarmonyPriority(Priority.High)]
     private static void UpdatePostfix(Location11_BlackRoom __instance)
     {
         if (!IsGhostMitaScene() || __instance == null || _sitRealtime < 0f)
