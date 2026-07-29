@@ -11,22 +11,36 @@ namespace SpeedrunMod.Patches.Softlocks.Debug;
 /// <summary>
 /// DEBUG ONLY (ticket 12). Do not merge to the public Softlock Fixes tip.
 /// Grep BepInEx LogOutput for: [DEBUG-ghostly12]
+///
+/// Softlock / Softlock Fix signals (independent; do not rely on one alone):
+/// - SIG_INCOMPLETE_PUT — active piece with addedTable but paper.put still false (root Softlock shape)
+/// - SIG_IDLE_NO_ASSEMBLE — place/play timers idle and playPuzle never latched (first time)
+/// - CANDIDATE_DELAY — still stuck after Softlock Fix RepairDelaySeconds (1.25s realtime)
+/// - STUCK_LATE — still stuck after longer window (Softlock Fix missing or failed)
+/// - ASSEMBLE_INPUT_BROKEN — playPuzle true but cursor / mouseOverPlane off
+/// - playPuzle / playPuzle (after idle) — assemble latched; after-idle often Softlock Fix or late vanilla
+/// Softlock Fix itself also logs: "repaired assemble mode", "finished pending placement slot=…"
 /// </summary>
 [HarmonyPatch]
 internal static class GhostlyPuzzleSoftlockDebug
 {
     private const string Tag = "DEBUG-ghostly12";
     private const string SceneName = "Scene 11 - Backrooms";
-    // Match Softlock Fix RepairDelaySeconds so the dump fires on the same frame the Fix
-    // would repair (Debug postfix runs first via Priority.High).
-    private const float SoftlockCandidateDelaySeconds = 1.25f;
+
+    // Same window Softlock Fix uses — one of several signals, not the only Softlock detector.
+    private const float SoftlockFixRepairDelaySeconds = 1.25f;
+    private const float SoftlockStuckLateSeconds = 3.5f;
 
     private static bool _subscribed;
     private static Location11_BlackRoom _room;
     private static float _sitRealtime = -1f;
     private static bool _loggedPlayPuzle;
     private static bool _loggedGlueWork;
-    private static bool _loggedSoftlockCandidate;
+    private static bool _loggedIncompletePut;
+    private static bool _loggedIdleNoAssemble;
+    private static bool _loggedCandidateDelay;
+    private static bool _loggedStuckLate;
+    private static bool _loggedAssembleInputBroken;
     private static string _lastPhase = "";
 
     static GhostlyPuzzleSoftlockDebug()
@@ -73,7 +87,11 @@ internal static class GhostlyPuzzleSoftlockDebug
         _sitRealtime = Time.realtimeSinceStartup;
         _loggedPlayPuzle = false;
         _loggedGlueWork = false;
-        _loggedSoftlockCandidate = false;
+        _loggedIncompletePut = false;
+        _loggedIdleNoAssemble = false;
+        _loggedCandidateDelay = false;
+        _loggedStuckLate = false;
+        _loggedAssembleInputBroken = false;
         _lastPhase = "";
         LogState(__instance, "PlayerSit");
     }
@@ -186,43 +204,138 @@ internal static class GhostlyPuzzleSoftlockDebug
             if (!_loggedPlayPuzle)
             {
                 _loggedPlayPuzle = true;
-                // Softlock Fix EnableAssembleMode (or vanilla) just latched — pair with
-                // waiting-idle-timers / SOFTLOCK_CANDIDATE dumps as repair before→after.
-                var afterIdle = _lastPhase is "waiting-idle-timers" or "SOFTLOCK_CANDIDATE";
+                var afterIdle = _loggedIdleNoAssemble || _loggedCandidateDelay ||
+                                _lastPhase is "waiting-idle-timers";
                 LogState(__instance, afterIdle ? "playPuzle (after idle)" : "playPuzle");
             }
 
+            MaybeLogAssembleInputBroken(__instance);
             return;
         }
 
-        MaybeLogSoftlockCandidate(__instance);
+        MaybeLogIncompletePut(__instance);
         MaybeLogWaitingPhase(__instance);
+        MaybeLogIdleNoAssemble(__instance);
+        MaybeLogCandidateDelay(__instance);
+        MaybeLogStuckLate(__instance);
     }
 
-    private static void MaybeLogSoftlockCandidate(Location11_BlackRoom room)
+    /// <summary>
+    /// Structural Softlock shape from findings: placement started (addedTable) but Put() never ran.
+    /// </summary>
+    private static void MaybeLogIncompletePut(Location11_BlackRoom room)
     {
-        if (_loggedSoftlockCandidate || _sitRealtime < 0f)
+        if (_loggedIncompletePut)
         {
             return;
         }
 
-        if (Time.realtimeSinceStartup - _sitRealtime < SoftlockCandidateDelaySeconds)
+        var frames = room.framesFound;
+        if (frames == null)
         {
             return;
         }
 
-        if (room.timeStartPlayPuzle > 0f || room.timeStartPuzle > 0f)
+        for (var i = 0; i < frames.Length; i++)
+        {
+            var frame = frames[i];
+            if (frame?.puzle == null || !frame.puzle.activeSelf || !frame.addedTable)
+            {
+                continue;
+            }
+
+            var paper = frame.puzle.GetComponent<Location11_PaperPart>();
+            if (paper != null && paper.put)
+            {
+                continue;
+            }
+
+            _loggedIncompletePut = true;
+            Plugin.Log.LogWarning(
+                $"[{Tag}] SIG_INCOMPLETE_PUT slot={i} addedTable=true put=false " +
+                $"sitAge={SitAge():0.###}s timeScale={Time.timeScale:0.###}",
+                nameof(GhostlyPuzzleSoftlockDebug));
+            LogState(room, $"SIG_INCOMPLETE_PUT slot={i}");
+            return;
+        }
+    }
+
+    /// <summary>
+    /// Timers idle and assemble never enabled — Softlock window, independent of Softlock Fix delay.
+    /// </summary>
+    private static void MaybeLogIdleNoAssemble(Location11_BlackRoom room)
+    {
+        if (_loggedIdleNoAssemble || !TimersIdle(room))
         {
             return;
         }
 
-        _loggedSoftlockCandidate = true;
-        _lastPhase = "SOFTLOCK_CANDIDATE";
+        _loggedIdleNoAssemble = true;
+        _lastPhase = "SIG_IDLE_NO_ASSEMBLE";
         Plugin.Log.LogWarning(
-            $"[{Tag}] SOFTLOCK_CANDIDATE sitAge={(Time.realtimeSinceStartup - _sitRealtime):F2}s " +
-            $"timeScale={Time.timeScale:0.###} playPuzle={room.playPuzle} glueWork={room.glueWork}",
+            $"[{Tag}] SIG_IDLE_NO_ASSEMBLE sitAge={SitAge():0.###}s timeScale={Time.timeScale:0.###}",
             nameof(GhostlyPuzzleSoftlockDebug));
-        LogState(room, "SOFTLOCK_CANDIDATE");
+        LogState(room, "SIG_IDLE_NO_ASSEMBLE");
+    }
+
+    /// <summary>
+    /// Same realtime gate Softlock Fix uses — Softlock Fix should repair on this frame (Priority.High dumps first).
+    /// </summary>
+    private static void MaybeLogCandidateDelay(Location11_BlackRoom room)
+    {
+        if (_loggedCandidateDelay || SitAge() < SoftlockFixRepairDelaySeconds || !TimersIdle(room))
+        {
+            return;
+        }
+
+        _loggedCandidateDelay = true;
+        _lastPhase = "CANDIDATE_DELAY";
+        Plugin.Log.LogWarning(
+            $"[{Tag}] CANDIDATE_DELAY sitAge={SitAge():0.###}s " +
+            $"(Softlock Fix RepairDelaySeconds={SoftlockFixRepairDelaySeconds}) timeScale={Time.timeScale:0.###}",
+            nameof(GhostlyPuzzleSoftlockDebug));
+        LogState(room, "CANDIDATE_DELAY");
+    }
+
+    /// <summary>
+    /// Still no assemble after Softlock Fix should have acted — Softlock Fix absent or failed.
+    /// </summary>
+    private static void MaybeLogStuckLate(Location11_BlackRoom room)
+    {
+        if (_loggedStuckLate || SitAge() < SoftlockStuckLateSeconds || !TimersIdle(room))
+        {
+            return;
+        }
+
+        _loggedStuckLate = true;
+        _lastPhase = "STUCK_LATE";
+        Plugin.Log.LogWarning(
+            $"[{Tag}] STUCK_LATE sitAge={SitAge():0.###}s incompletePut={_loggedIncompletePut} " +
+            $"timeScale={Time.timeScale:0.###}",
+            nameof(GhostlyPuzzleSoftlockDebug));
+        LogState(room, "STUCK_LATE");
+    }
+
+    private static void MaybeLogAssembleInputBroken(Location11_BlackRoom room)
+    {
+        if (_loggedAssembleInputBroken)
+        {
+            return;
+        }
+
+        var cursorOk = room.scrgc != null && room.scrgc.showCursor;
+        var planeOk = room.mouseOverPlane != null && room.mouseOverPlane.activeSelf;
+        if (cursorOk && planeOk)
+        {
+            return;
+        }
+
+        _loggedAssembleInputBroken = true;
+        Plugin.Log.LogWarning(
+            $"[{Tag}] ASSEMBLE_INPUT_BROKEN showCursor={cursorOk} mouseOverPlane={planeOk} " +
+            $"sitAge={SitAge():0.###}s",
+            nameof(GhostlyPuzzleSoftlockDebug));
+        LogState(room, "ASSEMBLE_INPUT_BROKEN");
     }
 
     private static void MaybeLogWaitingPhase(Location11_BlackRoom room)
@@ -250,6 +363,12 @@ internal static class GhostlyPuzzleSoftlockDebug
         LogState(room, phase);
     }
 
+    private static bool TimersIdle(Location11_BlackRoom room) =>
+        room.timeStartPlayPuzle <= 0f && room.timeStartPuzle <= 0f;
+
+    private static float SitAge() =>
+        _sitRealtime >= 0f ? Time.realtimeSinceStartup - _sitRealtime : -1f;
+
     private static void LogState(Location11_BlackRoom room, string phase) =>
         Plugin.Log.LogInfo(DescribeState(room, phase), nameof(GhostlyPuzzleSoftlockDebug));
 
@@ -269,15 +388,13 @@ internal static class GhostlyPuzzleSoftlockDebug
             }
         }
 
-        var sitAge = _sitRealtime >= 0f ? Time.realtimeSinceStartup - _sitRealtime : -1f;
-
         var sb = new StringBuilder();
         sb.Append('[');
         sb.Append(Tag);
         sb.Append("] ");
         sb.Append(phase);
         sb.Append(" sitAge=");
-        sb.Append(sitAge.ToString("0.###"));
+        sb.Append(SitAge().ToString("0.###"));
         sb.Append(" timeScale=");
         sb.Append(Time.timeScale.ToString("0.###"));
         sb.Append(" playPuzle=");
@@ -351,7 +468,11 @@ internal static class GhostlyPuzzleSoftlockDebug
         _sitRealtime = -1f;
         _loggedPlayPuzle = false;
         _loggedGlueWork = false;
-        _loggedSoftlockCandidate = false;
+        _loggedIncompletePut = false;
+        _loggedIdleNoAssemble = false;
+        _loggedCandidateDelay = false;
+        _loggedStuckLate = false;
+        _loggedAssembleInputBroken = false;
         _lastPhase = "";
     }
 
