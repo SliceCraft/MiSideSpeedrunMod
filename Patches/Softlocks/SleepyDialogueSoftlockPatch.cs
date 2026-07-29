@@ -1,5 +1,6 @@
 using System;
 using HarmonyLib;
+using SpeedrunMod.Configs;
 using SpeedrunMod.Utils;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -17,6 +18,11 @@ internal static class SleepyDialogueSoftlockPatch
     [HarmonyPatch(nameof(Time_Events.YieldRestart))]
     private static void YieldRestartPrefix(Time_Events __instance)
     {
+        if (!SoftlockConfig.IsEnabled(SoftlockConfig.EnableSleepyDialogue))
+        {
+            return;
+        }
+
         if (!IsDreamerScene())
         {
             return;

@@ -1,6 +1,7 @@
 using System;
 using System.Text;
 using HarmonyLib;
+using SpeedrunMod.Configs;
 using SpeedrunMod.Events;
 using SpeedrunMod.Utils;
 using UnityEngine;
@@ -51,6 +52,11 @@ internal static class GhostlyPuzzleSoftlockDebug
         }
 
         ResetSession();
+        if (!SoftlockConfig.IsEnabled(SoftlockConfig.EnableGhostlyPuzzle))
+        {
+            return;
+        }
+
         Plugin.Log.LogInfo(
             $"[{Tag}] entered {SceneName}; GhostLock debug armed (F8 = STUCK_DUMP)",
             nameof(GhostlyPuzzleSoftlockDebug));
@@ -61,6 +67,11 @@ internal static class GhostlyPuzzleSoftlockDebug
     [HarmonyPriority(Priority.High)]
     private static void PlayerSitPostfix(Location11_BlackRoom __instance)
     {
+        if (!SoftlockConfig.IsEnabled(SoftlockConfig.EnableGhostlyPuzzle))
+        {
+            return;
+        }
+
         if (!IsGhostMitaScene() || __instance == null)
         {
             return;
@@ -83,6 +94,11 @@ internal static class GhostlyPuzzleSoftlockDebug
     [HarmonyPatch(typeof(Location11_BlackRoom), nameof(Location11_BlackRoom.PutPuzle))]
     private static void PutPuzlePostfix(Location11_BlackRoom __instance)
     {
+        if (!SoftlockConfig.IsEnabled(SoftlockConfig.EnableGhostlyPuzzle))
+        {
+            return;
+        }
+
         if (!IsGhostMitaScene() || __instance == null)
         {
             return;
@@ -95,6 +111,11 @@ internal static class GhostlyPuzzleSoftlockDebug
     [HarmonyPatch(typeof(Location11_BlackRoom), nameof(Location11_BlackRoom.PuzleTake))]
     private static void PuzleTakePostfix(Location11_BlackRoom __instance, int _indexPuzle)
     {
+        if (!SoftlockConfig.IsEnabled(SoftlockConfig.EnableGhostlyPuzzle))
+        {
+            return;
+        }
+
         if (!IsGhostMitaScene() || __instance == null)
         {
             return;
@@ -107,6 +128,11 @@ internal static class GhostlyPuzzleSoftlockDebug
     [HarmonyPatch(typeof(Location11_BlackRoom), nameof(Location11_BlackRoom.PuzleDrop))]
     private static void PuzleDropPostfix(Location11_BlackRoom __instance)
     {
+        if (!SoftlockConfig.IsEnabled(SoftlockConfig.EnableGhostlyPuzzle))
+        {
+            return;
+        }
+
         if (!IsGhostMitaScene() || __instance == null)
         {
             return;
@@ -119,6 +145,11 @@ internal static class GhostlyPuzzleSoftlockDebug
     [HarmonyPatch(typeof(Location11_BlackRoom), nameof(Location11_BlackRoom.PuzleReady))]
     private static void PuzleReadyPostfix(Location11_BlackRoom __instance)
     {
+        if (!SoftlockConfig.IsEnabled(SoftlockConfig.EnableGhostlyPuzzle))
+        {
+            return;
+        }
+
         if (!IsGhostMitaScene() || __instance == null)
         {
             return;
@@ -131,6 +162,11 @@ internal static class GhostlyPuzzleSoftlockDebug
     [HarmonyPatch(typeof(Location11_BlackRoom), nameof(Location11_BlackRoom.StartWorkGlue))]
     private static void StartWorkGluePostfix(Location11_BlackRoom __instance)
     {
+        if (!SoftlockConfig.IsEnabled(SoftlockConfig.EnableGhostlyPuzzle))
+        {
+            return;
+        }
+
         if (!IsGhostMitaScene() || __instance == null)
         {
             return;
@@ -143,6 +179,11 @@ internal static class GhostlyPuzzleSoftlockDebug
     [HarmonyPatch(typeof(Location11_BlackRoom), nameof(Location11_BlackRoom.ExitTable))]
     private static void ExitTablePostfix(Location11_BlackRoom __instance)
     {
+        if (!SoftlockConfig.IsEnabled(SoftlockConfig.EnableGhostlyPuzzle))
+        {
+            return;
+        }
+
         if (!IsGhostMitaScene() || __instance == null)
         {
             return;
@@ -156,6 +197,11 @@ internal static class GhostlyPuzzleSoftlockDebug
     [HarmonyPatch(typeof(GameController), "Update")]
     private static void GameControllerUpdatePostfix()
     {
+        if (!SoftlockConfig.IsEnabled(SoftlockConfig.EnableGhostlyPuzzle))
+        {
+            return;
+        }
+
         if (!IsGhostMitaScene() || !Input.GetKeyDown(StuckDumpKey))
         {
             return;
@@ -193,6 +239,11 @@ internal static class GhostlyPuzzleSoftlockDebug
     [HarmonyPriority(Priority.High)]
     private static void UpdatePostfix(Location11_BlackRoom __instance)
     {
+        if (!SoftlockConfig.IsEnabled(SoftlockConfig.EnableGhostlyPuzzle))
+        {
+            return;
+        }
+
         if (!IsGhostMitaScene() || __instance == null || _sitRealtime < 0f)
         {
             return;

@@ -1,4 +1,5 @@
 using HarmonyLib;
+using SpeedrunMod.Configs;
 using SpeedrunMod.Utils;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -16,6 +17,11 @@ internal static class CoreThrowSoftlockPatch
     [HarmonyPatch(typeof(ObjectAnimationPlayer), nameof(ObjectAnimationPlayer.AnimationPlayOnPlayer))]
     private static bool AnimationPlayOnPlayerPrefix(ObjectAnimationPlayer __instance)
     {
+        if (!SoftlockConfig.IsEnabled(SoftlockConfig.EnableCoreThrow))
+        {
+            return true;
+        }
+
         if (__instance == null || __instance.gameObject.name != PostThrowAnimationName)
         {
             return true;

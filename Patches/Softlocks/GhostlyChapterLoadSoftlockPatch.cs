@@ -1,5 +1,6 @@
 using System;
 using HarmonyLib;
+using SpeedrunMod.Configs;
 using SpeedrunMod.Utils;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -20,6 +21,11 @@ internal static class GhostlyChapterLoadSoftlockPatch
     [HarmonyPatch("Start")]
     private static void StartPostfix(World __instance)
     {
+        if (!SoftlockConfig.IsEnabled(SoftlockConfig.EnableGhostlyChapterLoad))
+        {
+            return;
+        }
+
         if (__instance == null || !IsBackroomsScene() || GlobalGame.levelLoad != GhostMitaLevelLoad)
         {
             return;
