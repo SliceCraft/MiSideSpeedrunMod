@@ -58,7 +58,7 @@ internal static class SleepyDialogueSoftlockPatch
         if (events != null)
         {
             events.StopAllTime();
-            SoftlockFixNotifications.Show(SoftlockFixNotifications.SleepyDialogue);
+            NotificationManager.Show(new NotificationMessage("Softlock Fix: Sleepy dialogue", 5f));
             Plugin.Log.LogInfo("stopped TryChair timers before StandChair", nameof(SleepyDialogueSoftlockPatch));
         }
         else
@@ -85,7 +85,7 @@ internal static class SleepyDialogueSoftlockPatch
         }
 
         player.AnimationFastStop();
-        SoftlockFixNotifications.Show(SoftlockFixNotifications.SleepyDialogue);
+        NotificationManager.Show(new NotificationMessage("Softlock Fix: Sleepy dialogue", 5f));
         Plugin.Log.LogInfo("AnimationFastStop on TryChair player lock", nameof(SleepyDialogueSoftlockPatch));
     }
 

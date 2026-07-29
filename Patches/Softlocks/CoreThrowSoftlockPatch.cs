@@ -33,7 +33,7 @@ internal static class CoreThrowSoftlockPatch
             return true;
         }
 
-        SoftlockFixNotifications.Show(SoftlockFixNotifications.CoreThrow);
+        NotificationManager.Show(new NotificationMessage("Softlock Fix: Core throw", 5f));
         Plugin.Log.LogInfo("skipped post-throw AnimationPlayOnPlayer during Throw", nameof(CoreThrowSoftlockPatch));
         return false;
     }

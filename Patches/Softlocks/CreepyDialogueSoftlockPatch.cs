@@ -51,7 +51,7 @@ internal static class CreepyDialogueSoftlockPatch
             Plugin.Log.LogDebug($"StopTimeEvents on {name}", nameof(CreepyDialogueSoftlockPatch));
         }
 
-        SoftlockFixNotifications.Show(SoftlockFixNotifications.CreepyDialogue);
+        NotificationManager.Show(new NotificationMessage("Softlock Fix: Creepy dialogue", 5f));
         Plugin.Log.LogInfo("cleared animation timers before QuestFinish", nameof(CreepyDialogueSoftlockPatch));
     }
 

@@ -102,7 +102,7 @@ internal static class GhostlyPuzzleSoftlockPatch
             FinishPendingPlacements(room);
             EnableAssembleMode(room);
             _repairApplied = true;
-            SoftlockFixNotifications.Show(SoftlockFixNotifications.GhostlyPuzzle);
+            NotificationManager.Show(new NotificationMessage("Softlock Fix: Ghostly puzzle", 5f));
             Plugin.Log.LogInfo("repaired assemble mode", nameof(GhostlyPuzzleSoftlockPatch));
         }
         catch (Exception ex)

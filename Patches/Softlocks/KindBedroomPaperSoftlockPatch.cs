@@ -64,7 +64,7 @@ internal static class KindBedroomPaperSoftlockPatch
             TimeUtil.StopTimeEvents(MitaTakeItemsTimeName);
             ComponentUtil.FindIncludingInactive<ObjectAnimationPlayer>(TakeItemsName)?.eventStartLoop?.Invoke();
             player.AnimationFastStop();
-            SoftlockFixNotifications.Show(SoftlockFixNotifications.KindBedroomPaper);
+            NotificationManager.Show(new NotificationMessage("Softlock Fix: Kind bedroom paper", 5f));
             Plugin.Log.LogInfo($"finished TakeItems before {seam}", nameof(KindBedroomPaperSoftlockPatch));
         }
         catch (Exception ex)

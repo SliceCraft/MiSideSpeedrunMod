@@ -7,8 +7,6 @@ namespace SpeedrunMod.Notifications;
 
 internal static class NotificationManager
 {
-    private const float SameTextCooldownSeconds = 5f;
-
     private static GameObject _hintScreenTemplate;
 
     private static GameObject _interfaceObject;
@@ -22,27 +20,15 @@ internal static class NotificationManager
     ];
 
     private static readonly List<NotificationMessage> NotificationObjects = [];
-
-    private static readonly Dictionary<string, float> LastShownRealtimeByText = new();
     
     private static readonly int Hide = Animator.StringToHash("Hide");
 
     public static bool Show(NotificationMessage notificationMessage)
     {
-        if (notificationMessage == null || string.IsNullOrEmpty(notificationMessage.Text))
-        {
-            return false;
-        }
-
         float now = Time.realtimeSinceStartup;
-        if (LastShownRealtimeByText.TryGetValue(notificationMessage.Text, out float lastShown)
-            && now - lastShown < SameTextCooldownSeconds)
-        {
-            return false;
-        }
-
         if (NotificationObjects.Exists(n =>
-                n.HintObject != null && n.Text == notificationMessage.Text))
+                n.Text == notificationMessage.Text
+                && now - n.CreatedAt < n.Cooldown))
         {
             return false;
         }
@@ -74,7 +60,6 @@ internal static class NotificationManager
 
         notificationMessage.HintObject = go;
         NotificationObjects.Add(notificationMessage);
-        LastShownRealtimeByText[notificationMessage.Text] = now;
         UpdatePositions();
 
         go.SetActive(true);

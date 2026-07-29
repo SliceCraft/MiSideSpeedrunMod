@@ -43,7 +43,7 @@ internal static class GhostlyChapterLoadSoftlockPatch
             SetRoomActive();
             Physics.SyncTransforms();
             TeleportToChapterSpawn(player);
-            SoftlockFixNotifications.Show(SoftlockFixNotifications.GhostlyChapterLoad);
+            NotificationManager.Show(new NotificationMessage("Softlock Fix: Ghostly chapter load", 5f));
             Plugin.Log.LogInfo("repaired chapter-load spawn", nameof(GhostlyChapterLoadSoftlockPatch));
         }
         catch (Exception ex)

@@ -144,7 +144,7 @@ internal static class BaseballBatSoftlockPatch
         _kickAnimator = animator;
         _repairApplied = true;
         _handoffSeen = true;
-        SoftlockFixNotifications.Show(SoftlockFixNotifications.BaseballBat);
+        NotificationManager.Show(new NotificationMessage("Softlock Fix: Baseball bat", 5f));
         Plugin.Log.LogInfo("repaired Kick NewEvent(1) handoff", nameof(BaseballBatSoftlockPatch));
     }
 

@@ -87,7 +87,7 @@ internal static class KappiRingSoftlockPatch
 
         ComponentUtil.Enable(Quest4Name, true);
         ClearHaloEffect();
-        SoftlockFixNotifications.Show(SoftlockFixNotifications.KappiRing);
+        NotificationManager.Show(new NotificationMessage("Softlock Fix: Kappi ring", 5f));
         Plugin.Log.LogInfo("armed Quest4 for RingWork after sit", nameof(KappiRingSoftlockPatch));
     }
 
@@ -108,7 +108,7 @@ internal static class KappiRingSoftlockPatch
         // eventStart already armed Trigger Near; Softlock Fix finishes what EventsOnTime skips.
         ComponentUtil.Enable(Quest5Name, true);
         EnableKindMitaInteract();
-        SoftlockFixNotifications.Show(SoftlockFixNotifications.KappiRing);
+        NotificationManager.Show(new NotificationMessage("Softlock Fix: Kappi ring", 5f));
         Plugin.Log.LogInfo("enabled post-ring Kind Mita interact", nameof(KappiRingSoftlockPatch));
     }
 
@@ -120,7 +120,7 @@ internal static class KappiRingSoftlockPatch
 
         ComponentUtil.Enable(MitaCapName, true);
         ComponentUtil.FindIncludingInactive<AudioDialogue>(SpeakCapMitaName)?.ResetVoice();
-        SoftlockFixNotifications.Show(SoftlockFixNotifications.KappiRing);
+        NotificationManager.Show(new NotificationMessage("Softlock Fix: Kappi ring", 5f));
         Plugin.Log.LogInfo("repaired CapMita room-entry greeting", nameof(KappiRingSoftlockPatch));
     }
 
