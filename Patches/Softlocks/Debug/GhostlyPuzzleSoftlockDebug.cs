@@ -13,6 +13,7 @@ namespace SpeedrunMod.Patches.Softlocks.Debug;
 /// Grep BepInEx LogOutput for: [DEBUG-ghostly12]
 ///
 /// Softlock / Softlock Fix signals (independent; do not rely on one alone):
+/// - STUCK_DUMP — runner presses F8 when stuck (primary manual path)
 /// - SIG_INCOMPLETE_PUT — active piece with addedTable but paper.put still false (root Softlock shape)
 /// - SIG_IDLE_NO_ASSEMBLE — place/play timers idle and playPuzle never latched (first time)
 /// - CANDIDATE_DELAY — still stuck after Softlock Fix RepairDelaySeconds (1.25s realtime)
@@ -26,6 +27,7 @@ internal static class GhostlyPuzzleSoftlockDebug
 {
     private const string Tag = "DEBUG-ghostly12";
     private const string SceneName = "Scene 11 - Backrooms";
+    private const KeyCode StuckDumpKey = KeyCode.F8;
 
     // Same window Softlock Fix uses — one of several signals, not the only Softlock detector.
     private const float SoftlockFixRepairDelaySeconds = 1.25f;
@@ -68,7 +70,7 @@ internal static class GhostlyPuzzleSoftlockDebug
 
         ResetSession();
         Plugin.Log.LogInfo(
-            $"[{Tag}] entered {SceneName}; GhostLock debug diagnostics armed",
+            $"[{Tag}] entered {SceneName}; GhostLock debug armed (F8 = STUCK_DUMP)",
             nameof(GhostlyPuzzleSoftlockDebug));
     }
 
@@ -167,6 +169,43 @@ internal static class GhostlyPuzzleSoftlockDebug
 
         LogState(__instance, "ExitTable");
         ResetSession();
+    }
+
+    // Same as baseball Debug: F8 on GameController so runners can dump even when puzzle Update is odd.
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(GameController), "Update")]
+    private static void GameControllerUpdatePostfix()
+    {
+        if (!IsGhostMitaScene() || !Input.GetKeyDown(StuckDumpKey))
+        {
+            return;
+        }
+
+        Plugin.Log.LogWarning(
+            $"[{Tag}] STUCK_DUMP key=F8 sitAge={SitAge():0.###}s " +
+            $"incompletePut={_loggedIncompletePut} idleNoAssemble={_loggedIdleNoAssemble} " +
+            $"candidateDelay={_loggedCandidateDelay} stuckLate={_loggedStuckLate} " +
+            $"playPuzleLogged={_loggedPlayPuzle} glueLogged={_loggedGlueWork} " +
+            $"inputBroken={_loggedAssembleInputBroken} lastPhase={_lastPhase} " +
+            $"timeScale={Time.timeScale:0.###}",
+            nameof(GhostlyPuzzleSoftlockDebug));
+
+        var room = _room;
+        if (room == null)
+        {
+            room = UnityEngine.Object.FindObjectOfType<Location11_BlackRoom>();
+        }
+
+        if (room != null)
+        {
+            LogState(room, "STUCK_DUMP");
+        }
+        else
+        {
+            Plugin.Log.LogWarning(
+                $"[{Tag}] STUCK_DUMP no Location11_BlackRoom instance",
+                nameof(GhostlyPuzzleSoftlockDebug));
+        }
     }
 
     // Priority.High so this postfix runs before the Softlock Fix postfix — we dump
