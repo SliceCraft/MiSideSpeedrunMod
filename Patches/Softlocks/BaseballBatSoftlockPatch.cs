@@ -47,6 +47,7 @@ internal static class BaseballBatSoftlockPatch
         _repairDelaySeconds = Mathf.Max(MinRepairDelaySeconds, _animation.length);
         _repairApplied = false;
         _handoffSeen = false;
+        _loggedMissingAnimator = false;
     }
 
     [HarmonyPostfix]
@@ -147,6 +148,7 @@ internal static class BaseballBatSoftlockPatch
         _repairDelaySeconds = MinRepairDelaySeconds;
         _repairApplied = false;
         _handoffSeen = false;
+        _loggedMissingAnimator = false;
     }
 
     private static bool IsMobilePlayerScene() => SceneManager.GetActiveScene().name == SceneName;
