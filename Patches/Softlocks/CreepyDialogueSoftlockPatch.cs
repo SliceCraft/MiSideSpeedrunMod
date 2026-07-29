@@ -1,5 +1,6 @@
 using System;
 using HarmonyLib;
+using SpeedrunMod.Configs;
 using SpeedrunMod.Utils;
 using UnityEngine.SceneManagement;
 
@@ -21,6 +22,11 @@ internal static class CreepyDialogueSoftlockPatch
     [HarmonyPatch(nameof(Location12.QuestFinish))]
     private static void QuestFinishPrefix()
     {
+        if (!SoftlockConfig.IsEnabled(SoftlockConfig.EnableCreepyDialogue))
+        {
+            return;
+        }
+
         if (!IsFreakScene())
         {
             return;

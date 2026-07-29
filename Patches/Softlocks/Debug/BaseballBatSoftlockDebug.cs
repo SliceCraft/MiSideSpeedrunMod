@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using HarmonyLib;
+using SpeedrunMod.Configs;
 using SpeedrunMod.Events;
 using SpeedrunMod.Utils;
 using UnityEngine;
@@ -74,6 +75,11 @@ internal static class BaseballBatSoftlockDebug
         }
 
         ResetSessionFlags();
+        if (!SoftlockConfig.IsEnabled(SoftlockConfig.EnableBaseballBat))
+        {
+            return;
+        }
+
         Plugin.Log.LogInfo(
             $"[{Tag}] entered {SceneName}; debug armed (F8=STUCK_DUMP; look for HANDOFF_OK / SOFTLOCK_CANDIDATE_*)",
             nameof(BaseballBatSoftlockDebug));
@@ -83,6 +89,11 @@ internal static class BaseballBatSoftlockDebug
     [HarmonyPatch(typeof(Time_Events), nameof(Time_Events.YieldRestart))]
     private static void YieldRestartPostfix(Time_Events __instance)
     {
+        if (!SoftlockConfig.IsEnabled(SoftlockConfig.EnableBaseballBat))
+        {
+            return;
+        }
+
         if (!IsMobilePlayer() || __instance == null)
         {
             return;
@@ -114,6 +125,11 @@ internal static class BaseballBatSoftlockDebug
     [HarmonyPatch(typeof(Time_Events), nameof(Time_Events.StopAllTime))]
     private static void StopAllTimePostfix(Time_Events __instance)
     {
+        if (!SoftlockConfig.IsEnabled(SoftlockConfig.EnableBaseballBat))
+        {
+            return;
+        }
+
         if (!IsMobilePlayer() || __instance == null)
         {
             return;
@@ -146,6 +162,11 @@ internal static class BaseballBatSoftlockDebug
     [HarmonyPatch(typeof(Animator_FunctionsOverride), nameof(Animator_FunctionsOverride.AnimationClipSimpleNext))]
     private static void AnimationClipSimpleNextPostfix(AnimationClip _animation)
     {
+        if (!SoftlockConfig.IsEnabled(SoftlockConfig.EnableBaseballBat))
+        {
+            return;
+        }
+
         if (!IsMobilePlayer() || _animation == null)
         {
             return;
@@ -178,6 +199,11 @@ internal static class BaseballBatSoftlockDebug
     [HarmonyPatch(typeof(Animator_FunctionsOverride), nameof(Animator_FunctionsOverride.NewEvent))]
     private static void NewEventPostfix(int x)
     {
+        if (!SoftlockConfig.IsEnabled(SoftlockConfig.EnableBaseballBat))
+        {
+            return;
+        }
+
         if (!IsMobilePlayer())
         {
             return;
@@ -202,6 +228,11 @@ internal static class BaseballBatSoftlockDebug
     [HarmonyPatch(typeof(Dialogue_3DText), "Start")]
     private static void DialogueStartPostfix(Dialogue_3DText __instance)
     {
+        if (!SoftlockConfig.IsEnabled(SoftlockConfig.EnableBaseballBat))
+        {
+            return;
+        }
+
         if (!IsMobilePlayer() || __instance == null)
         {
             return;
@@ -225,6 +256,11 @@ internal static class BaseballBatSoftlockDebug
     [HarmonyPatch(typeof(GameController), "Update")]
     private static void GameControllerUpdatePostfix()
     {
+        if (!SoftlockConfig.IsEnabled(SoftlockConfig.EnableBaseballBat))
+        {
+            return;
+        }
+
         if (!IsMobilePlayer())
         {
             return;

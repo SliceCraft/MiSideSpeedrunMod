@@ -1,5 +1,6 @@
 using System;
 using HarmonyLib;
+using SpeedrunMod.Configs;
 using SpeedrunMod.Utils;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -32,6 +33,11 @@ internal static class BaseballBatSoftlockPatch
         Animator_FunctionsOverride __instance,
         AnimationClip _animation)
     {
+        if (!SoftlockConfig.IsEnabled(SoftlockConfig.EnableBaseballBat))
+        {
+            return;
+        }
+
         if (!IsMobilePlayerScene() || __instance == null || _animation == null)
         {
             return;
@@ -54,6 +60,11 @@ internal static class BaseballBatSoftlockPatch
     [HarmonyPatch(typeof(Animator_FunctionsOverride), nameof(Animator_FunctionsOverride.NewEvent))]
     private static void NewEventPostfix(Animator_FunctionsOverride __instance, int x)
     {
+        if (!SoftlockConfig.IsEnabled(SoftlockConfig.EnableBaseballBat))
+        {
+            return;
+        }
+
         if (!IsMobilePlayerScene() || x != KickHandoffEventIndex)
         {
             return;
@@ -71,6 +82,12 @@ internal static class BaseballBatSoftlockPatch
     [HarmonyPatch(typeof(GameController), "Update")]
     private static void GameControllerUpdatePostfix()
     {
+        if (!SoftlockConfig.IsEnabled(SoftlockConfig.EnableBaseballBat))
+        {
+            ResetSession();
+            return;
+        }
+
         if (!IsMobilePlayerScene())
         {
             ResetSession();

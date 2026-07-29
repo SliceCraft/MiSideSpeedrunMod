@@ -24,5 +24,6 @@ internal static class ModConfig
         FpsConfig.Initialize(configFile);
         RefreshRateConfig.Initialize(configFile);
         OverlayConfig.Initialize(configFile);
+        SoftlockConfig.Initialize(configFile);
     }
 }

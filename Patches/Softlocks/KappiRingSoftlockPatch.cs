@@ -1,4 +1,5 @@
 using HarmonyLib;
+using SpeedrunMod.Configs;
 using SpeedrunMod.Utils;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -38,6 +39,11 @@ internal static class KappiRingSoftlockPatch
     [HarmonyPatch(typeof(Dialogue_3DText), "Start")]
     private static void DialogueStartPostfix(Dialogue_3DText __instance)
     {
+        if (!SoftlockConfig.IsEnabled(SoftlockConfig.EnableKappiRing))
+        {
+            return;
+        }
+
         if (!IsKappiScene() || __instance == null)
         {
             return;
@@ -62,6 +68,11 @@ internal static class KappiRingSoftlockPatch
     [HarmonyPatch(typeof(Time_Events), nameof(Time_Events.YieldRestart))]
     private static void TimeMitaSitYieldRestartPrefix(Time_Events __instance)
     {
+        if (!SoftlockConfig.IsEnabled(SoftlockConfig.EnableKappiRing))
+        {
+            return;
+        }
+
         if (!IsKappiScene() || __instance == null || __instance.gameObject.name != TimeMitaSitName)
         {
             return;
@@ -82,6 +93,11 @@ internal static class KappiRingSoftlockPatch
     [HarmonyPatch(typeof(Time_Events), nameof(Time_Events.YieldRestart))]
     private static void TimeMitaStandYieldRestartPostfix(Time_Events __instance)
     {
+        if (!SoftlockConfig.IsEnabled(SoftlockConfig.EnableKappiRing))
+        {
+            return;
+        }
+
         if (!IsKappiScene() || __instance == null || __instance.gameObject.name != TimeMitaStandName)
         {
             return;

@@ -1,5 +1,6 @@
 using System;
 using HarmonyLib;
+using SpeedrunMod.Configs;
 using SpeedrunMod.Utils;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -20,6 +21,11 @@ internal static class GhostlyPuzzleSoftlockPatch
     [HarmonyPatch(nameof(Location11_BlackRoom.PlayerSit))]
     private static void PlayerSitPostfix(Location11_BlackRoom __instance)
     {
+        if (!SoftlockConfig.IsEnabled(SoftlockConfig.EnableGhostlyPuzzle))
+        {
+            return;
+        }
+
         if (__instance == null || !IsGhostMitaScene())
         {
             return;
@@ -36,6 +42,11 @@ internal static class GhostlyPuzzleSoftlockPatch
     {
         try
         {
+            if (!SoftlockConfig.IsEnabled(SoftlockConfig.EnableGhostlyPuzzle))
+            {
+                return;
+            }
+
             if (__instance == null || __instance != _instance || !IsGhostMitaScene())
             {
                 return;
