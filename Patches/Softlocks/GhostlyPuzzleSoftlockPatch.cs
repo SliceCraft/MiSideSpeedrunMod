@@ -1,5 +1,4 @@
 using System;
-using System.Text;
 using HarmonyLib;
 using SpeedrunMod.Utils;
 using UnityEngine;
@@ -29,7 +28,6 @@ internal static class GhostlyPuzzleSoftlockPatch
         _instance = __instance;
         _realtimeSincePlayerSit = Time.realtimeSinceStartup;
         _repairApplied = false;
-        LogState(__instance, "PlayerSit");
     }
 
     [HarmonyPostfix]
@@ -45,18 +43,12 @@ internal static class GhostlyPuzzleSoftlockPatch
 
             if (__instance.glueWork)
             {
-                LogState(__instance, "glueWork");
                 _instance = null;
                 return;
             }
 
             if (__instance.playPuzle)
             {
-                if (!_repairApplied)
-                {
-                    LogState(__instance, "playPuzle (vanilla)");
-                }
-
                 EnsureAssembleInputUsable(__instance);
                 _instance = null;
                 return;
@@ -92,12 +84,10 @@ internal static class GhostlyPuzzleSoftlockPatch
     {
         try
         {
-            LogState(room, "repair before");
             FinishPendingPlacements(room);
             EnableAssembleMode(room);
             _repairApplied = true;
             Plugin.Log.LogInfo("repaired assemble mode", nameof(GhostlyPuzzleSoftlockPatch));
-            LogState(room, "repair after");
         }
         catch (Exception ex)
         {
@@ -133,6 +123,7 @@ internal static class GhostlyPuzzleSoftlockPatch
             room.indexPuzleWork = i;
             frame.addedTable = true;
             room.PutPuzle();
+            Plugin.Log.LogInfo($"finished pending placement slot={i}", nameof(GhostlyPuzzleSoftlockPatch));
         }
     }
 
@@ -184,73 +175,4 @@ internal static class GhostlyPuzzleSoftlockPatch
     }
 
     private static bool IsGhostMitaScene() => SceneManager.GetActiveScene().name == GhostMitaScene;
-
-    private static void LogState(Location11_BlackRoom room, string phase) =>
-        Plugin.Log.LogInfo(DescribeState(room, phase), nameof(GhostlyPuzzleSoftlockPatch));
-
-    private static string DescribeState(Location11_BlackRoom room, string phase)
-    {
-        var showCursor = room.scrgc != null && room.scrgc.showCursor;
-        var mouseOverPlaneActive = room.mouseOverPlane != null && room.mouseOverPlane.activeSelf;
-        var interactiveTableActive = room.interactiveTable != null && room.interactiveTable.activeSelf;
-
-        var sb = new StringBuilder();
-        sb.Append(phase);
-        sb.Append(" playPuzle=");
-        sb.Append(room.playPuzle);
-        sb.Append(" glueWork=");
-        sb.Append(room.glueWork);
-        sb.Append(" timeStartPlayPuzle=");
-        sb.Append(room.timeStartPlayPuzle.ToString("0.###"));
-        sb.Append(" timeStartPuzle=");
-        sb.Append(room.timeStartPuzle.ToString("0.###"));
-        sb.Append(" indexPuzleWork=");
-        sb.Append(room.indexPuzleWork);
-        sb.Append(" indexPuzleHold=");
-        sb.Append(room.indexPuzleHold);
-        sb.Append(" showCursor=");
-        sb.Append(showCursor);
-        sb.Append(" mouseOverPlane=");
-        sb.Append(mouseOverPlaneActive);
-        sb.Append(" interactiveTable=");
-        sb.Append(interactiveTableActive);
-        sb.Append(" pieces=[");
-
-        var frames = room.framesFound;
-        if (frames != null)
-        {
-            for (var i = 0; i < frames.Length; i++)
-            {
-                if (i > 0)
-                {
-                    sb.Append("; ");
-                }
-
-                var frame = frames[i];
-                if (frame?.puzle == null)
-                {
-                    sb.Append(i);
-                    sb.Append(":null");
-                    continue;
-                }
-
-                var paper = frame.puzle.GetComponent<Location11_PaperPart>();
-                var put = paper != null && paper.put;
-                var mouse = paper != null && paper.mouse;
-
-                sb.Append(i);
-                sb.Append(":active=");
-                sb.Append(frame.puzle.activeSelf);
-                sb.Append(" added=");
-                sb.Append(frame.addedTable);
-                sb.Append(" put=");
-                sb.Append(put);
-                sb.Append(" mouse=");
-                sb.Append(mouse);
-            }
-        }
-
-        sb.Append(']');
-        return sb.ToString();
-    }
 }
