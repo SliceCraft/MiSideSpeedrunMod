@@ -1,6 +1,7 @@
 using System;
 using System.Text;
 using HarmonyLib;
+using SpeedrunMod.Events;
 using SpeedrunMod.Utils;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -22,7 +23,7 @@ internal static class GhostlyPuzzleSoftlockDebug
     private const float SoftlockFixRepairDelaySeconds = 1.25f;
     private const float SoftlockStuckLateSeconds = 3.5f;
 
-    private static string _lastSceneName = "";
+    private static bool _subscribedToSceneLoaded;
     private static Location11_BlackRoom _room;
     private static float _sitRealtime = -1f;
     private static bool _loggedPlayPuzle;
@@ -33,6 +34,33 @@ internal static class GhostlyPuzzleSoftlockDebug
     private static bool _loggedStuckLate;
     private static bool _loggedAssembleInputBroken;
     private static string _lastPhase = "";
+
+    // Plugin.Load calls RegisterEvent after PatchAll — subscribe there, not in a static ctor.
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(SceneLoadedEvent), nameof(SceneLoadedEvent.RegisterEvent))]
+    private static void RegisterEventPostfix()
+    {
+        if (_subscribedToSceneLoaded)
+        {
+            return;
+        }
+
+        SceneLoadedEvent.SceneLoaded += OnSceneLoaded;
+        _subscribedToSceneLoaded = true;
+    }
+
+    private static void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (scene.name != SceneName)
+        {
+            return;
+        }
+
+        ResetSession();
+        Plugin.Log.LogInfo(
+            $"[{Tag}] entered {SceneName}; GhostLock debug armed (F8 = STUCK_DUMP)",
+            nameof(GhostlyPuzzleSoftlockDebug));
+    }
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(Location11_BlackRoom), nameof(Location11_BlackRoom.PlayerSit))]
@@ -134,8 +162,6 @@ internal static class GhostlyPuzzleSoftlockDebug
     [HarmonyPatch(typeof(GameController), "Update")]
     private static void GameControllerUpdatePostfix()
     {
-        TryArmOnSceneChange();
-
         if (!IsGhostMitaScene() || !Input.GetKeyDown(StuckDumpKey))
         {
             return;
@@ -165,32 +191,6 @@ internal static class GhostlyPuzzleSoftlockDebug
             Plugin.Log.LogWarning(
                 $"[{Tag}] STUCK_DUMP no Location11_BlackRoom instance",
                 nameof(GhostlyPuzzleSoftlockDebug));
-        }
-    }
-
-    private static void TryArmOnSceneChange()
-    {
-        var sceneName = SceneManager.GetActiveScene().name;
-        if (sceneName == _lastSceneName)
-        {
-            return;
-        }
-
-        var wasGhostMita = _lastSceneName == SceneName;
-        _lastSceneName = sceneName;
-
-        if (sceneName == SceneName)
-        {
-            ResetSession();
-            Plugin.Log.LogInfo(
-                $"[{Tag}] entered {SceneName}; GhostLock debug armed (F8 = STUCK_DUMP)",
-                nameof(GhostlyPuzzleSoftlockDebug));
-            return;
-        }
-
-        if (wasGhostMita)
-        {
-            ResetSession();
         }
     }
     // Priority.High so this postfix runs before the Softlock Fix postfix — we dump
