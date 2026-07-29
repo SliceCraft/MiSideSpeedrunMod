@@ -8,11 +8,6 @@ using UnityEngine.SceneManagement;
 
 namespace SpeedrunMod.Patches.Softlocks.Debug;
 
-/// <summary>
-/// DEBUG ONLY (ticket 12). Do not merge to the public Softlock Fixes tip.
-/// Grep BepInEx LogOutput for: [DEBUG-ghostly12]
-/// F8 = STUCK_DUMP when the runner is stuck.
-/// </summary>
 [HarmonyPatch]
 internal static class GhostlyPuzzleSoftlockDebug
 {
@@ -35,7 +30,6 @@ internal static class GhostlyPuzzleSoftlockDebug
     private static bool _loggedAssembleInputBroken;
     private static string _lastPhase = "";
 
-    // Plugin.Load calls RegisterEvent after PatchAll — subscribe there, not in a static ctor.
     [HarmonyPostfix]
     [HarmonyPatch(typeof(SceneLoadedEvent), nameof(SceneLoadedEvent.RegisterEvent))]
     private static void RegisterEventPostfix()
@@ -193,8 +187,7 @@ internal static class GhostlyPuzzleSoftlockDebug
                 nameof(GhostlyPuzzleSoftlockDebug));
         }
     }
-    // Priority.High so this postfix runs before the Softlock Fix postfix — we dump
-    // the pre-repair state before the Fix mutates playPuzle / timers.
+    
     [HarmonyPostfix]
     [HarmonyPatch(typeof(Location11_BlackRoom), "Update")]
     [HarmonyPriority(Priority.High)]
@@ -244,9 +237,6 @@ internal static class GhostlyPuzzleSoftlockDebug
         TryLogStuckLate(__instance);
     }
 
-    /// <summary>
-    /// Structural Softlock shape from findings: placement started (addedTable) but Put() never ran.
-    /// </summary>
     private static void TryLogIncompletePut(Location11_BlackRoom room)
     {
         if (_loggedIncompletePut)
@@ -284,9 +274,6 @@ internal static class GhostlyPuzzleSoftlockDebug
         }
     }
 
-    /// <summary>
-    /// Timers idle and assemble never enabled — Softlock window, independent of Softlock Fix delay.
-    /// </summary>
     private static void TryLogIdleNoAssemble(Location11_BlackRoom room)
     {
         if (_loggedIdleNoAssemble || !TimersIdle(room))
@@ -302,9 +289,6 @@ internal static class GhostlyPuzzleSoftlockDebug
         LogState(room, "SIG_IDLE_NO_ASSEMBLE");
     }
 
-    /// <summary>
-    /// Same realtime gate Softlock Fix uses — Softlock Fix should repair on this frame (Priority.High dumps first).
-    /// </summary>
     private static void TryLogCandidateDelay(Location11_BlackRoom room)
     {
         if (_loggedCandidateDelay || SitAge() < SoftlockFixRepairDelaySeconds || !TimersIdle(room))
@@ -321,9 +305,6 @@ internal static class GhostlyPuzzleSoftlockDebug
         LogState(room, "CANDIDATE_DELAY");
     }
 
-    /// <summary>
-    /// Still no assemble after Softlock Fix should have acted — Softlock Fix absent or failed.
-    /// </summary>
     private static void TryLogStuckLate(Location11_BlackRoom room)
     {
         if (_loggedStuckLate || SitAge() < SoftlockStuckLateSeconds || !TimersIdle(room))
