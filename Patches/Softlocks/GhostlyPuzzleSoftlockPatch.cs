@@ -44,6 +44,9 @@ internal static class GhostlyPuzzleSoftlockPatch
         {
             if (!SoftlockConfig.IsEnabled(SoftlockConfig.EnableGhostlyPuzzle))
             {
+                _instance = null;
+                _realtimeSincePlayerSit = 0f;
+                _repairApplied = false;
                 return;
             }
 
