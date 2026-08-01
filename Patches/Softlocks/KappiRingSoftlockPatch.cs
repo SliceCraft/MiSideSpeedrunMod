@@ -1,3 +1,4 @@
+using System;
 using HarmonyLib;
 using SpeedrunMod.Configs;
 using SpeedrunMod.Notifications;
@@ -35,10 +36,17 @@ internal static class KappiRingSoftlockPatch
     private const string TriggerCameUpName = "Trigger Near CameUp";
     private const string HandHoldAlphaName = "Alpha";
     private const string HandHoldCheckName = "AnimationParticle Check";
-    
+
     private const string EntryNotification = "Softlock Fix: Kappi entry";
     private const string RingStartNotification = "Softlock Fix: Kappi ring start";
     private const string RingEndNotification = "Softlock Fix: Kappi ring end";
+
+    // Vanilla stand EventsOnTime: time=-0.1 + Mita Unsit (~4.33s) → interact at ~4.23s.
+    private const float MinInteractDelaySeconds = 4.2f;
+
+    private static float _interactArmedRealtime = -1f;
+    private static float _interactDelaySeconds = MinInteractDelaySeconds;
+    private static bool _interactApplied;
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(Dialogue_3DText), "Start")]
@@ -109,11 +117,87 @@ internal static class KappiRingSoftlockPatch
             return;
         }
 
-        // eventStart already armed Trigger Near; Softlock Fix finishes what EventsOnTime skips.
         ComponentUtil.Enable(Quest5Name, true);
+        ArmPostRingInteract(__instance);
+        Plugin.Log.LogInfo(
+            $"armed post-ring Kind Mita interact delay={_interactDelaySeconds:0.###}s",
+            nameof(KappiRingSoftlockPatch));
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(GameController), "Update")]
+    private static void GameControllerUpdatePostfix()
+    {
+        if (!SoftlockConfig.IsEnabled(SoftlockConfig.EnableKappiRing))
+        {
+            ResetInteractionTrigger();
+            return;
+        }
+
+        if (!IsKappiScene())
+        {
+            ResetInteractionTrigger();
+            return;
+        }
+
+        try
+        {
+            TryEnablePostRingInteract();
+        }
+        catch (Exception ex)
+        {
+            Plugin.Log.LogError($"post-ring interact Softlock Fix failed: {ex}", nameof(KappiRingSoftlockPatch));
+        }
+    }
+
+    private static void ArmPostRingInteract(Time_Events standEvents)
+    {
+        _interactArmedRealtime = Time.realtimeSinceStartup;
+        _interactDelaySeconds = ResolveInteractDelaySeconds(standEvents);
+        _interactApplied = false;
+    }
+
+    private static float ResolveInteractDelaySeconds(Time_Events standEvents)
+    {
+        TimePoint[] points = standEvents != null ? standEvents.EventsOnTime : null;
+        if (points == null || points.Length == 0)
+        {
+            return MinInteractDelaySeconds;
+        }
+
+        TimePoint point = points[0];
+        float wait = point.time;
+        if (point.timeAnimationClip != null)
+        {
+            wait += point.timeAnimationClip.length;
+        }
+
+        return Mathf.Max(MinInteractDelaySeconds, wait);
+    }
+
+    private static void TryEnablePostRingInteract()
+    {
+        if (_interactApplied || _interactArmedRealtime < 0f)
+        {
+            return;
+        }
+
+        if (Time.realtimeSinceStartup - _interactArmedRealtime < _interactDelaySeconds)
+        {
+            return;
+        }
+
         EnableKindMitaInteract();
+        _interactApplied = true;
         NotificationManager.Show(new NotificationMessage(RingEndNotification, cooldown: 5f));
         Plugin.Log.LogInfo("enabled post-ring Kind Mita interact", nameof(KappiRingSoftlockPatch));
+    }
+
+    private static void ResetInteractionTrigger()
+    {
+        _interactArmedRealtime = -1f;
+        _interactDelaySeconds = MinInteractDelaySeconds;
+        _interactApplied = false;
     }
 
     private static void RepairRoomEntryGreeting()
@@ -163,7 +247,7 @@ internal static class KappiRingSoftlockPatch
 
     private static void ClearHaloEffect()
     {
-        foreach (UI_Alpha uiAlpha in Object.FindObjectsOfType<UI_Alpha>(true))
+        foreach (UI_Alpha uiAlpha in UnityEngine.Object.FindObjectsOfType<UI_Alpha>(true))
         {
             if (uiAlpha == null || uiAlpha.gameObject.name != HandHoldAlphaName)
             {
