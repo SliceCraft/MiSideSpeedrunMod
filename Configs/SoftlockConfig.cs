@@ -13,7 +13,6 @@ internal static class SoftlockConfig
     internal static ConfigEntry<bool> EnableCoreThrow;
     internal static ConfigEntry<bool> EnableCreepyDialogue;
     internal static ConfigEntry<bool> EnableBaseballBat;
-    internal static ConfigEntry<bool> EnableKindBedroomPaper;
     internal static ConfigEntry<bool> EnableKappiRing;
 
     internal static void Initialize(ConfigFile configFile)
@@ -25,7 +24,6 @@ internal static class SoftlockConfig
         EnableCoreThrow = Bind(configFile, "EnableCoreThrow", "Core Throw Softlock Fix (menu: SOFTLOCKS).");
         EnableCreepyDialogue = Bind(configFile, "EnableCreepyDialogue", "Creepy Dialogue Softlock Fix (menu: SOFTLOCKS).");
         EnableBaseballBat = Bind(configFile, "EnableBaseballBat", "Baseball Bat Softlock Fix (menu: SOFTLOCKS).");
-        EnableKindBedroomPaper = Bind(configFile, "EnableKindBedroomPaper", "Kind Bedroom Paper Softlock Fix (menu: SOFTLOCKS).");
         EnableKappiRing = Bind(configFile, "EnableKappiRing", "Kappi Ring Softlock Fix (menu: SOFTLOCKS).");
     }
 

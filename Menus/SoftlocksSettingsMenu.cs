@@ -14,7 +14,6 @@ internal static class SoftlocksSettingsMenu
     private static MenuOption _coreThrowOption;
     private static MenuOption _creepyDialogueOption;
     private static MenuOption _baseballBatOption;
-    private static MenuOption _kindBedroomPaperOption;
     private static MenuOption _kappiRingOption;
 
     internal static GameMenu CreateMenu(GameMenu previousMenu)
@@ -70,12 +69,6 @@ internal static class SoftlocksSettingsMenu
             SoftlockConfig.EnableBaseballBat,
             "Baseball Bat",
             () => RefreshOption(_baseballBatOption, SoftlockConfig.EnableBaseballBat, "Baseball Bat"));
-
-        _kindBedroomPaperOption = AddToggle(
-            menu,
-            SoftlockConfig.EnableKindBedroomPaper,
-            "Kind Bedroom Paper",
-            () => RefreshOption(_kindBedroomPaperOption, SoftlockConfig.EnableKindBedroomPaper, "Kind Bedroom Paper"));
 
         _kappiRingOption = AddToggle(
             menu,
