@@ -4,7 +4,6 @@ using SpeedrunMod.Configs;
 using SpeedrunMod.Notifications;
 using SpeedrunMod.Utils;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace SpeedrunMod.Patches.Softlocks;
 
@@ -28,7 +27,10 @@ internal static class GhostlyChapterLoadSoftlockPatch
             return;
         }
 
-        if (__instance == null || !IsBackroomsScene() || GlobalGame.levelLoad != GhostMitaLevelLoad)
+        if (__instance == null || 
+            __instance.isContinue ||
+            GlobalGame.levelLoad != GhostMitaLevelLoad ||
+            !IsGhostlyBackroomsWorld(__instance))
         {
             return;
         }
@@ -80,7 +82,6 @@ internal static class GhostlyChapterLoadSoftlockPatch
             return;
         }
 
-        // TeleportPlayer no-ops when its short down-raycast misses; place on a tall ray hit.
         Vector3 highOrigin = ChapterSpawn + Vector3.up * 20f;
         if (!Physics.Raycast(highOrigin, Vector3.down, out RaycastHit hit, 40f))
         {
@@ -110,5 +111,5 @@ internal static class GhostlyChapterLoadSoftlockPatch
 
     private static bool IsNear(Vector3 a, Vector3 b) => (a - b).sqrMagnitude < NearSpawnSqr;
 
-    private static bool IsBackroomsScene() => SceneManager.GetActiveScene().name == SceneName;
+    private static bool IsGhostlyBackroomsWorld(World world) => world?.gameObject?.scene.name == SceneName;
 }
