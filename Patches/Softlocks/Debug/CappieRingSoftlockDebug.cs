@@ -11,9 +11,9 @@ using UnityEngine.SceneManagement;
 namespace SpeedrunMod.Patches.Softlocks.Debug;
 
 [HarmonyPatch]
-internal static class KappiRingSoftlockDebug
+internal static class CappieRingSoftlockDebug
 {
-    private const string Tag = "DEBUG-kappi16";
+    private const string Tag = "DEBUG-cappie16";
     private const string SceneName = "Scene 7 - Backrooms";
     private const string TimeMitaStandName = "Time Mita Stand";
     private const string Quest5Name = "Quest5 - Пора уходить";
@@ -54,26 +54,26 @@ internal static class KappiRingSoftlockDebug
 
         ResetSession();
         
-        if (!SoftlockConfig.IsEnabled(SoftlockConfig.EnableKappiRing))
+        if (!SoftlockConfig.IsEnabled(SoftlockConfig.EnableCappieRing))
         {
             return;
         }
 
         Plugin.Log.LogInfo(
             $"[{Tag}] entered {SceneName}; post-ring timing debug armed (F8=STUCK_DUMP)",
-            nameof(KappiRingSoftlockDebug));
+            nameof(CappieRingSoftlockDebug));
     }
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(Time_Events), nameof(Time_Events.YieldRestart))]
     private static void YieldRestartPostfix(Time_Events __instance)
     {
-        if (!SoftlockConfig.IsEnabled(SoftlockConfig.EnableKappiRing))
+        if (!SoftlockConfig.IsEnabled(SoftlockConfig.EnableCappieRing))
         {
             return;
         }
 
-        if (!IsKappiScene() || __instance == null || __instance.gameObject.name != TimeMitaStandName)
+        if (!IsCappieScene() || __instance == null || __instance.gameObject.name != TimeMitaStandName)
         {
             return;
         }
@@ -89,14 +89,14 @@ internal static class KappiRingSoftlockDebug
             $"[{Tag}] STAND_YIELDRestart delay={_standDelaySeconds:0.###}s " +
             $"quest5={DescribeActive(Quest5Name)} " +
             $"state={DescribeInteractState()}",
-            nameof(KappiRingSoftlockDebug));
+            nameof(CappieRingSoftlockDebug));
     }
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(GameController), "Update")]
     private static void GameControllerUpdatePostfix()
     {
-        if (!SoftlockConfig.IsEnabled(SoftlockConfig.EnableKappiRing) || !IsKappiScene())
+        if (!SoftlockConfig.IsEnabled(SoftlockConfig.EnableCappieRing) || !IsCappieScene())
         {
             return;
         }
@@ -120,7 +120,7 @@ internal static class KappiRingSoftlockDebug
                     $"[{Tag}] STAND_ARMED wait={_standDelaySeconds:0.###}s " +
                     $"quest5={DescribeActive(Quest5Name)} " +
                     $"state={DescribeInteractState()}",
-                    nameof(KappiRingSoftlockDebug));
+                    nameof(CappieRingSoftlockDebug));
             }
 
             if (!_loggedVanillaBeat && IsKindMitaAlreadyInteractable())
@@ -130,7 +130,7 @@ internal static class KappiRingSoftlockDebug
                 Plugin.Log.LogInfo(
                     $"[{Tag}] VANILLA_OR_PRIOR_INTERACT age={age:0.###}s " +
                     $"delay={_standDelaySeconds:0.###}s state={DescribeInteractState()}",
-                    nameof(KappiRingSoftlockDebug));
+                    nameof(CappieRingSoftlockDebug));
             }
 
             if (_loggedEnableOrSkip || Time.realtimeSinceStartup - _standArmedRealtime < _standDelaySeconds)
@@ -144,11 +144,11 @@ internal static class KappiRingSoftlockDebug
                 $"[{Tag}] DELAY_ELAPSED elapsed={elapsed:0.###}s delay={_standDelaySeconds:0.###}s " +
                 $"interactable={IsKindMitaAlreadyInteractable()} state={DescribeInteractState()} " +
                 $"(Softlock Fix always enables TakeRing after delay)",
-                nameof(KappiRingSoftlockDebug));
+                nameof(CappieRingSoftlockDebug));
         }
         catch (Exception ex)
         {
-            Plugin.Log.LogError($"[{Tag}] Update failed: {ex}", nameof(KappiRingSoftlockDebug));
+            Plugin.Log.LogError($"[{Tag}] Update failed: {ex}", nameof(CappieRingSoftlockDebug));
         }
     }
 
@@ -168,7 +168,7 @@ internal static class KappiRingSoftlockDebug
             Plugin.Log.LogInfo(
                 $"[{Tag}] STAND_SLOT0 time={point.time:0.###} clip={point.timeAnimationClip.name} " +
                 $"len={point.timeAnimationClip.length:0.###} wait={wait:0.###}",
-                nameof(KappiRingSoftlockDebug));
+                nameof(CappieRingSoftlockDebug));
         }
 
         return Mathf.Max(4.2f, wait);
@@ -227,7 +227,7 @@ internal static class KappiRingSoftlockDebug
 
         sb.Append($"quest5={DescribeActive(Quest5Name)} ");
         sb.Append($"state={DescribeInteractState()}");
-        Plugin.Log.LogInfo(sb.ToString(), nameof(KappiRingSoftlockDebug));
+        Plugin.Log.LogInfo(sb.ToString(), nameof(CappieRingSoftlockDebug));
     }
 
     private static void ResetSession()
@@ -240,6 +240,6 @@ internal static class KappiRingSoftlockDebug
         _loggedVanillaBeat = false;
     }
 
-    private static bool IsKappiScene() => SceneManager.GetActiveScene().name == SceneName;
+    private static bool IsCappieScene() => SceneManager.GetActiveScene().name == SceneName;
 }
 #endif

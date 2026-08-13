@@ -9,7 +9,7 @@ using UnityEngine.SceneManagement;
 namespace SpeedrunMod.Patches.Softlocks;
 
 [HarmonyPatch]
-internal static class KappiRingSoftlockPatch
+internal static class CappieRingSoftlockPatch
 {
     private const string SceneName = "Scene 7 - Backrooms";
 
@@ -37,9 +37,9 @@ internal static class KappiRingSoftlockPatch
     private const string HandHoldAlphaName = "Alpha";
     private const string HandHoldCheckName = "AnimationParticle Check";
 
-    private const string EntryNotification = "Softlock Fix: Kappi entry";
-    private const string RingStartNotification = "Softlock Fix: Kappi ring start";
-    private const string RingEndNotification = "Softlock Fix: Kappi ring end";
+    private const string EntryNotification = "Softlock Fix: Cappie entry";
+    private const string RingStartNotification = "Softlock Fix: Cappie ring start";
+    private const string RingEndNotification = "Softlock Fix: Cappie ring end";
 
     // Vanilla stand EventsOnTime: time=-0.1 + Mita Unsit (~4.33s) → interact at ~4.23s.
     private const float MinInteractDelaySeconds = 4.2f;
@@ -52,12 +52,12 @@ internal static class KappiRingSoftlockPatch
     [HarmonyPatch(typeof(Dialogue_3DText), "Start")]
     private static void DialogueStartPostfix(Dialogue_3DText __instance)
     {
-        if (!SoftlockConfig.IsEnabled(SoftlockConfig.EnableKappiRing))
+        if (!SoftlockConfig.IsEnabled(SoftlockConfig.EnableCappieRing))
         {
             return;
         }
 
-        if (!IsKappiScene() || __instance == null)
+        if (!IsCappieScene() || __instance == null)
         {
             return;
         }
@@ -81,12 +81,12 @@ internal static class KappiRingSoftlockPatch
     [HarmonyPatch(typeof(Time_Events), nameof(Time_Events.YieldRestart))]
     private static void TimeMitaSitYieldRestartPrefix(Time_Events __instance)
     {
-        if (!SoftlockConfig.IsEnabled(SoftlockConfig.EnableKappiRing))
+        if (!SoftlockConfig.IsEnabled(SoftlockConfig.EnableCappieRing))
         {
             return;
         }
 
-        if (!IsKappiScene() || __instance == null || __instance.gameObject.name != TimeMitaSitName)
+        if (!IsCappieScene() || __instance == null || __instance.gameObject.name != TimeMitaSitName)
         {
             return;
         }
@@ -100,19 +100,19 @@ internal static class KappiRingSoftlockPatch
         ComponentUtil.Enable(Quest4Name, true);
         ClearHaloEffect();
         NotificationManager.Show(new NotificationMessage(RingStartNotification, cooldown: 5f));
-        Plugin.Log.LogInfo("armed Quest4 for RingWork after sit", nameof(KappiRingSoftlockPatch));
+        Plugin.Log.LogInfo("armed Quest4 for RingWork after sit", nameof(CappieRingSoftlockPatch));
     }
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(Time_Events), nameof(Time_Events.YieldRestart))]
     private static void TimeMitaStandYieldRestartPostfix(Time_Events __instance)
     {
-        if (!SoftlockConfig.IsEnabled(SoftlockConfig.EnableKappiRing))
+        if (!SoftlockConfig.IsEnabled(SoftlockConfig.EnableCappieRing))
         {
             return;
         }
 
-        if (!IsKappiScene() || __instance == null || __instance.gameObject.name != TimeMitaStandName)
+        if (!IsCappieScene() || __instance == null || __instance.gameObject.name != TimeMitaStandName)
         {
             return;
         }
@@ -121,20 +121,20 @@ internal static class KappiRingSoftlockPatch
         ArmPostRingInteract(__instance);
         Plugin.Log.LogInfo(
             $"armed post-ring Kind Mita interact delay={_interactDelaySeconds:0.###}s",
-            nameof(KappiRingSoftlockPatch));
+            nameof(CappieRingSoftlockPatch));
     }
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(GameController), "Update")]
     private static void GameControllerUpdatePostfix()
     {
-        if (!SoftlockConfig.IsEnabled(SoftlockConfig.EnableKappiRing))
+        if (!SoftlockConfig.IsEnabled(SoftlockConfig.EnableCappieRing))
         {
             ResetInteractionTrigger();
             return;
         }
 
-        if (!IsKappiScene())
+        if (!IsCappieScene())
         {
             ResetInteractionTrigger();
             return;
@@ -146,7 +146,7 @@ internal static class KappiRingSoftlockPatch
         }
         catch (Exception ex)
         {
-            Plugin.Log.LogError($"post-ring interact Softlock Fix failed: {ex}", nameof(KappiRingSoftlockPatch));
+            Plugin.Log.LogError($"post-ring interact Softlock Fix failed: {ex}", nameof(CappieRingSoftlockPatch));
         }
     }
 
@@ -190,7 +190,7 @@ internal static class KappiRingSoftlockPatch
         EnableKindMitaInteract();
         _interactApplied = true;
         NotificationManager.Show(new NotificationMessage(RingEndNotification, cooldown: 5f));
-        Plugin.Log.LogInfo("enabled post-ring Kind Mita interact", nameof(KappiRingSoftlockPatch));
+        Plugin.Log.LogInfo("enabled post-ring Kind Mita interact", nameof(CappieRingSoftlockPatch));
     }
 
     private static void ResetInteractionTrigger()
@@ -209,7 +209,7 @@ internal static class KappiRingSoftlockPatch
         ComponentUtil.Enable(MitaCapName, true);
         ComponentUtil.FindIncludingInactive<AudioDialogue>(SpeakCapMitaName)?.ResetVoice();
         NotificationManager.Show(new NotificationMessage(EntryNotification, cooldown: 5f));
-        Plugin.Log.LogInfo("repaired CapMita room-entry greeting", nameof(KappiRingSoftlockPatch));
+        Plugin.Log.LogInfo("repaired CapMita room-entry greeting", nameof(CappieRingSoftlockPatch));
     }
 
     private static void EnableKindMitaInteract()
@@ -261,5 +261,5 @@ internal static class KappiRingSoftlockPatch
         ComponentUtil.Enable(HandHoldCheckName, false);
     }
 
-    private static bool IsKappiScene() => SceneManager.GetActiveScene().name == SceneName;
+    private static bool IsCappieScene() => SceneManager.GetActiveScene().name == SceneName;
 }

@@ -23,7 +23,7 @@ By default the overlay toggle hotkey is `F4` (configurable in the overlay menu).
 
 ### Softlocks
 In the main menu you can go to `Settings->Mods->Speedrun Mod->Softlocks` to toggle Softlock Fixes.  
-Softlock Fixes are **on by default**. Use **All Softlocks** as a master gate, or turn individual Softlocks off to bisect Softlock vs Softlock Fix without restarting.  
+Softlock Fixes are **on by default**. Use **All Softlock Fixes** as a master gate, or turn individual Softlock Fixes off to bisect Softlock vs Softlock Fix without restarting.  
 When a Softlock Fix applies, a notification is shown.
 
 Covered Softlock Fixes (dialogue-skip / stuck progression):
@@ -33,7 +33,7 @@ Covered Softlock Fixes (dialogue-skip / stuck progression):
 - **Creepy** — choosing the dialogue option and mashing skip
 - **Baseball (Be Candid)** — skip-spam during bat take / hit animations
 - **Kind Mita's note (Reboot)** — taking the note and skipping dialogue
-- **Kappi** — Kind Mita interactions before/after the ring, and fast skip during the entrance
+- **Cappie** — Kind Mita interactions before/after the ring, and fast skip during the entrance
 - **Ghostly puzzle** — sit-to-glue picture pieces are always interactable
 - **Ghostly chapter load** — main-menu load or restart into Ghost Mita no longer spawns you out of bounds in the void
 

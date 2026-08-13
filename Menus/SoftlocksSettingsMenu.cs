@@ -7,7 +7,7 @@ namespace SpeedrunMod.Menus;
 
 internal static class SoftlocksSettingsMenu
 {
-    private static MenuOption _allSoftlocksOption;
+    private static MenuOption _allSoftlockFixesOption;
     private static MenuOption _ghostlyPuzzleOption;
     private static MenuOption _ghostlyChapterLoadOption;
     private static MenuOption _sleepyDialogueOption;
@@ -15,7 +15,7 @@ internal static class SoftlocksSettingsMenu
     private static MenuOption _creepyDialogueOption;
     private static MenuOption _baseballBatOption;
     private static MenuOption _kindBedroomNoteOption;
-    private static MenuOption _kappiRingOption;
+    private static MenuOption _cappieRingOption;
 
     internal static GameMenu CreateMenu(GameMenu previousMenu)
     {
@@ -24,11 +24,11 @@ internal static class SoftlocksSettingsMenu
             .SetBackButton(previousMenu)
             .Build();
 
-        _allSoftlocksOption = AddToggle(
+        _allSoftlockFixesOption = AddToggle(
             menu,
-            SoftlockConfig.EnableAllSoftlocks,
-            "All Softlocks",
-            () => RefreshOption(_allSoftlocksOption, SoftlockConfig.EnableAllSoftlocks, "All Softlocks"));
+            SoftlockConfig.EnableAllSoftlockFixes,
+            "All Softlock Fixes",
+            () => RefreshOption(_allSoftlockFixesOption, SoftlockConfig.EnableAllSoftlockFixes, "All Softlock Fixes"));
 
         new MenuOptionFactory()
             .SetParent(menu)
@@ -38,50 +38,50 @@ internal static class SoftlocksSettingsMenu
         _ghostlyPuzzleOption = AddToggle(
             menu,
             SoftlockConfig.EnableGhostlyPuzzle,
-            "Ghostly Puzzle",
-            () => RefreshOption(_ghostlyPuzzleOption, SoftlockConfig.EnableGhostlyPuzzle, "Ghostly Puzzle"));
+            "Ghostly Puzzle Fix",
+            () => RefreshOption(_ghostlyPuzzleOption, SoftlockConfig.EnableGhostlyPuzzle, "Ghostly Puzzle Fix"));
 
         _ghostlyChapterLoadOption = AddToggle(
             menu,
             SoftlockConfig.EnableGhostlyChapterLoad,
-            "Ghostly Chapter Load",
-            () => RefreshOption(_ghostlyChapterLoadOption, SoftlockConfig.EnableGhostlyChapterLoad, "Ghostly Chapter Load"));
+            "Ghostly Chapter Load Fix",
+            () => RefreshOption(_ghostlyChapterLoadOption, SoftlockConfig.EnableGhostlyChapterLoad, "Ghostly Chapter Load Fix"));
 
         _sleepyDialogueOption = AddToggle(
             menu,
             SoftlockConfig.EnableSleepyDialogue,
-            "Sleepy Dialogue",
-            () => RefreshOption(_sleepyDialogueOption, SoftlockConfig.EnableSleepyDialogue, "Sleepy Dialogue"));
+            "Sleepy Dialogue Fix",
+            () => RefreshOption(_sleepyDialogueOption, SoftlockConfig.EnableSleepyDialogue, "Sleepy Dialogue Fix"));
 
         _coreThrowOption = AddToggle(
             menu,
             SoftlockConfig.EnableCoreThrow,
-            "Core Throw",
-            () => RefreshOption(_coreThrowOption, SoftlockConfig.EnableCoreThrow, "Core Throw"));
+            "Core Throw Fix",
+            () => RefreshOption(_coreThrowOption, SoftlockConfig.EnableCoreThrow, "Core Throw Fix"));
 
         _creepyDialogueOption = AddToggle(
             menu,
             SoftlockConfig.EnableCreepyDialogue,
-            "Creepy Dialogue",
-            () => RefreshOption(_creepyDialogueOption, SoftlockConfig.EnableCreepyDialogue, "Creepy Dialogue"));
+            "Creepy Dialogue Fix",
+            () => RefreshOption(_creepyDialogueOption, SoftlockConfig.EnableCreepyDialogue, "Creepy Dialogue Fix"));
 
         _baseballBatOption = AddToggle(
             menu,
             SoftlockConfig.EnableBaseballBat,
-            "Baseball Bat",
-            () => RefreshOption(_baseballBatOption, SoftlockConfig.EnableBaseballBat, "Baseball Bat"));
+            "Baseball Bat Fix",
+            () => RefreshOption(_baseballBatOption, SoftlockConfig.EnableBaseballBat, "Baseball Bat Fix"));
 
         _kindBedroomNoteOption = AddToggle(
             menu,
             SoftlockConfig.EnableKindBedroomNote,
-            "Kind Bedroom Note",
-            () => RefreshOption(_kindBedroomNoteOption, SoftlockConfig.EnableKindBedroomNote, "Kind Bedroom Note"));
+            "Kind Bedroom Note Fix",
+            () => RefreshOption(_kindBedroomNoteOption, SoftlockConfig.EnableKindBedroomNote, "Kind Bedroom Note Fix"));
 
-        _kappiRingOption = AddToggle(
+        _cappieRingOption = AddToggle(
             menu,
-            SoftlockConfig.EnableKappiRing,
-            "Kappi Ring",
-            () => RefreshOption(_kappiRingOption, SoftlockConfig.EnableKappiRing, "Kappi Ring"));
+            SoftlockConfig.EnableCappieRing,
+            "Cappie Ring Fix",
+            () => RefreshOption(_cappieRingOption, SoftlockConfig.EnableCappieRing, "Cappie Ring Fix"));
 
         return menu;
     }
